@@ -213,6 +213,8 @@ const Contributors = () => {
   return (
     <div className="min-h-screen bg-background grain-overlay">
       <SiteHeader />
+      {/* Bulk Upload Modal */}
+      {showBulk && <BulkUpload onClose={() => setShowBulk(false)} />}
 
       {/* Registration prompt modal */}
       {showRegPrompt && (
