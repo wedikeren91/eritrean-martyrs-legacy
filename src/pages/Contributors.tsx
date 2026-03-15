@@ -309,200 +309,22 @@ const Contributors = () => {
         </div>
       </section>
 
-      {/* ── Submission Form ── */}
+      {/* ── Contribution Form (new multi-step) ── */}
       {showForm && !submitted && (
-        <section className="border-b border-border bg-card/50">
-          <div className="container mx-auto px-6 py-12 max-w-3xl">
-            <div className="data-label mb-2">New Submission</div>
-            <h2 className="text-2xl mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
-              Submit Martyr Information
-            </h2>
-            <div className="rule-accent mb-6" />
-
-            {/* Progress nudge */}
-            {submissionCount > 0 && submissionCount < REGISTRATION_THRESHOLD && (
-              <div className="bg-muted/50 border border-border p-4 mb-6 flex items-center gap-3">
-                <span className="text-xl">🌱</span>
-                <div>
-                  <p className="text-xs font-semibold text-foreground">
-                    {submissionCount} of {REGISTRATION_THRESHOLD} records — keep going!
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    At {REGISTRATION_THRESHOLD} submissions you'll be invited to create your Contributor Profile.
-                  </p>
-                </div>
-                <div className="ml-auto w-24 h-1.5 bg-border overflow-hidden flex-shrink-0">
-                  <div
-                    className="h-full bg-primary transition-all duration-500"
-                    style={{ width: `${(submissionCount / REGISTRATION_THRESHOLD) * 100}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <p className="text-sm text-muted-foreground mb-8">
-              All submissions are reviewed before being added to the archive.
-              <strong className="text-foreground"> At 10 contributions you'll be asked to verify your identity</strong> for a Verified Contributor badge.
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Contributor info */}
-              <fieldset className="space-y-5">
-                <legend className="data-label text-foreground mb-3">Your Information</legend>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="data-label block mb-1.5">First Name *</label>
-                    <input
-                      required
-                      value={form.first_name}
-                      onChange={(e) => set("first_name", e.target.value)}
-                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-                      placeholder="Miriam"
-                    />
-                  </div>
-                  <div>
-                    <label className="data-label block mb-1.5">Last Name</label>
-                    <input
-                      value={form.last_name}
-                      onChange={(e) => set("last_name", e.target.value)}
-                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-                      placeholder="Tesfaye"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="data-label block mb-1.5">Email Address *</label>
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => set("email", e.target.value)}
-                    className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-                    placeholder="you@example.com"
-                  />
-                  <p className="text-[10px] text-muted-foreground mt-1">
-                    For verification at 10+ contributions. Never shown publicly without consent.
-                  </p>
-                </div>
-                <div>
-                  <label className="data-label block mb-1.5">
-                    Phone <span className="text-muted-foreground font-normal normal-case">(optional)</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => set("phone", e.target.value)}
-                    className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-                    placeholder="+1 202 555 0100"
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="data-label block mb-1.5">City *</label>
-                    <input
-                      required
-                      value={form.city}
-                      onChange={(e) => set("city", e.target.value)}
-                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="data-label block mb-1.5">State / Province</label>
-                    <input
-                      value={form.state}
-                      onChange={(e) => set("state", e.target.value)}
-                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="data-label block mb-1.5">Country *</label>
-                    <input
-                      required
-                      value={form.country}
-                      onChange={(e) => set("country", e.target.value)}
-                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-                    />
-                  </div>
-                </div>
-              </fieldset>
-
-              {/* Relationship */}
-              <fieldset className="space-y-4">
-                <legend className="data-label text-foreground mb-3">Your Connection to the Martyrs</legend>
-                <div>
-                  <label className="data-label block mb-1.5">How are you related? *</label>
-                  <select
-                    required
-                    value={form.relation}
-                    onChange={(e) => set("relation", e.target.value)}
-                    className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-                  >
-                    <option value="">Select relationship…</option>
-                    <option value="family_direct">Direct family member (parent, sibling, child)</option>
-                    <option value="family_extended">Extended family (uncle, aunt, cousin, grandchild)</option>
-                    <option value="fellow_fighter">Fellow liberation fighter / veteran</option>
-                    <option value="community">Community member / neighbour</option>
-                    <option value="historian">Historian / researcher / journalist</option>
-                    <option value="diaspora">Diaspora community member</option>
-                    <option value="other">Other — please describe below</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="data-label block mb-1.5">
-                    Additional context <span className="text-muted-foreground font-normal normal-case">(optional)</span>
-                  </label>
-                  <textarea
-                    value={form.martyrs_info}
-                    onChange={(e) => set("martyrs_info", e.target.value)}
-                    rows={3}
-                    className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors resize-none"
-                    placeholder="e.g. My father served alongside this person in the Sahel region from 1975–1982…"
-                  />
-                </div>
-              </fieldset>
-
-              {/* Privacy */}
-              <fieldset className="space-y-3">
-                <legend className="data-label text-foreground mb-3">Privacy Settings</legend>
-                <p className="text-xs text-muted-foreground mb-3">
-                  You must provide the information above, but you choose what is publicly shown on your profile.
-                </p>
-                {[
-                  { key: "public_name" as const, label: "Show my name publicly on the Contributors page" },
-                  { key: "public_location" as const, label: "Show my city and country publicly" },
-                  { key: "public_email" as const, label: "Show my email publicly (not recommended)" },
-                  { key: "public_phone" as const, label: "Show my phone number publicly" },
-                ].map(({ key, label }) => (
-                  <label key={key} className="flex items-center gap-3 cursor-pointer group">
-                    <div
-                      onClick={() => set(key, !form[key])}
-                      className={`w-4 h-4 border flex items-center justify-center transition-all flex-shrink-0 cursor-pointer
-                        ${form[key] ? "bg-foreground border-foreground" : "border-border group-hover:border-foreground"}`}
-                    >
-                      {form[key] && (
-                        <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-                          <path d="M1 3L3 5L7 1" stroke="hsl(30 10% 96%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                    </div>
-                    <span className="text-xs text-foreground/80">{label}</span>
-                  </label>
-                ))}
-              </fieldset>
-
-              <div className="pt-4 border-t border-border">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="bg-primary text-primary-foreground px-10 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-50"
-                >
-                  {submitting ? "Submitting…" : "Submit for Review"}
-                </button>
-                <p className="text-[10px] text-muted-foreground mt-3">
-                  Submissions reviewed within 5–10 business days. You'll receive an email confirmation.
-                </p>
-              </div>
-            </form>
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-xl">
+            <ContributeForm
+              onCancel={() => setShowForm(false)}
+              onSuccess={(count) => {
+                const newCount = incrementCount();
+                setSubmissionCount(newCount);
+                setSubmitted(true);
+                setShowForm(false);
+                if (newCount >= REGISTRATION_THRESHOLD && !isRegistered()) {
+                  setTimeout(() => setShowRegPrompt(true), 1000);
+                }
+              }}
+            />
           </div>
         </section>
       )}
@@ -515,14 +337,12 @@ const Contributors = () => {
               <div className="text-4xl flex-shrink-0">🌹</div>
               <div>
                 <h2 className="text-2xl mb-2" style={{ fontFamily: "'Fraunces', serif" }}>
-                  Thank you, {form.first_name}.
+                  Thank you.
                 </h2>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-                  Submission #{submissionCount} received. You'll get a confirmation at{" "}
-                  <strong className="text-foreground">{form.email}</strong>.
+                  Submission #{submissionCount} received. Our team will review it within 5–10 business days.
                 </p>
 
-                {/* Post-submit progress */}
                 {submissionCount < REGISTRATION_THRESHOLD && (
                   <div className="bg-muted/50 border border-border p-3 flex items-center gap-3 mb-4">
                     <span>🌱</span>
@@ -531,36 +351,31 @@ const Contributors = () => {
                         {submissionCount} / {REGISTRATION_THRESHOLD} — {REGISTRATION_THRESHOLD - submissionCount} more until your Contributor Profile unlocks
                       </p>
                       <div className="mt-1.5 h-1.5 bg-border overflow-hidden">
-                        <div
-                          className="h-full bg-primary transition-all duration-700"
-                          style={{ width: `${(submissionCount / REGISTRATION_THRESHOLD) * 100}%` }}
-                        />
+                        <div className="h-full bg-primary transition-all duration-700"
+                          style={{ width: `${(submissionCount / REGISTRATION_THRESHOLD) * 100}%` }} />
                       </div>
                     </div>
                   </div>
                 )}
 
                 {submissionCount >= REGISTRATION_THRESHOLD && !isRegistered() && (
-                  <div className="bg-emerald-50 border border-emerald-300 p-3 flex items-center gap-3 mb-4">
+                  <div className="bg-muted border border-border p-3 flex items-center gap-3 mb-4">
                     <span>🎉</span>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold text-emerald-800">
+                      <p className="text-xs font-semibold text-foreground">
                         You've reached {REGISTRATION_THRESHOLD} records! Create your Contributor Profile.
                       </p>
                     </div>
-                    <button
-                      onClick={() => setShowRegPrompt(true)}
-                      className="flex-shrink-0 bg-emerald-700 text-white px-4 py-1.5 text-[10px] font-semibold tracking-widest uppercase hover:bg-emerald-800 transition-colors"
-                    >
+                    <button onClick={() => setShowRegPrompt(true)}
+                      className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-1.5 text-[10px] font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors">
                       Register →
                     </button>
                   </div>
                 )}
 
                 <button
-                  onClick={() => { setSubmitted(false); setShowForm(true); setForm(defaultSubmission); }}
-                  className="text-xs font-mono tracking-widest uppercase text-primary hover:underline"
-                >
+                  onClick={() => { setSubmitted(false); setShowForm(true); }}
+                  className="text-xs font-mono tracking-widest uppercase text-primary hover:underline">
                   Submit Another Record →
                 </button>
               </div>
