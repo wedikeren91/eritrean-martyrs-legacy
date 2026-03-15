@@ -1,11 +1,18 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const SiteHeader = () => {
+  const { pathname } = useLocation();
+
+  const navLinks = [
+    { to: "/archive", label: "Archive" },
+    { to: "/browse", label: "Browse" },
+    { to: "/contributors", label: "Contributors" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
       <div className="container mx-auto flex h-14 items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-3 group">
-          {/* Archive Emblem SVG */}
           <svg
             width="28"
             height="28"
@@ -31,26 +38,19 @@ const SiteHeader = () => {
         </Link>
 
         <nav className="flex items-center gap-6">
-          <Link
-            to="/archive"
-            className="text-xs font-medium tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors duration-200 underline-offset-4 hover:underline decoration-1"
-          >
-            Archive
-          </Link>
-          <Link
-            to="/browse"
-            className="text-xs font-medium tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors duration-200 underline-offset-4 hover:underline decoration-1"
-          >
-            Browse
-          </Link>
-          <a
-            href="https://shabait.com"
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs font-medium tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors duration-200 underline-offset-4 hover:underline decoration-1"
-          >
-            Contribute
-          </a>
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`text-xs font-medium tracking-widest uppercase transition-colors duration-200 underline-offset-4 decoration-1
+                ${pathname === link.to
+                  ? "text-primary underline"
+                  : "text-muted-foreground hover:text-foreground hover:underline"
+                }`}
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
       </div>
     </header>
