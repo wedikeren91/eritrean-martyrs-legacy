@@ -491,9 +491,10 @@ const Contributors = () => {
               <div className="pt-4 border-t border-border">
                 <button
                   type="submit"
-                  className="bg-primary text-primary-foreground px-10 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors"
+                  disabled={submitting}
+                  className="bg-primary text-primary-foreground px-10 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
-                  Submit for Review
+                  {submitting ? "Submitting…" : "Submit for Review"}
                 </button>
                 <p className="text-[10px] text-muted-foreground mt-3">
                   Submissions reviewed within 5–10 business days. You'll receive an email confirmation.
@@ -502,7 +503,7 @@ const Contributors = () => {
             </form>
           </div>
         </section>
-      )}
+      })
 
       {/* ── Success Message ── */}
       {submitted && (
