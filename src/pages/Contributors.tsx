@@ -1,68 +1,69 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
+import ContributorRegistrationPrompt from "@/components/ContributorRegistrationPrompt";
 
-// Badge tier config
+// ---------- Badge tiers ----------
 const BADGE_TIERS = [
   {
     min: 500,
     label: "Legendary Guardian",
     emoji: "🏆",
-    color: "from-yellow-400 to-amber-600",
     border: "border-yellow-400",
     text: "text-yellow-900",
     bg: "bg-gradient-to-br from-yellow-50 to-amber-100",
     description: "500+ records contributed",
+    next: null,
   },
   {
     min: 300,
     label: "Elder Keeper",
     emoji: "🌟",
-    color: "from-purple-400 to-indigo-600",
     border: "border-purple-400",
     text: "text-purple-900",
     bg: "bg-gradient-to-br from-purple-50 to-indigo-100",
     description: "300+ records contributed",
+    next: 500,
   },
   {
     min: 100,
     label: "Senior Archivist",
     emoji: "💎",
-    color: "from-cyan-400 to-blue-600",
     border: "border-cyan-400",
     text: "text-cyan-900",
     bg: "bg-gradient-to-br from-cyan-50 to-blue-100",
     description: "100+ records contributed",
+    next: 300,
   },
   {
     min: 50,
     label: "Trusted Contributor",
     emoji: "🥈",
-    color: "from-slate-300 to-slate-500",
     border: "border-slate-400",
     text: "text-slate-800",
     bg: "bg-gradient-to-br from-slate-50 to-slate-100",
     description: "50+ records contributed",
+    next: 100,
   },
   {
     min: 10,
     label: "Verified Contributor",
     emoji: "✅",
-    color: "from-emerald-300 to-green-600",
     border: "border-emerald-400",
     text: "text-emerald-900",
     bg: "bg-gradient-to-br from-emerald-50 to-green-100",
     description: "10+ records · Identity verified",
+    next: 50,
   },
   {
     min: 1,
     label: "Contributor",
     emoji: "🌱",
-    color: "from-stone-200 to-stone-400",
     border: "border-stone-300",
     text: "text-stone-700",
     bg: "bg-gradient-to-br from-stone-50 to-stone-100",
     description: "1–9 records contributed",
+    next: 10,
   },
 ];
 
@@ -70,7 +71,7 @@ function getBadge(count: number) {
   return BADGE_TIERS.find((t) => count >= t.min) || BADGE_TIERS[BADGE_TIERS.length - 1];
 }
 
-// Mock contributors for demo
+// ---------- Mock contributors ----------
 const MOCK_CONTRIBUTORS = [
   { id: "1", name: "Miriam Tesfaye", city: "Asmara", country: "Eritrea", count: 523, relation: "Daughter of a fighter", public: true },
   { id: "2", name: "Yonas Haile", city: "Stockholm", country: "Sweden", count: 312, relation: "Historian & diaspora researcher", public: true },
@@ -82,7 +83,8 @@ const MOCK_CONTRIBUTORS = [
   { id: "8", name: "Anonymous", city: "—", country: "—", count: 6, relation: "Prefers anonymity", public: false },
 ];
 
-type FormData = {
+// ---------- Submission form types ----------
+type SubmissionForm = {
   first_name: string;
   last_name: string;
   email: string;
@@ -98,7 +100,7 @@ type FormData = {
   public_location: boolean;
 };
 
-const defaultForm: FormData = {
+const defaultSubmission: SubmissionForm = {
   first_name: "",
   last_name: "",
   email: "",
@@ -114,25 +116,87 @@ const defaultForm: FormData = {
   public_location: true,
 };
 
+// ---------- Storage helpers ----------
+const STORAGE_KEY = "ema_submission_count";
+const REGISTERED_KEY = "ema_registered";
+const PROMPT_DISMISSED_KEY = "ema_prompt_dismissed";
+const REGISTRATION_THRESHOLD = 5;
+
+function getCount(): number {
+  return parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+}
+function incrementCount(): number {
+  const next = getCount() + 1;
+  localStorage.setItem(STORAGE_KEY, String(next));
+  return next;
+}
+function isRegistered(): boolean {
+  return localStorage.getItem(REGISTERED_KEY) === "true";
+}
+function setRegistered() {
+  localStorage.setItem(REGISTERED_KEY, "true");
+}
+
+// ---------- Main component ----------
 const Contributors = () => {
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<FormData>(defaultForm);
+  const [form, setForm] = useState<SubmissionForm>(defaultSubmission);
   const [submitted, setSubmitted] = useState(false);
+  const [submissionCount, setSubmissionCount] = useState<number>(getCount);
+  const [showRegPrompt, setShowRegPrompt] = useState(false);
+  const [registeredName, setRegisteredName] = useState<string | null>(null);
 
-  const set = (k: keyof FormData, v: string | boolean) =>
+  // Check if prompt should show on mount (already hit threshold but not yet registered/dismissed)
+  useEffect(() => {
+    const dismissed = localStorage.getItem(PROMPT_DISMISSED_KEY) === "true";
+    if (!dismissed && !isRegistered() && submissionCount >= REGISTRATION_THRESHOLD) {
+      setShowRegPrompt(true);
+    }
+  }, []);
+
+  const set = (k: keyof SubmissionForm, v: string | boolean) =>
     setForm((f) => ({ ...f, [k]: v }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.first_name || !form.email || !form.country || !form.relation) return;
+    const newCount = incrementCount();
+    setSubmissionCount(newCount);
     setSubmitted(true);
+    // Show registration prompt once threshold is reached and not yet registered
+    if (newCount >= REGISTRATION_THRESHOLD && !isRegistered()) {
+      setTimeout(() => setShowRegPrompt(true), 1200);
+    }
   };
+
+  const handleRegistered = (name: string) => {
+    setRegistered();
+    setRegisteredName(name);
+    setShowRegPrompt(false);
+  };
+
+  const handleDismissPrompt = () => {
+    localStorage.setItem(PROMPT_DISMISSED_KEY, "true");
+    setShowRegPrompt(false);
+  };
+
+  const currentBadge = getBadge(Math.max(submissionCount, 0));
+  const nextTier = BADGE_TIERS.find((t) => t.min > submissionCount && t.min <= 10);
 
   return (
     <div className="min-h-screen bg-background grain-overlay">
       <SiteHeader />
 
-      {/* Header */}
+      {/* Registration prompt modal */}
+      {showRegPrompt && (
+        <ContributorRegistrationPrompt
+          submissionCount={submissionCount}
+          onRegistered={handleRegistered}
+          onDismiss={handleDismissPrompt}
+        />
+      )}
+
+      {/* ── Header ── */}
       <section className="border-b border-border bg-card">
         <div className="container mx-auto px-6 py-12">
           <div className="data-label mb-4">The Archive Community</div>
@@ -141,12 +205,11 @@ const Contributors = () => {
           </h1>
           <div className="rule-accent mb-6" />
           <p className="text-muted-foreground leading-relaxed max-w-2xl mb-8">
-            This archive is built by the community. Every name, date, and story was contributed by
-            someone who carries this history in their heart. Contributors are recognised with badges
-            based on how many martyr records they have helped document.
+            This archive is built by the community. Every name, date, and story was contributed by someone who
+            carries this history. Earn badges as you grow your contributions.
           </p>
 
-          {/* Badge Tiers Reference */}
+          {/* Badge tiers reference */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
             {BADGE_TIERS.map((tier) => (
               <div
@@ -160,6 +223,38 @@ const Contributors = () => {
             ))}
           </div>
 
+          {/* My progress strip — if they have submissions */}
+          {submissionCount > 0 && (
+            <div className={`${currentBadge.bg} border ${currentBadge.border} p-4 mb-6 flex items-center gap-5`}>
+              <span className="text-3xl flex-shrink-0">{currentBadge.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <div className={`text-xs font-bold uppercase tracking-wider ${currentBadge.text}`}>
+                  {registeredName ? `${registeredName} — ` : "Your status — "}{currentBadge.label}
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">
+                  {submissionCount} record{submissionCount !== 1 ? "s" : ""} submitted
+                  {nextTier && ` · ${nextTier.min - submissionCount} more to unlock ${nextTier.emoji} ${nextTier.label}`}
+                </div>
+                {nextTier && (
+                  <div className="mt-2 h-1.5 bg-black/10 overflow-hidden w-full max-w-xs">
+                    <div
+                      className="h-full bg-foreground/70 transition-all duration-700"
+                      style={{ width: `${Math.min((submissionCount / nextTier.min) * 100, 100)}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+              {!isRegistered() && submissionCount >= REGISTRATION_THRESHOLD && (
+                <button
+                  onClick={() => setShowRegPrompt(true)}
+                  className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-2 text-[10px] font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors"
+                >
+                  Register Profile →
+                </button>
+              )}
+            </div>
+          )}
+
           <button
             onClick={() => setShowForm(!showForm)}
             className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors duration-200"
@@ -169,20 +264,44 @@ const Contributors = () => {
         </div>
       </section>
 
-      {/* Submission Form */}
+      {/* ── Submission Form ── */}
       {showForm && !submitted && (
         <section className="border-b border-border bg-card/50">
           <div className="container mx-auto px-6 py-12 max-w-3xl">
             <div className="data-label mb-2">New Submission</div>
-            <h2 className="text-2xl mb-1" style={{ fontFamily: "'Fraunces', serif" }}>Submit Martyr Information</h2>
-            <div className="rule-accent mb-8" />
+            <h2 className="text-2xl mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+              Submit Martyr Information
+            </h2>
+            <div className="rule-accent mb-6" />
+
+            {/* Progress nudge */}
+            {submissionCount > 0 && submissionCount < REGISTRATION_THRESHOLD && (
+              <div className="bg-muted/50 border border-border p-4 mb-6 flex items-center gap-3">
+                <span className="text-xl">🌱</span>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">
+                    {submissionCount} of {REGISTRATION_THRESHOLD} records — keep going!
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    At {REGISTRATION_THRESHOLD} submissions you'll be invited to create your Contributor Profile.
+                  </p>
+                </div>
+                <div className="ml-auto w-24 h-1.5 bg-border overflow-hidden flex-shrink-0">
+                  <div
+                    className="h-full bg-primary transition-all duration-500"
+                    style={{ width: `${(submissionCount / REGISTRATION_THRESHOLD) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             <p className="text-sm text-muted-foreground mb-8">
-              Thank you for contributing. All submissions are reviewed before being added to the archive.
-              <strong className="text-foreground"> At 10 contributions, you will be asked to verify your email and optionally phone number</strong> to receive a Verified Contributor badge.
+              All submissions are reviewed before being added to the archive.
+              <strong className="text-foreground"> At 10 contributions you'll be asked to verify your identity</strong> for a Verified Contributor badge.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Your Info */}
+              {/* Contributor info */}
               <fieldset className="space-y-5">
                 <legend className="data-label text-foreground mb-3">Your Information</legend>
                 <div className="grid grid-cols-2 gap-4">
@@ -216,10 +335,14 @@ const Contributors = () => {
                     className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
                     placeholder="you@example.com"
                   />
-                  <p className="text-[10px] text-muted-foreground mt-1">Used for verification at 10+ contributions. Never shown publicly without consent.</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    For verification at 10+ contributions. Never shown publicly without consent.
+                  </p>
                 </div>
                 <div>
-                  <label className="data-label block mb-1.5">Phone Number <span className="text-muted-foreground font-normal normal-case">(optional)</span></label>
+                  <label className="data-label block mb-1.5">
+                    Phone <span className="text-muted-foreground font-normal normal-case">(optional)</span>
+                  </label>
                   <input
                     type="tel"
                     value={form.phone}
@@ -262,7 +385,7 @@ const Contributors = () => {
               <fieldset className="space-y-4">
                 <legend className="data-label text-foreground mb-3">Your Connection to the Martyrs</legend>
                 <div>
-                  <label className="data-label block mb-1.5">How are you related to the martyrs you are submitting? *</label>
+                  <label className="data-label block mb-1.5">How are you related? *</label>
                   <select
                     required
                     value={form.relation}
@@ -280,13 +403,15 @@ const Contributors = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="data-label block mb-1.5">Additional context about your connection (optional)</label>
+                  <label className="data-label block mb-1.5">
+                    Additional context <span className="text-muted-foreground font-normal normal-case">(optional)</span>
+                  </label>
                   <textarea
                     value={form.martyrs_info}
                     onChange={(e) => set("martyrs_info", e.target.value)}
                     rows={3}
                     className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors resize-none"
-                    placeholder="e.g. My father served with Ibrahim Afa in the Sahel region from 1975 to 1982…"
+                    placeholder="e.g. My father served alongside this person in the Sahel region from 1975–1982…"
                   />
                 </div>
               </fieldset>
@@ -295,7 +420,7 @@ const Contributors = () => {
               <fieldset className="space-y-3">
                 <legend className="data-label text-foreground mb-3">Privacy Settings</legend>
                 <p className="text-xs text-muted-foreground mb-3">
-                  You must provide the information above, but you choose what is publicly shown on your contributor profile.
+                  You must provide the information above, but you choose what is publicly shown on your profile.
                 </p>
                 {[
                   { key: "public_name" as const, label: "Show my name publicly on the Contributors page" },
@@ -306,12 +431,12 @@ const Contributors = () => {
                   <label key={key} className="flex items-center gap-3 cursor-pointer group">
                     <div
                       onClick={() => set(key, !form[key])}
-                      className={`w-4 h-4 border flex items-center justify-center transition-all duration-150 flex-shrink-0 cursor-pointer
+                      className={`w-4 h-4 border flex items-center justify-center transition-all flex-shrink-0 cursor-pointer
                         ${form[key] ? "bg-foreground border-foreground" : "border-border group-hover:border-foreground"}`}
                     >
                       {form[key] && (
                         <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-                          <path d="M1 3L3 5L7 1" stroke="hsl(30 10% 96%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M1 3L3 5L7 1" stroke="hsl(30 10% 96%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       )}
                     </div>
@@ -323,12 +448,12 @@ const Contributors = () => {
               <div className="pt-4 border-t border-border">
                 <button
                   type="submit"
-                  className="bg-primary text-primary-foreground px-10 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors duration-200"
+                  className="bg-primary text-primary-foreground px-10 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors"
                 >
                   Submit for Review
                 </button>
                 <p className="text-[10px] text-muted-foreground mt-3">
-                  Submissions are reviewed within 5–10 business days. You'll receive an email confirmation.
+                  Submissions reviewed within 5–10 business days. You'll receive an email confirmation.
                 </p>
               </div>
             </form>
@@ -336,30 +461,74 @@ const Contributors = () => {
         </section>
       )}
 
-      {/* Success Message */}
+      {/* ── Success Message ── */}
       {submitted && (
-        <section className="border-b border-border bg-emerald-50">
-          <div className="container mx-auto px-6 py-10 max-w-2xl text-center">
-            <div className="text-4xl mb-4">🌹</div>
-            <h2 className="text-2xl mb-2" style={{ fontFamily: "'Fraunces', serif" }}>Thank you, {form.first_name}.</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-              Your submission has been received and will be reviewed by our archive team. 
-              You'll receive a confirmation at <strong>{form.email}</strong>.
-            </p>
-            <button
-              onClick={() => { setSubmitted(false); setShowForm(false); setForm(defaultForm); }}
-              className="text-xs font-mono tracking-widest uppercase text-primary hover:underline"
-            >
-              Submit Another Record →
-            </button>
+        <section className="border-b border-border bg-card/50">
+          <div className="container mx-auto px-6 py-10 max-w-2xl">
+            <div className="flex items-start gap-6">
+              <div className="text-4xl flex-shrink-0">🌹</div>
+              <div>
+                <h2 className="text-2xl mb-2" style={{ fontFamily: "'Fraunces', serif" }}>
+                  Thank you, {form.first_name}.
+                </h2>
+                <p className="text-muted-foreground text-sm leading-relaxed mb-3">
+                  Submission #{submissionCount} received. You'll get a confirmation at{" "}
+                  <strong className="text-foreground">{form.email}</strong>.
+                </p>
+
+                {/* Post-submit progress */}
+                {submissionCount < REGISTRATION_THRESHOLD && (
+                  <div className="bg-muted/50 border border-border p-3 flex items-center gap-3 mb-4">
+                    <span>🌱</span>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold">
+                        {submissionCount} / {REGISTRATION_THRESHOLD} — {REGISTRATION_THRESHOLD - submissionCount} more until your Contributor Profile unlocks
+                      </p>
+                      <div className="mt-1.5 h-1.5 bg-border overflow-hidden">
+                        <div
+                          className="h-full bg-primary transition-all duration-700"
+                          style={{ width: `${(submissionCount / REGISTRATION_THRESHOLD) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {submissionCount >= REGISTRATION_THRESHOLD && !isRegistered() && (
+                  <div className="bg-emerald-50 border border-emerald-300 p-3 flex items-center gap-3 mb-4">
+                    <span>🎉</span>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold text-emerald-800">
+                        You've reached {REGISTRATION_THRESHOLD} records! Create your Contributor Profile.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowRegPrompt(true)}
+                      className="flex-shrink-0 bg-emerald-700 text-white px-4 py-1.5 text-[10px] font-semibold tracking-widest uppercase hover:bg-emerald-800 transition-colors"
+                    >
+                      Register →
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => { setSubmitted(false); setShowForm(true); setForm(defaultSubmission); }}
+                  className="text-xs font-mono tracking-widest uppercase text-primary hover:underline"
+                >
+                  Submit Another Record →
+                </button>
+              </div>
+            </div>
           </div>
         </section>
       )}
 
-      {/* Contributors List */}
+      {/* ── Contributors List ── */}
       <section className="container mx-auto px-6 py-12">
         <div className="data-label mb-2">Recognised Contributors</div>
-        <h2 className="text-3xl mb-1" style={{ fontFamily: "'Fraunces', serif" }}>The Archive Builders</h2>
+        <h2 className="text-3xl mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+          The Archive Builders
+        </h2>
         <div className="rule-accent mb-8" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -370,22 +539,35 @@ const Contributors = () => {
                 key={c.id}
                 className={`${badge.bg} border ${badge.border} p-5 flex gap-4 items-start`}
               >
-                {/* Badge */}
                 <div className="flex-shrink-0 text-3xl leading-none mt-0.5">{badge.emoji}</div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm font-semibold ${badge.text} truncate`} style={{ fontFamily: "'Fraunces', serif" }}>
                     {c.public ? c.name : "Anonymous Contributor"}
                   </div>
-                  <div className={`text-[9px] font-bold uppercase tracking-wider ${badge.text} opacity-70 mb-1`}>{badge.label}</div>
-                  {c.public && (
-                    <div className="text-[10px] text-muted-foreground">
-                      {c.city !== "—" && `${c.city}, ${c.country}`}
-                    </div>
+                  <div className={`text-[9px] font-bold uppercase tracking-wider ${badge.text} opacity-70 mb-1`}>
+                    {badge.label}
+                  </div>
+                  {c.public && c.city !== "—" && (
+                    <div className="text-[10px] text-muted-foreground">{c.city}, {c.country}</div>
                   )}
                   <div className="text-[10px] text-muted-foreground italic mt-1 line-clamp-1">{c.relation}</div>
                   <div className={`font-mono text-xs font-bold mt-2 ${badge.text}`}>
                     {c.count} record{c.count !== 1 ? "s" : ""} contributed
                   </div>
+                  {/* Progress to next badge */}
+                  {badge.next && (
+                    <div className="mt-2">
+                      <div className="h-1 bg-black/10 overflow-hidden">
+                        <div
+                          className="h-full bg-current opacity-40 transition-all"
+                          style={{ width: `${Math.min((c.count / badge.next) * 100, 100)}%` }}
+                        />
+                      </div>
+                      <div className="text-[8px] text-muted-foreground mt-0.5">
+                        {badge.next - c.count > 0 ? `${badge.next - c.count} to next badge` : "Max badge!"}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );
