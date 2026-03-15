@@ -1,96 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* === ERITREAN MARTYRS ARCHIVE DESIGN SYSTEM === */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Surface — Matte Stone & Paper */
+    --background: 30 10% 96%;
+    --foreground: 0 0% 10%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --card: 30 8% 94%;
+    --card-foreground: 0 0% 10%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --popover: 30 8% 94%;
+    --popover-foreground: 0 0% 10%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Primary — Oxblood / Martyr Red */
+    --primary: 0 75% 35%;
+    --primary-foreground: 30 10% 96%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Secondary — Stone */
+    --secondary: 30 6% 88%;
+    --secondary-foreground: 0 0% 10%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Muted — Stone grey */
+    --muted: 30 5% 88%;
+    --muted-foreground: 30 5% 40%;
+
+    /* Accent */
+    --accent: 30 6% 85%;
+    --accent-foreground: 0 0% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 30 10% 96%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 0% / 0.08;
+    --input: 0 0% 0% / 0.08;
+    --ring: 0 75% 35%;
 
-    --radius: 0.5rem;
+    --radius: 0rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Custom tokens */
+    --stone-light: 30 6% 92%;
+    --stone-mid: 30 5% 55%;
+    --stone-dark: 0 0% 15%;
+    --oxblood: 0 75% 35%;
+    --oxblood-dark: 0 75% 25%;
+    --paper: 30 10% 96%;
+    --ink: 0 0% 10%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --brand-bezier: cubic-bezier(0.16, 1, 0.3, 1);
 
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 30 8% 93%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 0 75% 35%;
+    --sidebar-primary-foreground: 30 10% 96%;
+    --sidebar-accent: 30 6% 88%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 0% / 0.08;
+    --sidebar-ring: 0 75% 35%;
   }
 }
 
@@ -101,5 +72,174 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Instrument Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* === TYPOGRAPHY === */
+.display-name {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+
+.display-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.display-sm {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+/* === GRAIN TEXTURE OVERLAY === */
+.grain-overlay::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+}
+
+/* === MARTYR CARD === */
+.martyr-card {
+  border-radius: 0;
+  border-left: 4px solid transparent;
+  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s var(--brand-bezier), box-shadow 0.4s var(--brand-bezier), border-color 0.4s var(--brand-bezier);
+}
+
+.martyr-card:hover {
+  transform: translateY(-4px);
+  border-left-color: hsl(var(--oxblood));
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.18);
+}
+
+/* === PHOTO FILTER — Historical B&W === */
+.historical-photo {
+  filter: grayscale(1) sepia(0.2) contrast(1.1);
+}
+
+/* === FADE + SCALE ENTRANCE === */
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulseOpacity {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-fade-scale {
+  animation: fadeScaleIn 0.6s var(--brand-bezier) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulseOpacity 2.5s ease-in-out infinite;
+}
+
+/* === STAGGER DELAYS === */
+.stagger-1 { animation-delay: 40ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 120ms; }
+.stagger-4 { animation-delay: 160ms; }
+.stagger-5 { animation-delay: 200ms; }
+.stagger-6 { animation-delay: 240ms; }
+.stagger-7 { animation-delay: 280ms; }
+.stagger-8 { animation-delay: 320ms; }
+
+/* === DOCUMENT RULE DIVIDER === */
+.rule-primary {
+  border: none;
+  height: 1px;
+  background: hsl(var(--border));
+}
+
+.rule-accent {
+  border: none;
+  height: 2px;
+  background: hsl(var(--oxblood));
+  width: 40px;
+}
+
+/* === DATA TABLE CELLS === */
+.data-label {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.data-value {
+  font-family: 'Instrument Mono', 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+}
+
+/* === SCROLL BAR === */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground));
+  border-radius: 0;
+}
+
+/* === LINKS === */
+a.archive-link {
+  color: hsl(var(--foreground));
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: color 0.2s ease;
+}
+a.archive-link:hover {
+  color: hsl(var(--oxblood));
+}
+
+/* === ACCORDION KEYFRAMES === */
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
 }

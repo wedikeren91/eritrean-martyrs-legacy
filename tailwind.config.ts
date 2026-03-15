@@ -13,6 +13,11 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        display: ["'Fraunces'", "serif"],
+        sans: ["'Instrument Sans'", "system-ui", "sans-serif"],
+        mono: ["'Courier New'", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,33 +62,44 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        stone: {
+          light: "hsl(var(--stone-light))",
+          mid: "hsl(var(--stone-mid))",
+          dark: "hsl(var(--stone-dark))",
+        },
+        oxblood: {
+          DEFAULT: "hsl(var(--oxblood))",
+          dark: "hsl(var(--oxblood-dark))",
+        },
+        paper: "hsl(var(--paper))",
+        ink: "hsl(var(--ink))",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "0px",
+        md: "0px",
+        sm: "0px",
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "fade-scale-in": {
+          from: { opacity: "0", transform: "scale(0.98)" },
+          to: { opacity: "1", transform: "scale(1)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-scale-in": "fade-scale-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+      },
+      letterSpacing: {
+        tightest: "-0.04em",
       },
     },
   },
