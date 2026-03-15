@@ -56,7 +56,7 @@ const Browse = () => {
           <SearchBar value={query} onChange={setQuery} placeholder="Search by name, battle, or front…" />
 
           <div className="mt-4 flex flex-wrap gap-2">
-            {["All", ...FRONTS].map((front) => (
+            {["All", ...CATEGORIES].map((front) => (
               <button
                 key={front}
                 onClick={() => setActiveFront(front)}
