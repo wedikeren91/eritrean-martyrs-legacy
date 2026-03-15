@@ -251,6 +251,7 @@ const Index = () => {
                   { to: "/", label: "Home" },
                   { to: "/archive", label: "Archive" },
                   { to: "/browse", label: "Browse" },
+                  { to: "/contributors", label: "Contributors" },
                 ].map((link) => (
                   <Link
                     key={link.to}
