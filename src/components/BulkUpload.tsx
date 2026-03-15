@@ -118,7 +118,7 @@ export default function BulkUpload({ onClose }: Props) {
       const { _errors, _valid, ...personData } = row;
       return {
         user_id: user.id,
-        person_data: personData as Record<string, unknown>,
+        person_data: personData as unknown as import("@/integrations/supabase/types").Json,
         source_type: "bulk_upload",
         bulk_upload_id: upload?.id ?? null,
         status: "pending" as const,
