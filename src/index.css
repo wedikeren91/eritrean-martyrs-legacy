@@ -117,7 +117,7 @@
   background-size: 128px 128px;
 }
 
-/* === MARTYR CARD === */
+/* === MARTYR CARD (legacy horizontal) === */
 .martyr-card {
   border-radius: 0;
   border-left: 4px solid transparent;
@@ -129,6 +129,20 @@
   transform: translateY(-4px);
   border-left-color: hsl(var(--oxblood));
   box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.18);
+}
+
+/* === NETFLIX-STYLE PORTRAIT CARD === */
+.netflix-card {
+  border-radius: 0;
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 4px 20px -8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.35s var(--brand-bezier), box-shadow 0.35s var(--brand-bezier);
+}
+
+.netflix-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.22);
+  border-color: hsl(var(--oxblood) / 0.4);
 }
 
 /* === PHOTO FILTER — Historical B&W === */
