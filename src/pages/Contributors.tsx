@@ -142,14 +142,18 @@ function setRegistered() {
 
 // ---------- Main component ----------
 const Contributors = () => {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
+  const [showBulk, setShowBulk] = useState(false);
   const [form, setForm] = useState<SubmissionForm>(defaultSubmission);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [submissionCount, setSubmissionCount] = useState<number>(getCount);
   const [showRegPrompt, setShowRegPrompt] = useState(false);
   const [registeredName, setRegisteredName] = useState<string | null>(null);
 
-  // Check if prompt should show on mount (already hit threshold but not yet registered/dismissed)
+  // Check if prompt should show on mount
   useEffect(() => {
     const dismissed = localStorage.getItem(PROMPT_DISMISSED_KEY) === "true";
     if (!dismissed && !isRegistered() && submissionCount >= REGISTRATION_THRESHOLD) {
@@ -160,13 +164,33 @@ const Contributors = () => {
   const set = (k: keyof SubmissionForm, v: string | boolean) =>
     setForm((f) => ({ ...f, [k]: v }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.first_name || !form.email || !form.country || !form.relation) return;
+
+    // If logged in — save to DB; otherwise fall back to localStorage count
+    if (user) {
+      setSubmitting(true);
+      const personData = {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        city: form.city,
+        status: "Deceased",
+        category: "Martyr",
+        submitted_info: form.martyrs_info,
+      };
+      await supabase.from("contributions").insert({
+        user_id: user.id,
+        person_data: personData as unknown as import("@/integrations/supabase/types").Json,
+        source_type: "form",
+        status: "pending",
+      });
+      setSubmitting(false);
+    }
+
     const newCount = incrementCount();
     setSubmissionCount(newCount);
     setSubmitted(true);
-    // Show registration prompt once threshold is reached and not yet registered
     if (newCount >= REGISTRATION_THRESHOLD && !isRegistered()) {
       setTimeout(() => setShowRegPrompt(true), 1200);
     }
