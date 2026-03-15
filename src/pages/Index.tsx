@@ -267,16 +267,26 @@ const Index = () => {
               <div className="data-label mb-4">Contribute</div>
               <nav className="space-y-2">
                 {[
-                  { href: "mailto:contribute@eritrean-martyrs.org", label: "Submit a Record" },
-                  { href: "mailto:info@eritrean-martyrs.org", label: "Contact" },
+                  { href: "/contributors", label: "Submit a Record", internal: true },
+                  { href: "mailto:info@eritrean-martyrs.org", label: "Contact", internal: false },
                 ].map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  link.internal ? (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  )
                 ))}
               </nav>
             </div>
