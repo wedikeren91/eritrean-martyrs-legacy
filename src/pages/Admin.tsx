@@ -239,10 +239,24 @@ function UsersPanel() {
   const fetchUsers = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("id, display_name, country, user_roles(role)")
+      .select("id, display_name, country")
       .order("created_at", { ascending: false })
       .limit(100);
-    setUsers((data as typeof users) ?? []);
+
+    // Fetch roles separately to avoid join issues
+    const profileIds = (data ?? []).map((p) => p.id);
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("user_id, role")
+      .in("user_id", profileIds);
+
+    const roleMap = Object.fromEntries((roleData ?? []).map((r) => [r.user_id, r.role]));
+    setUsers(
+      (data ?? []).map((p) => ({
+        ...p,
+        user_roles: [{ role: roleMap[p.id] ?? "user" }],
+      }))
+    );
     setLoading(false);
   };
 
@@ -250,7 +264,7 @@ function UsersPanel() {
 
   const updateRole = async (userId: string, newRole: string) => {
     setRoleUpdating(userId);
-    await supabase.from("user_roles").update({ role: newRole }).eq("user_id", userId);
+    await supabase.from("user_roles").update({ role: newRole as "user" | "contributor" | "org_admin" | "founder" }).eq("user_id", userId);
     await fetchUsers();
     setRoleUpdating(null);
   };
