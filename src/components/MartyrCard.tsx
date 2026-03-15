@@ -1,22 +1,28 @@
 import { Link } from "react-router-dom";
-import { type Martyr, formatDate, formatYear } from "@/data/martyrs";
+import { type Martyr, formatDate } from "@/data/martyrs";
+import FlowerRating from "@/components/FlowerRating";
 
 interface MartyrCardProps {
   martyr: Martyr;
   index?: number;
 }
 
+// Get 1-2 sentence summary from significance or beginning of bio
+function getSummary(martyr: Martyr): string {
+  const source = martyr.significance || martyr.bio;
+  const sentences = source.match(/[^.!?]+[.!?]+/g) || [];
+  return sentences.slice(0, 2).join(" ").trim();
+}
+
 const MartyrCard = ({ martyr, index = 0 }: MartyrCardProps) => {
   const staggerClass = index < 8 ? `stagger-${(index % 8) + 1}` : "";
+  const summary = getSummary(martyr);
 
   return (
-    <Link
-      to={`/martyr/${martyr.slug}`}
-      className={`block opacity-0 animate-fade-scale ${staggerClass}`}
-    >
-      <article className="martyr-card bg-card flex gap-0 overflow-hidden cursor-pointer group">
+    <div className={`opacity-0 animate-fade-scale ${staggerClass} group`}>
+      <article className="netflix-card bg-card overflow-hidden flex flex-col h-full cursor-pointer">
         {/* Portrait */}
-        <div className="relative w-[120px] min-w-[120px] h-[160px] overflow-hidden bg-stone-light flex-shrink-0">
+        <div className="relative overflow-hidden bg-stone-light" style={{ aspectRatio: "3/4" }}>
           <img
             src={martyr.photo_url}
             alt={`${martyr.first_name} ${martyr.last_name}`}
@@ -24,49 +30,67 @@ const MartyrCard = ({ martyr, index = 0 }: MartyrCardProps) => {
             loading="lazy"
           />
           {/* Category badge */}
-          <div className="absolute top-2 left-2 bg-background/90 px-1.5 py-0.5">
-            <span className="text-[9px] font-mono font-bold tracking-widest uppercase text-muted-foreground">
+          <div className="absolute top-2 left-2 bg-background/90 px-2 py-0.5">
+            <span className="text-[8px] font-mono font-bold tracking-widest uppercase text-muted-foreground">
               {martyr.category}
             </span>
           </div>
+          {/* Gradient overlay at bottom of image */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-card to-transparent" />
         </div>
 
-        {/* Content */}
-        <div className="flex flex-col justify-between p-5 flex-1 min-w-0">
+        {/* Card body */}
+        <div className="flex flex-col flex-1 p-4 gap-2">
+          {/* Name */}
           <div>
-            {/* Name */}
             <h3
-              className="display-sm text-xl leading-tight mb-1 group-hover:text-primary transition-colors duration-300"
+              className="text-base leading-tight font-semibold group-hover:text-primary transition-colors duration-300"
               style={{ fontFamily: "'Fraunces', serif" }}
             >
               {martyr.first_name} {martyr.last_name}
             </h3>
             {martyr.known_as && (
-              <p className="text-xs text-muted-foreground mb-3 italic">
-                "{martyr.known_as}"
-              </p>
+              <p className="text-[10px] text-muted-foreground italic mt-0.5">"{martyr.known_as}"</p>
             )}
-            <p className="text-xs text-foreground/70 leading-relaxed line-clamp-2">
-              {martyr.role}
-            </p>
           </div>
 
-          {/* Footer data */}
-          <div className="flex items-end justify-between mt-4 pt-3 border-t border-border">
+          {/* Dates */}
+          <div className="flex gap-3 text-[10px] font-mono text-muted-foreground">
             <div>
-              <div className="data-label mb-0.5">Place of Origin</div>
-              <div className="text-xs font-medium">{martyr.city}, {martyr.region}</div>
+              <span className="text-[8px] uppercase tracking-widest block text-muted-foreground/60">Born</span>
+              {martyr.date_of_birth ? formatDate(martyr.date_of_birth) : <span className="opacity-30">—</span>}
             </div>
-            <div className="text-right">
-              <div className="data-label mb-0.5">Year of Martyrdom</div>
-              <div className="font-mono text-sm font-bold text-primary">
-                {formatYear(martyr.date_of_death)}
-              </div>
+            <div className="w-px bg-border self-stretch" />
+            <div>
+              <span className="text-[8px] uppercase tracking-widest block text-muted-foreground/60">Martyred</span>
+              {martyr.date_of_death ? (
+                <span className="text-primary font-bold">{formatDate(martyr.date_of_death)}</span>
+              ) : (
+                <span className="opacity-30">—</span>
+              )}
             </div>
           </div>
+
+          {/* Summary */}
+          <p className="text-[11px] text-foreground/70 leading-relaxed line-clamp-3 flex-1">
+            {summary}
+          </p>
+
+          {/* Flower tribute */}
+          <div className="pt-2 border-t border-border">
+            <FlowerRating martyrId={martyr.id} size="sm" />
+          </div>
+
+          {/* Learn more */}
+          <Link
+            to={`/martyr/${martyr.slug}`}
+            className="inline-block mt-1 text-[10px] font-mono font-semibold tracking-widest uppercase text-primary hover:underline underline-offset-2 decoration-1"
+          >
+            Learn More →
+          </Link>
         </div>
       </article>
-    </Link>
+    </div>
   );
 };
 
