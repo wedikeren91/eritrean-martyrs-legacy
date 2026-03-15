@@ -284,14 +284,27 @@ const Contributors = () => {
             </div>
           )}
 
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors duration-200"
-          >
-            {showForm ? "← Close Form" : "+ Submit a Martyr Record"}
-          </button>
-        </div>
-      </section>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors duration-200"
+            >
+              {showForm ? "← Close Form" : "+ Submit a Martyr Record"}
+            </button>
+            {user && (
+              <button
+                onClick={() => setShowBulk(true)}
+                className="inline-block border border-border text-foreground px-6 py-3 text-xs font-semibold tracking-widest uppercase hover:border-foreground hover:bg-muted transition-colors duration-200"
+              >
+                📤 Bulk Upload (Excel / CSV)
+              </button>
+            )}
+            {!user && (
+              <span className="text-xs text-muted-foreground">
+                <a href="/auth" className="text-primary font-semibold hover:underline">Sign in</a> to bulk upload or save your submissions
+              </span>
+            )}
+          </div>
 
       {/* ── Submission Form ── */}
       {showForm && !submitted && (
