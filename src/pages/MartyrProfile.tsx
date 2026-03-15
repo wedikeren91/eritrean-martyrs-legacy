@@ -109,12 +109,6 @@ const MartyrProfile = () => {
                     <div className="data-label">Organisation</div>
                     <div className="data-value mt-1">{martyr.category}</div>
                   </div>
-                  {martyr.front && (
-                    <div>
-                      <div className="data-label">Front</div>
-                      <div className="data-value mt-1">{martyr.front}</div>
-                    </div>
-                  )}
                   {martyr.place_of_martyrdom && (
                     <div className="col-span-2">
                       <div className="data-label">Place of Martyrdom</div>
