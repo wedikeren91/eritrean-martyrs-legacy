@@ -309,6 +309,7 @@ const Contributors = () => {
       </section>
 
       {/* ── Submission Form ── */}
+      {showForm && !submitted && (
         <section className="border-b border-border bg-card/50">
           <div className="container mx-auto px-6 py-12 max-w-3xl">
             <div className="data-label mb-2">New Submission</div>
