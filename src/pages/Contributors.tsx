@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import ContributorRegistrationPrompt from "@/components/ContributorRegistrationPrompt";
 import BulkUpload from "@/components/BulkUpload";
+import ContributeForm from "@/components/ContributeForm";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
