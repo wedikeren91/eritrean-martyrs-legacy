@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import MartyrCard from "@/components/MartyrCard";
 import SearchBar from "@/components/SearchBar";
-import { MARTYRS, FRONTS, searchMartyrs } from "@/data/martyrs";
+import { MARTYRS, CATEGORIES, searchMartyrs } from "@/data/martyrs";
 
 const Browse = () => {
   const [query, setQuery] = useState("");

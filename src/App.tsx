@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import Archive from "./pages/Archive.tsx";
 import Browse from "./pages/Browse.tsx";
 import MartyrProfile from "./pages/MartyrProfile.tsx";
+import Contributors from "./pages/Contributors.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();

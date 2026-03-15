@@ -139,7 +139,7 @@ const Index = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {MARTYRS.slice(0, 4).map((martyr, i) => (
             <MartyrCard key={martyr.id} martyr={martyr} index={i} />
           ))}
