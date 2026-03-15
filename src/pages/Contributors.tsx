@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import ContributorRegistrationPrompt from "@/components/ContributorRegistrationPrompt";
+import BulkUpload from "@/components/BulkUpload";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 // ---------- Badge tiers ----------
 const BADGE_TIERS = [
