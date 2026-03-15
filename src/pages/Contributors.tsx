@@ -87,39 +87,6 @@ const MOCK_CONTRIBUTORS = [
   { id: "8", name: "Anonymous", city: "—", country: "—", count: 6, relation: "Prefers anonymity", public: false },
 ];
 
-// ---------- Submission form types ----------
-type SubmissionForm = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  city: string;
-  state: string;
-  country: string;
-  relation: string;
-  martyrs_info: string;
-  public_name: boolean;
-  public_email: boolean;
-  public_phone: boolean;
-  public_location: boolean;
-};
-
-const defaultSubmission: SubmissionForm = {
-  first_name: "",
-  last_name: "",
-  email: "",
-  phone: "",
-  city: "",
-  state: "",
-  country: "",
-  relation: "",
-  martyrs_info: "",
-  public_name: true,
-  public_email: false,
-  public_phone: false,
-  public_location: true,
-};
-
 // ---------- Storage helpers ----------
 const STORAGE_KEY = "ema_submission_count";
 const REGISTERED_KEY = "ema_registered";
@@ -143,13 +110,10 @@ function setRegistered() {
 
 // ---------- Main component ----------
 const Contributors = () => {
-  const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [showBulk, setShowBulk] = useState(false);
-  const [form, setForm] = useState<SubmissionForm>(defaultSubmission);
   const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [submissionCount, setSubmissionCount] = useState<number>(getCount);
   const [showRegPrompt, setShowRegPrompt] = useState(false);
   const [registeredName, setRegisteredName] = useState<string | null>(null);
@@ -161,41 +125,6 @@ const Contributors = () => {
       setShowRegPrompt(true);
     }
   }, []);
-
-  const set = (k: keyof SubmissionForm, v: string | boolean) =>
-    setForm((f) => ({ ...f, [k]: v }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.first_name || !form.email || !form.country || !form.relation) return;
-
-    // If logged in — save to DB; otherwise fall back to localStorage count
-    if (user) {
-      setSubmitting(true);
-      const personData = {
-        first_name: form.first_name,
-        last_name: form.last_name,
-        city: form.city,
-        status: "Deceased",
-        category: "Martyr",
-        submitted_info: form.martyrs_info,
-      };
-      await supabase.from("contributions").insert({
-        user_id: user.id,
-        person_data: personData as unknown as import("@/integrations/supabase/types").Json,
-        source_type: "form",
-        status: "pending",
-      });
-      setSubmitting(false);
-    }
-
-    const newCount = incrementCount();
-    setSubmissionCount(newCount);
-    setSubmitted(true);
-    if (newCount >= REGISTRATION_THRESHOLD && !isRegistered()) {
-      setTimeout(() => setShowRegPrompt(true), 1200);
-    }
-  };
 
   const handleRegistered = (name: string) => {
     setRegistered();
