@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import ContributorRegistrationPrompt from "@/components/ContributorRegistrationPrompt";
+import BulkUpload from "@/components/BulkUpload";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 // ---------- Badge tiers ----------
 const BADGE_TIERS = [
@@ -139,14 +142,18 @@ function setRegistered() {
 
 // ---------- Main component ----------
 const Contributors = () => {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
+  const [showBulk, setShowBulk] = useState(false);
   const [form, setForm] = useState<SubmissionForm>(defaultSubmission);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [submissionCount, setSubmissionCount] = useState<number>(getCount);
   const [showRegPrompt, setShowRegPrompt] = useState(false);
   const [registeredName, setRegisteredName] = useState<string | null>(null);
 
-  // Check if prompt should show on mount (already hit threshold but not yet registered/dismissed)
+  // Check if prompt should show on mount
   useEffect(() => {
     const dismissed = localStorage.getItem(PROMPT_DISMISSED_KEY) === "true";
     if (!dismissed && !isRegistered() && submissionCount >= REGISTRATION_THRESHOLD) {
@@ -157,13 +164,33 @@ const Contributors = () => {
   const set = (k: keyof SubmissionForm, v: string | boolean) =>
     setForm((f) => ({ ...f, [k]: v }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.first_name || !form.email || !form.country || !form.relation) return;
+
+    // If logged in — save to DB; otherwise fall back to localStorage count
+    if (user) {
+      setSubmitting(true);
+      const personData = {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        city: form.city,
+        status: "Deceased",
+        category: "Martyr",
+        submitted_info: form.martyrs_info,
+      };
+      await supabase.from("contributions").insert({
+        user_id: user.id,
+        person_data: personData as unknown as import("@/integrations/supabase/types").Json,
+        source_type: "form",
+        status: "pending",
+      });
+      setSubmitting(false);
+    }
+
     const newCount = incrementCount();
     setSubmissionCount(newCount);
     setSubmitted(true);
-    // Show registration prompt once threshold is reached and not yet registered
     if (newCount >= REGISTRATION_THRESHOLD && !isRegistered()) {
       setTimeout(() => setShowRegPrompt(true), 1200);
     }
@@ -186,6 +213,8 @@ const Contributors = () => {
   return (
     <div className="min-h-screen bg-background grain-overlay">
       <SiteHeader />
+      {/* Bulk Upload Modal */}
+      {showBulk && <BulkUpload onClose={() => setShowBulk(false)} />}
 
       {/* Registration prompt modal */}
       {showRegPrompt && (
@@ -255,12 +284,27 @@ const Contributors = () => {
             </div>
           )}
 
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors duration-200"
-          >
-            {showForm ? "← Close Form" : "+ Submit a Martyr Record"}
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors duration-200"
+            >
+              {showForm ? "← Close Form" : "+ Submit a Martyr Record"}
+            </button>
+            {user && (
+              <button
+                onClick={() => setShowBulk(true)}
+                className="inline-block border border-border text-foreground px-6 py-3 text-xs font-semibold tracking-widest uppercase hover:border-foreground hover:bg-muted transition-colors duration-200"
+              >
+                📤 Bulk Upload (Excel / CSV)
+              </button>
+            )}
+            {!user && (
+              <span className="text-xs text-muted-foreground">
+                <a href="/auth" className="text-primary font-semibold hover:underline">Sign in</a> to bulk upload or save your submissions
+              </span>
+            )}
+          </div>
         </div>
       </section>
 
@@ -448,9 +492,10 @@ const Contributors = () => {
               <div className="pt-4 border-t border-border">
                 <button
                   type="submit"
-                  className="bg-primary text-primary-foreground px-10 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors"
+                  disabled={submitting}
+                  className="bg-primary text-primary-foreground px-10 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
-                  Submit for Review
+                  {submitting ? "Submitting…" : "Submit for Review"}
                 </button>
                 <p className="text-[10px] text-muted-foreground mt-3">
                   Submissions reviewed within 5–10 business days. You'll receive an email confirmation.
