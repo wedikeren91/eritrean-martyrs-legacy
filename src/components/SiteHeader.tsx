@@ -10,6 +10,7 @@ const SiteHeader = () => {
     { to: "/archive", label: "Archive" },
     { to: "/browse", label: "Browse" },
     { to: "/contributors", label: "Contributors" },
+    { to: "/install", label: "Install App", mobileOnly: true },
   ];
 
   const handleSignOut = async () => {
