@@ -1,0 +1,420 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import SiteHeader from "@/components/SiteHeader";
+
+// Badge tier config
+const BADGE_TIERS = [
+  {
+    min: 500,
+    label: "Legendary Guardian",
+    emoji: "🏆",
+    color: "from-yellow-400 to-amber-600",
+    border: "border-yellow-400",
+    text: "text-yellow-900",
+    bg: "bg-gradient-to-br from-yellow-50 to-amber-100",
+    description: "500+ records contributed",
+  },
+  {
+    min: 300,
+    label: "Elder Keeper",
+    emoji: "🌟",
+    color: "from-purple-400 to-indigo-600",
+    border: "border-purple-400",
+    text: "text-purple-900",
+    bg: "bg-gradient-to-br from-purple-50 to-indigo-100",
+    description: "300+ records contributed",
+  },
+  {
+    min: 100,
+    label: "Senior Archivist",
+    emoji: "💎",
+    color: "from-cyan-400 to-blue-600",
+    border: "border-cyan-400",
+    text: "text-cyan-900",
+    bg: "bg-gradient-to-br from-cyan-50 to-blue-100",
+    description: "100+ records contributed",
+  },
+  {
+    min: 50,
+    label: "Trusted Contributor",
+    emoji: "🥈",
+    color: "from-slate-300 to-slate-500",
+    border: "border-slate-400",
+    text: "text-slate-800",
+    bg: "bg-gradient-to-br from-slate-50 to-slate-100",
+    description: "50+ records contributed",
+  },
+  {
+    min: 10,
+    label: "Verified Contributor",
+    emoji: "✅",
+    color: "from-emerald-300 to-green-600",
+    border: "border-emerald-400",
+    text: "text-emerald-900",
+    bg: "bg-gradient-to-br from-emerald-50 to-green-100",
+    description: "10+ records · Identity verified",
+  },
+  {
+    min: 1,
+    label: "Contributor",
+    emoji: "🌱",
+    color: "from-stone-200 to-stone-400",
+    border: "border-stone-300",
+    text: "text-stone-700",
+    bg: "bg-gradient-to-br from-stone-50 to-stone-100",
+    description: "1–9 records contributed",
+  },
+];
+
+function getBadge(count: number) {
+  return BADGE_TIERS.find((t) => count >= t.min) || BADGE_TIERS[BADGE_TIERS.length - 1];
+}
+
+// Mock contributors for demo
+const MOCK_CONTRIBUTORS = [
+  { id: "1", name: "Miriam Tesfaye", city: "Asmara", country: "Eritrea", count: 523, relation: "Daughter of a fighter", public: true },
+  { id: "2", name: "Yonas Haile", city: "Stockholm", country: "Sweden", count: 312, relation: "Historian & diaspora researcher", public: true },
+  { id: "3", name: "Fatima Omar", city: "Toronto", country: "Canada", count: 147, relation: "Granddaughter of a martyr", public: true },
+  { id: "4", name: "T. Woldemariam", city: "London", country: "UK", count: 89, relation: "Community historian", public: true },
+  { id: "5", name: "Dawit Berhe", city: "Frankfurt", country: "Germany", count: 54, relation: "Son of a veteran", public: true },
+  { id: "6", name: "A. Mohammed", city: "Jeddah", country: "Saudi Arabia", count: 23, relation: "Former ELF fighter's nephew", public: true },
+  { id: "7", name: "Selam Kifle", city: "Washington DC", country: "USA", count: 11, relation: "Second-generation diaspora", public: true },
+  { id: "8", name: "Anonymous", city: "—", country: "—", count: 6, relation: "Prefers anonymity", public: false },
+];
+
+type FormData = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  country: string;
+  relation: string;
+  martyrs_info: string;
+  public_name: boolean;
+  public_email: boolean;
+  public_phone: boolean;
+  public_location: boolean;
+};
+
+const defaultForm: FormData = {
+  first_name: "",
+  last_name: "",
+  email: "",
+  phone: "",
+  city: "",
+  state: "",
+  country: "",
+  relation: "",
+  martyrs_info: "",
+  public_name: true,
+  public_email: false,
+  public_phone: false,
+  public_location: true,
+};
+
+const Contributors = () => {
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState<FormData>(defaultForm);
+  const [submitted, setSubmitted] = useState(false);
+
+  const set = (k: keyof FormData, v: string | boolean) =>
+    setForm((f) => ({ ...f, [k]: v }));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.first_name || !form.email || !form.country || !form.relation) return;
+    setSubmitted(true);
+  };
+
+  return (
+    <div className="min-h-screen bg-background grain-overlay">
+      <SiteHeader />
+
+      {/* Header */}
+      <section className="border-b border-border bg-card">
+        <div className="container mx-auto px-6 py-12">
+          <div className="data-label mb-4">The Archive Community</div>
+          <h1 className="display-title text-4xl md:text-5xl mb-4" style={{ fontFamily: "'Fraunces', serif" }}>
+            Contributors
+          </h1>
+          <div className="rule-accent mb-6" />
+          <p className="text-muted-foreground leading-relaxed max-w-2xl mb-8">
+            This archive is built by the community. Every name, date, and story was contributed by
+            someone who carries this history in their heart. Contributors are recognised with badges
+            based on how many martyr records they have helped document.
+          </p>
+
+          {/* Badge Tiers Reference */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+            {BADGE_TIERS.map((tier) => (
+              <div
+                key={tier.min}
+                className={`${tier.bg} border ${tier.border} p-3 flex flex-col items-center text-center gap-1`}
+              >
+                <span className="text-2xl">{tier.emoji}</span>
+                <span className={`text-[10px] font-bold uppercase tracking-wide ${tier.text}`}>{tier.label}</span>
+                <span className="text-[9px] text-muted-foreground">{tier.description}</span>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors duration-200"
+          >
+            {showForm ? "← Close Form" : "+ Submit a Martyr Record"}
+          </button>
+        </div>
+      </section>
+
+      {/* Submission Form */}
+      {showForm && !submitted && (
+        <section className="border-b border-border bg-card/50">
+          <div className="container mx-auto px-6 py-12 max-w-3xl">
+            <div className="data-label mb-2">New Submission</div>
+            <h2 className="text-2xl mb-1" style={{ fontFamily: "'Fraunces', serif" }}>Submit Martyr Information</h2>
+            <div className="rule-accent mb-8" />
+            <p className="text-sm text-muted-foreground mb-8">
+              Thank you for contributing. All submissions are reviewed before being added to the archive.
+              <strong className="text-foreground"> At 10 contributions, you will be asked to verify your email and optionally phone number</strong> to receive a Verified Contributor badge.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Your Info */}
+              <fieldset className="space-y-5">
+                <legend className="data-label text-foreground mb-3">Your Information</legend>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="data-label block mb-1.5">First Name *</label>
+                    <input
+                      required
+                      value={form.first_name}
+                      onChange={(e) => set("first_name", e.target.value)}
+                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                      placeholder="Miriam"
+                    />
+                  </div>
+                  <div>
+                    <label className="data-label block mb-1.5">Last Name</label>
+                    <input
+                      value={form.last_name}
+                      onChange={(e) => set("last_name", e.target.value)}
+                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                      placeholder="Tesfaye"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="data-label block mb-1.5">Email Address *</label>
+                  <input
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={(e) => set("email", e.target.value)}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                    placeholder="you@example.com"
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1">Used for verification at 10+ contributions. Never shown publicly without consent.</p>
+                </div>
+                <div>
+                  <label className="data-label block mb-1.5">Phone Number <span className="text-muted-foreground font-normal normal-case">(optional)</span></label>
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) => set("phone", e.target.value)}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                    placeholder="+1 202 555 0100"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="data-label block mb-1.5">City *</label>
+                    <input
+                      required
+                      value={form.city}
+                      onChange={(e) => set("city", e.target.value)}
+                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="data-label block mb-1.5">State / Province</label>
+                    <input
+                      value={form.state}
+                      onChange={(e) => set("state", e.target.value)}
+                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="data-label block mb-1.5">Country *</label>
+                    <input
+                      required
+                      value={form.country}
+                      onChange={(e) => set("country", e.target.value)}
+                      className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                    />
+                  </div>
+                </div>
+              </fieldset>
+
+              {/* Relationship */}
+              <fieldset className="space-y-4">
+                <legend className="data-label text-foreground mb-3">Your Connection to the Martyrs</legend>
+                <div>
+                  <label className="data-label block mb-1.5">How are you related to the martyrs you are submitting? *</label>
+                  <select
+                    required
+                    value={form.relation}
+                    onChange={(e) => set("relation", e.target.value)}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                  >
+                    <option value="">Select relationship…</option>
+                    <option value="family_direct">Direct family member (parent, sibling, child)</option>
+                    <option value="family_extended">Extended family (uncle, aunt, cousin, grandchild)</option>
+                    <option value="fellow_fighter">Fellow liberation fighter / veteran</option>
+                    <option value="community">Community member / neighbour</option>
+                    <option value="historian">Historian / researcher / journalist</option>
+                    <option value="diaspora">Diaspora community member</option>
+                    <option value="other">Other — please describe below</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="data-label block mb-1.5">Additional context about your connection (optional)</label>
+                  <textarea
+                    value={form.martyrs_info}
+                    onChange={(e) => set("martyrs_info", e.target.value)}
+                    rows={3}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors resize-none"
+                    placeholder="e.g. My father served with Ibrahim Afa in the Sahel region from 1975 to 1982…"
+                  />
+                </div>
+              </fieldset>
+
+              {/* Privacy */}
+              <fieldset className="space-y-3">
+                <legend className="data-label text-foreground mb-3">Privacy Settings</legend>
+                <p className="text-xs text-muted-foreground mb-3">
+                  You must provide the information above, but you choose what is publicly shown on your contributor profile.
+                </p>
+                {[
+                  { key: "public_name" as const, label: "Show my name publicly on the Contributors page" },
+                  { key: "public_location" as const, label: "Show my city and country publicly" },
+                  { key: "public_email" as const, label: "Show my email publicly (not recommended)" },
+                  { key: "public_phone" as const, label: "Show my phone number publicly" },
+                ].map(({ key, label }) => (
+                  <label key={key} className="flex items-center gap-3 cursor-pointer group">
+                    <div
+                      onClick={() => set(key, !form[key])}
+                      className={`w-4 h-4 border flex items-center justify-center transition-all duration-150 flex-shrink-0 cursor-pointer
+                        ${form[key] ? "bg-foreground border-foreground" : "border-border group-hover:border-foreground"}`}
+                    >
+                      {form[key] && (
+                        <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
+                          <path d="M1 3L3 5L7 1" stroke="hsl(30 10% 96%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-xs text-foreground/80">{label}</span>
+                  </label>
+                ))}
+              </fieldset>
+
+              <div className="pt-4 border-t border-border">
+                <button
+                  type="submit"
+                  className="bg-primary text-primary-foreground px-10 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors duration-200"
+                >
+                  Submit for Review
+                </button>
+                <p className="text-[10px] text-muted-foreground mt-3">
+                  Submissions are reviewed within 5–10 business days. You'll receive an email confirmation.
+                </p>
+              </div>
+            </form>
+          </div>
+        </section>
+      )}
+
+      {/* Success Message */}
+      {submitted && (
+        <section className="border-b border-border bg-emerald-50">
+          <div className="container mx-auto px-6 py-10 max-w-2xl text-center">
+            <div className="text-4xl mb-4">🌹</div>
+            <h2 className="text-2xl mb-2" style={{ fontFamily: "'Fraunces', serif" }}>Thank you, {form.first_name}.</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+              Your submission has been received and will be reviewed by our archive team. 
+              You'll receive a confirmation at <strong>{form.email}</strong>.
+            </p>
+            <button
+              onClick={() => { setSubmitted(false); setShowForm(false); setForm(defaultForm); }}
+              className="text-xs font-mono tracking-widest uppercase text-primary hover:underline"
+            >
+              Submit Another Record →
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Contributors List */}
+      <section className="container mx-auto px-6 py-12">
+        <div className="data-label mb-2">Recognised Contributors</div>
+        <h2 className="text-3xl mb-1" style={{ fontFamily: "'Fraunces', serif" }}>The Archive Builders</h2>
+        <div className="rule-accent mb-8" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {MOCK_CONTRIBUTORS.map((c) => {
+            const badge = getBadge(c.count);
+            return (
+              <div
+                key={c.id}
+                className={`${badge.bg} border ${badge.border} p-5 flex gap-4 items-start`}
+              >
+                {/* Badge */}
+                <div className="flex-shrink-0 text-3xl leading-none mt-0.5">{badge.emoji}</div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm font-semibold ${badge.text} truncate`} style={{ fontFamily: "'Fraunces', serif" }}>
+                    {c.public ? c.name : "Anonymous Contributor"}
+                  </div>
+                  <div className={`text-[9px] font-bold uppercase tracking-wider ${badge.text} opacity-70 mb-1`}>{badge.label}</div>
+                  {c.public && (
+                    <div className="text-[10px] text-muted-foreground">
+                      {c.city !== "—" && `${c.city}, ${c.country}`}
+                    </div>
+                  )}
+                  <div className="text-[10px] text-muted-foreground italic mt-1 line-clamp-1">{c.relation}</div>
+                  <div className={`font-mono text-xs font-bold mt-2 ${badge.text}`}>
+                    {c.count} record{c.count !== 1 ? "s" : ""} contributed
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-border text-center">
+          <p className="text-sm text-muted-foreground mb-4">
+            Are you an Eritrean with knowledge of fighters, community leaders, or others who gave their lives?
+          </p>
+          <button
+            onClick={() => { setShowForm(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            className="inline-block border border-foreground px-8 py-3 text-xs font-semibold tracking-widest uppercase text-foreground hover:bg-foreground hover:text-background transition-all duration-200"
+          >
+            + Add a Record You Know
+          </button>
+        </div>
+      </section>
+
+      <footer className="border-t border-border">
+        <div className="container mx-auto px-6 py-8 flex justify-between items-center">
+          <p className="text-xs text-muted-foreground">Eritrean Martyrs Archive · Est. 2025</p>
+          <Link to="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4 decoration-1">
+            ← Return Home
+          </Link>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Contributors;

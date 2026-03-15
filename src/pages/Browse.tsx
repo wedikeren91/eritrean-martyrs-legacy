@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import MartyrCard from "@/components/MartyrCard";
 import SearchBar from "@/components/SearchBar";
-import { MARTYRS, FRONTS, searchMartyrs } from "@/data/martyrs";
+import { CATEGORIES, searchMartyrs } from "@/data/martyrs";
 
 const Browse = () => {
   const [query, setQuery] = useState("");
-  const [activeFront, setActiveFront] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("All");
 
-  const results = searchMartyrs(query, undefined, activeFront);
+  const results = searchMartyrs(query, activeCategory);
 
   const timelineEras = [
     { period: "1961–1970", label: "The Ignition", desc: "First shots fired at Mount Adal. Early organisation of liberation forces." },
@@ -31,7 +31,6 @@ const Browse = () => {
           </h1>
           <div className="rule-accent mb-8" />
 
-          {/* Timeline Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
             {timelineEras.map((era) => (
               <div key={era.period} className="bg-background p-5 hover:bg-card transition-colors duration-200 cursor-pointer group">
@@ -49,24 +48,24 @@ const Browse = () => {
         </div>
       </section>
 
-      {/* Browse by Front */}
+      {/* Browse by Organisation */}
       <section className="container mx-auto px-6 py-10">
         <div className="max-w-3xl mb-8">
-          <div className="data-label mb-3">Browse by Front</div>
-          <SearchBar value={query} onChange={setQuery} placeholder="Search by name, battle, or front…" />
+          <div className="data-label mb-3">Browse by Organisation</div>
+          <SearchBar value={query} onChange={setQuery} placeholder="Search by name, role, or origin…" />
 
           <div className="mt-4 flex flex-wrap gap-2">
-            {["All", ...FRONTS].map((front) => (
+            {["All", ...CATEGORIES].map((cat) => (
               <button
-                key={front}
-                onClick={() => setActiveFront(front)}
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
                 className={`px-3 py-1.5 text-xs font-mono tracking-wider uppercase transition-all duration-200 border ${
-                  activeFront === front
+                  activeCategory === cat
                     ? "bg-foreground text-background border-foreground"
                     : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
                 }`}
               >
-                {front}
+                {cat}
               </button>
             ))}
           </div>
@@ -76,13 +75,13 @@ const Browse = () => {
           <div className="text-center py-20">
             <p className="text-muted-foreground text-sm">
               No record found. Help us complete the archive.{" "}
-              <a href="mailto:contribute@eritrean-martyrs.org" className="archive-link">
+              <Link to="/contributors" className="archive-link">
                 Submit a record →
-              </a>
+              </Link>
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {results.map((martyr, i) => (
               <MartyrCard key={martyr.id} martyr={martyr} index={i} />
             ))}

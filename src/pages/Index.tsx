@@ -139,7 +139,7 @@ const Index = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {MARTYRS.slice(0, 4).map((martyr, i) => (
             <MartyrCard key={martyr.id} martyr={martyr} index={i} />
           ))}
@@ -251,6 +251,7 @@ const Index = () => {
                   { to: "/", label: "Home" },
                   { to: "/archive", label: "Archive" },
                   { to: "/browse", label: "Browse" },
+                  { to: "/contributors", label: "Contributors" },
                 ].map((link) => (
                   <Link
                     key={link.to}
@@ -266,16 +267,26 @@ const Index = () => {
               <div className="data-label mb-4">Contribute</div>
               <nav className="space-y-2">
                 {[
-                  { href: "mailto:contribute@eritrean-martyrs.org", label: "Submit a Record" },
-                  { href: "mailto:info@eritrean-martyrs.org", label: "Contact" },
+                  { href: "/contributors", label: "Submit a Record", internal: true },
+                  { href: "mailto:info@eritrean-martyrs.org", label: "Contact", internal: false },
                 ].map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  link.internal ? (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  )
                 ))}
               </nav>
             </div>
