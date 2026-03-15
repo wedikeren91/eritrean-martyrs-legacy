@@ -503,7 +503,7 @@ const Contributors = () => {
             </form>
           </div>
         </section>
-      })
+      )}
 
       {/* ── Success Message ── */}
       {submitted && (
