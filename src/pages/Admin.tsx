@@ -91,6 +91,20 @@ export default function Admin() {
       </div>
 
       <div className="container mx-auto px-6 py-8">
+        {/* Mobile review queue shortcut */}
+        <div className="mb-6 p-4 border border-border bg-card flex items-center justify-between gap-4">
+          <div>
+            <div className="data-label mb-0.5">Mobile Review</div>
+            <p className="text-xs text-muted-foreground">Optimised for phone-based approvals</p>
+          </div>
+          <a
+            href="/admin/review"
+            className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors"
+          >
+            Open →
+          </a>
+        </div>
+
         {/* Tabs */}
         <div className="flex gap-1 mb-8 border-b border-border">
           {tabs.map((t) => (
