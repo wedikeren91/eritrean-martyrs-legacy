@@ -160,23 +160,27 @@ const Index = () => {
       </section>
 
       {/* MISSION STATEMENT */}
-      <section className="bg-card border-t border-b border-border">
+      <section className="border-t border-b border-border" style={{ background: "hsl(0 0% 10%)" }}>
         <div className="container mx-auto px-6 py-16">
           <div className="grid grid-cols-12 gap-8 items-center">
-            <div className="col-span-12 md:col-span-5">
-              {/* Large decorative year */}
+            <div className="col-span-12 md:col-span-5 relative">
+              {/* Large decorative year — now oxblood and bold */}
               <div
-                className="text-[8rem] font-bold leading-none text-border select-none"
-                style={{ fontFamily: "'Fraunces', serif", color: "hsla(0, 0%, 0%, 0.06)" }}
+                className="select-none leading-none"
+                style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(5rem, 16vw, 9rem)", fontWeight: 700,
+                  color: "hsl(0 75% 35% / 0.35)", letterSpacing: "-0.03em" }}
               >
                 1961
               </div>
               <div
-                className="text-[8rem] font-bold leading-none text-border select-none -mt-4"
-                style={{ fontFamily: "'Fraunces', serif", color: "hsla(0, 0%, 0%, 0.06)" }}
+                className="select-none leading-none -mt-3"
+                style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(5rem, 16vw, 9rem)", fontWeight: 700,
+                  color: "hsl(0 75% 35% / 0.55)", letterSpacing: "-0.03em" }}
               >
                 1991
               </div>
+              {/* Thin red accent line */}
+              <div className="mt-4 w-12 h-px" style={{ background: "hsl(0 75% 45%)" }} />
             </div>
             <div className="col-span-12 md:col-span-7">
               <div className="data-label mb-4 text-primary">Our Mission</div>
