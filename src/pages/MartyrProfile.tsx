@@ -1,12 +1,72 @@
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
-import { getMartyrBySlug, formatDate, formatYear } from "@/data/martyrs";
+import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
+import { getMartyrBySlug } from "@/data/martyrs";
+
+function formatDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return "Unknown";
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" });
+  } catch {
+    return dateStr;
+  }
+}
 
 const MartyrProfile = () => {
   const { slug } = useParams<{ slug: string }>();
-  const martyr = getMartyrBySlug(slug || "");
+  const [person, setPerson] = useState<PersonRow | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!martyr) {
+  useEffect(() => {
+    if (!slug) { setLoading(false); return; }
+    getPersonBySlug(slug).then((data) => {
+      if (data) {
+        setPerson(data);
+      } else {
+        // Fallback to static data
+        const staticMartyr = getMartyrBySlug(slug);
+        if (staticMartyr) {
+          setPerson({
+            id: staticMartyr.id,
+            slug: staticMartyr.slug,
+            photo_url: staticMartyr.photo_url,
+            first_name: staticMartyr.first_name,
+            last_name: staticMartyr.last_name,
+            known_as: staticMartyr.known_as || null,
+            date_of_birth: staticMartyr.date_of_birth,
+            date_of_death: staticMartyr.date_of_death,
+            city: staticMartyr.city,
+            region: staticMartyr.region,
+            category: staticMartyr.category,
+            status: staticMartyr.status,
+            rank: staticMartyr.rank || null,
+            role: staticMartyr.role,
+            bio: staticMartyr.bio,
+            significance: staticMartyr.significance,
+            quote: staticMartyr.quote || null,
+            place_of_martyrdom: staticMartyr.place_of_martyrdom || null,
+            battle: staticMartyr.battle || null,
+          });
+        }
+      }
+      setLoading(false);
+    });
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background grain-overlay">
+        <SiteHeader />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="data-label animate-pulse">Loading record…</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!person) {
     return (
       <div className="min-h-screen bg-background grain-overlay">
         <SiteHeader />
@@ -25,7 +85,7 @@ const MartyrProfile = () => {
     );
   }
 
-  const bioParas = martyr.bio.split("\n\n").filter(Boolean);
+  const bioParas = (person.bio || "").split("\n\n").filter(Boolean);
 
   return (
     <div className="min-h-screen bg-background grain-overlay">
@@ -38,24 +98,29 @@ const MartyrProfile = () => {
           <span>/</span>
           <Link to="/archive" className="hover:text-foreground transition-colors">Archive</Link>
           <span>/</span>
-          <span className="text-foreground">{martyr.first_name} {martyr.last_name}</span>
+          <span className="text-foreground">{person.first_name} {person.last_name}</span>
         </div>
       </div>
 
-      {/* Hero — 70vh */}
+      {/* Hero */}
       <section className="relative border-b border-border overflow-hidden" style={{ minHeight: "70vh" }}>
         <div className="container mx-auto px-6 py-0 h-full">
           <div className="grid grid-cols-12 gap-0 min-h-[70vh]">
             
-            {/* Portrait — Col 1-6 */}
+            {/* Portrait */}
             <div className="col-span-12 md:col-span-6 lg:col-span-5 relative overflow-hidden bg-stone-light">
               <div className="absolute inset-0">
-                <img
-                  src={martyr.photo_url}
-                  alt={`${martyr.first_name} ${martyr.last_name}`}
-                  className="historical-photo w-full h-full object-cover object-top animate-fade-scale"
-                />
-                {/* Overlay gradient */}
+                {person.photo_url ? (
+                  <img
+                    src={person.photo_url}
+                    alt={`${person.first_name} ${person.last_name}`}
+                    className="historical-photo w-full h-full object-cover object-top animate-fade-scale"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted">
+                    <span className="text-8xl opacity-10">👤</span>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/10 md:to-background/5" />
               </div>
 
@@ -63,62 +128,61 @@ const MartyrProfile = () => {
               <div className="absolute top-6 left-6 z-10">
                 <div className="bg-background/90 px-3 py-1.5">
                   <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-muted-foreground">
-                    {martyr.category} · {martyr.rank || "Fighter"}
+                    {person.category} · {person.rank || "Fighter"}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Name & Data — Col 7-12 */}
+            {/* Name & Data */}
             <div className="col-span-12 md:col-span-6 lg:col-span-7 flex flex-col justify-center px-8 py-12">
               <div className="animate-fade-scale" style={{ animationDelay: "150ms" }}>
-                {martyr.known_as && (
-                  <div className="data-label text-primary mb-3">{martyr.known_as}</div>
+                {person.known_as && (
+                  <div className="data-label text-primary mb-3">{person.known_as}</div>
                 )}
                 
                 <h1 className="display-name text-primary mb-2" style={{ fontFamily: "'Fraunces', serif" }}>
-                  {martyr.first_name}
+                  {person.first_name}
                 </h1>
                 <h1 className="display-name mb-8" style={{ fontFamily: "'Fraunces', serif" }}>
-                  {martyr.last_name}
+                  {person.last_name}
                 </h1>
 
                 <div className="rule-accent mb-8" />
 
-                {/* Data grid */}
                 <div className="grid grid-cols-2 gap-y-6 gap-x-8 max-w-md">
                   <div>
                     <div className="data-label">Born</div>
-                    <div className="data-value mt-1">{formatDate(martyr.date_of_birth)}</div>
+                    <div className="data-value mt-1">{formatDate(person.date_of_birth)}</div>
                   </div>
                   <div>
                     <div className="data-label">Martyred</div>
                     <div className="data-value mt-1 text-primary font-bold">
-                      {formatDate(martyr.date_of_death)}
+                      {formatDate(person.date_of_death)}
                     </div>
                   </div>
                   <div>
                     <div className="data-label">City of Origin</div>
-                    <div className="data-value mt-1">{martyr.city}</div>
+                    <div className="data-value mt-1">{person.city || "—"}</div>
                   </div>
                   <div>
                     <div className="data-label">Region</div>
-                    <div className="data-value mt-1">{martyr.region}</div>
+                    <div className="data-value mt-1">{person.region || "—"}</div>
                   </div>
                   <div>
                     <div className="data-label">Organisation</div>
-                    <div className="data-value mt-1">{martyr.category}</div>
+                    <div className="data-value mt-1">{person.category || "—"}</div>
                   </div>
-                  {martyr.place_of_martyrdom && (
+                  {person.place_of_martyrdom && (
                     <div className="col-span-2">
                       <div className="data-label">Place of Martyrdom</div>
-                      <div className="data-value mt-1">{martyr.place_of_martyrdom}</div>
+                      <div className="data-value mt-1">{person.place_of_martyrdom}</div>
                     </div>
                   )}
-                  {martyr.battle && (
+                  {person.battle && (
                     <div className="col-span-2">
                       <div className="data-label">Battle / Campaign</div>
-                      <div className="data-value mt-1">{martyr.battle}</div>
+                      <div className="data-value mt-1">{person.battle}</div>
                     </div>
                   )}
                 </div>
@@ -129,21 +193,23 @@ const MartyrProfile = () => {
       </section>
 
       {/* Significance Banner */}
-      <section className="bg-foreground text-background">
-        <div className="container mx-auto px-6 py-8">
-          <div className="max-w-3xl">
-            <div className="text-xs font-mono tracking-widest uppercase mb-3 opacity-50">
-              Historical Significance
+      {person.significance && (
+        <section className="bg-foreground text-background">
+          <div className="container mx-auto px-6 py-8">
+            <div className="max-w-3xl">
+              <div className="text-xs font-mono tracking-widest uppercase mb-3 opacity-50">
+                Historical Significance
+              </div>
+              <p
+                className="text-lg leading-relaxed"
+                style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic" }}
+              >
+                {person.significance}
+              </p>
             </div>
-            <p
-              className="text-lg leading-relaxed"
-              style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic" }}
-            >
-              {martyr.significance}
-            </p>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Biography */}
       <section className="container mx-auto px-6 py-16">
@@ -155,29 +221,33 @@ const MartyrProfile = () => {
               <div className="rule-accent mb-6" />
 
               <div className="space-y-4 text-xs">
-                <div>
-                  <div className="data-label">Role</div>
-                  <div className="mt-1 text-sm">{martyr.role}</div>
-                </div>
-                {martyr.rank && (
+                {person.role && (
                   <div>
-                    <div className="data-label">Rank</div>
-                    <div className="mt-1 text-sm">{martyr.rank}</div>
+                    <div className="data-label">Role</div>
+                    <div className="mt-1 text-sm">{person.role}</div>
                   </div>
                 )}
-                <div>
-                  <div className="data-label">Status</div>
-                  <div className="mt-1 text-sm font-mono text-primary font-bold">{martyr.status}</div>
-                </div>
+                {person.rank && (
+                  <div>
+                    <div className="data-label">Rank</div>
+                    <div className="mt-1 text-sm">{person.rank}</div>
+                  </div>
+                )}
+                {person.status && (
+                  <div>
+                    <div className="data-label">Status</div>
+                    <div className="mt-1 text-sm font-mono text-primary font-bold">{person.status}</div>
+                  </div>
+                )}
               </div>
 
-              {martyr.quote && (
+              {person.quote && (
                 <blockquote className="mt-8 pt-8 border-t border-border">
                   <p className="text-sm italic text-muted-foreground leading-relaxed mb-2">
-                    "{martyr.quote}"
+                    "{person.quote}"
                   </p>
                   <cite className="text-xs data-label not-italic">
-                    — {martyr.first_name} {martyr.last_name}
+                    — {person.first_name} {person.last_name}
                   </cite>
                 </blockquote>
               )}
@@ -194,10 +264,7 @@ const MartyrProfile = () => {
                 <p
                   key={i}
                   className="text-base leading-relaxed text-foreground/85 animate-fade-scale"
-                  style={{
-                    animationDelay: `${i * 80}ms`,
-                    opacity: 0,
-                  }}
+                  style={{ animationDelay: `${i * 80}ms`, opacity: 0 }}
                 >
                   {para}
                 </p>
@@ -210,7 +277,7 @@ const MartyrProfile = () => {
                 ← Return to Archive
               </Link>
               <div className="text-xs text-muted-foreground font-mono">
-                Archive Record #{martyr.id.padStart(4, "0")}
+                Archive Record · {person.slug}
               </div>
             </div>
           </div>
@@ -222,9 +289,9 @@ const MartyrProfile = () => {
           <p className="text-xs text-muted-foreground text-center">
             Eritrean Martyrs Archive · This record is part of a living archive. 
             If you have additional information,{" "}
-            <a href="mailto:contribute@eritrean-martyrs.org" className="archive-link">
+            <Link to="/contributors" className="archive-link">
               please contribute →
-            </a>
+            </Link>
           </p>
         </div>
       </footer>
