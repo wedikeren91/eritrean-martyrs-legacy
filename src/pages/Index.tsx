@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import MartyrCard from "@/components/MartyrCard";
 import { MARTYRS } from "@/data/martyrs";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const featuredMartyrs = MARTYRS.slice(0, 3);
 
 const Index = () => {
+  const { ref: martyrsRef, visible: martyrsVisible } = useScrollReveal(0.1);
   return (
     <div className="min-h-screen bg-background grain-overlay">
       <SiteHeader />
@@ -161,9 +163,19 @@ const Index = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div ref={martyrsRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {MARTYRS.slice(0, 4).map((martyr, i) => (
-            <MartyrCard key={martyr.id} martyr={martyr} index={i} />
+            <div
+              key={martyr.id}
+              style={{
+                opacity: martyrsVisible ? 1 : 0,
+                transform: martyrsVisible ? "translateY(0)" : "translateY(32px)",
+                transition: `opacity 0.6s ease, transform 0.6s ease`,
+                transitionDelay: martyrsVisible ? `${i * 120}ms` : "0ms",
+              }}
+            >
+              <MartyrCard martyr={martyr} index={i} />
+            </div>
           ))}
         </div>
       </section>
