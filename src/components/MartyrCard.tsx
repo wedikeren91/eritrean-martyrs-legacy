@@ -8,7 +8,6 @@ interface MartyrCardProps {
 
 const MartyrCard = ({ martyr, index = 0 }: MartyrCardProps) => {
   const staggerClass = index < 8 ? `stagger-${(index % 8) + 1}` : "";
-  const summary = getSummary(martyr);
 
   return (
     <Link to={`/martyr/${martyr.slug}`} className={`opacity-0 animate-fade-scale ${staggerClass} group block`}>
