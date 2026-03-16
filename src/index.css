@@ -6,62 +6,69 @@
 
 @layer base {
   :root {
-    /* === ERITREAN MARTYRS ARCHIVE DESIGN SYSTEM === */
+    /* === ERITREAN MARTYRS ARCHIVE — DARK ARCHIVE THEME === */
 
-    /* Surface — Matte Stone & Paper */
-    --background: 30 10% 96%;
-    --foreground: 0 0% 10%;
+    /* Surface — Deep Charcoal */
+    --background: 220 15% 7%;
+    --foreground: 35 20% 93%;
 
-    --card: 30 8% 94%;
-    --card-foreground: 0 0% 10%;
+    --card: 220 14% 10%;
+    --card-foreground: 35 20% 93%;
 
-    --popover: 30 8% 94%;
-    --popover-foreground: 0 0% 10%;
+    --popover: 220 14% 10%;
+    --popover-foreground: 35 20% 93%;
 
-    /* Primary — Oxblood / Martyr Red */
-    --primary: 0 75% 35%;
-    --primary-foreground: 30 10% 96%;
+    /* Primary — Vivid Oxblood Red */
+    --primary: 4 82% 48%;
+    --primary-foreground: 35 20% 96%;
 
-    /* Secondary — Stone */
-    --secondary: 30 6% 88%;
-    --secondary-foreground: 0 0% 10%;
+    /* Secondary — Dark Steel */
+    --secondary: 220 12% 16%;
+    --secondary-foreground: 35 15% 80%;
 
-    /* Muted — Stone grey */
-    --muted: 30 5% 88%;
-    --muted-foreground: 30 5% 40%;
+    /* Muted */
+    --muted: 220 12% 14%;
+    --muted-foreground: 220 8% 52%;
 
-    /* Accent */
-    --accent: 30 6% 85%;
-    --accent-foreground: 0 0% 10%;
+    /* Accent — Warm ember */
+    --accent: 220 12% 18%;
+    --accent-foreground: 35 20% 93%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 30 10% 96%;
+    --destructive: 4 82% 55%;
+    --destructive-foreground: 35 20% 96%;
 
-    --border: 0 0% 0% / 0.08;
-    --input: 0 0% 0% / 0.08;
-    --ring: 0 75% 35%;
+    --border: 220 10% 20%;
+    --input: 220 10% 20%;
+    --ring: 4 82% 48%;
 
     --radius: 0rem;
 
     /* Custom tokens */
-    --stone-light: 30 6% 92%;
-    --stone-mid: 30 5% 55%;
-    --stone-dark: 0 0% 15%;
-    --oxblood: 0 75% 35%;
-    --oxblood-dark: 0 75% 25%;
-    --paper: 30 10% 96%;
-    --ink: 0 0% 10%;
+    --stone-light: 220 10% 20%;
+    --stone-mid: 220 8% 45%;
+    --stone-dark: 220 15% 5%;
+
+    --oxblood: 4 82% 48%;
+    --oxblood-bright: 4 85% 58%;
+    --oxblood-dark: 4 80% 32%;
+    --oxblood-glow: 4 90% 65%;
+
+    --gold: 38 85% 58%;
+    --gold-dim: 38 60% 42%;
+
+    --paper: 35 20% 93%;
+    --ink: 220 15% 7%;
 
     --brand-bezier: cubic-bezier(0.16, 1, 0.3, 1);
 
-    --sidebar-background: 30 8% 93%;
-    --sidebar-foreground: 0 0% 10%;
-    --sidebar-primary: 0 75% 35%;
-    --sidebar-primary-foreground: 30 10% 96%;
-    --sidebar-accent: 30 6% 88%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 0% / 0.08;
-    --sidebar-ring: 0 75% 35%;
+    --sidebar-background: 220 14% 10%;
+    --sidebar-foreground: 35 20% 93%;
+    --sidebar-primary: 4 82% 48%;
+    --sidebar-primary-foreground: 35 20% 96%;
+    --sidebar-accent: 220 12% 16%;
+    --sidebar-accent-foreground: 35 15% 80%;
+    --sidebar-border: 220 10% 18%;
+    --sidebar-ring: 4 82% 48%;
   }
 }
 
@@ -111,7 +118,7 @@
   height: 100%;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.025;
+  opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 128px 128px;
@@ -120,45 +127,45 @@
 /* === MARTYR CARD (legacy horizontal) === */
 .martyr-card {
   border-radius: 0;
-  border-left: 4px solid transparent;
-  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.1);
+  border-left: 3px solid transparent;
+  box-shadow: 0 4px 24px -8px rgba(0, 0, 0, 0.4);
   transition: transform 0.4s var(--brand-bezier), box-shadow 0.4s var(--brand-bezier), border-color 0.4s var(--brand-bezier);
 }
 
 .martyr-card:hover {
   transform: translateY(-4px);
   border-left-color: hsl(var(--oxblood));
-  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
 }
 
 /* === NETFLIX-STYLE PORTRAIT CARD === */
 .netflix-card {
   border-radius: 0;
   border: 1px solid hsl(var(--border));
-  box-shadow: 0 4px 20px -8px rgba(0, 0, 0, 0.12);
-  transition: transform 0.35s var(--brand-bezier), box-shadow 0.35s var(--brand-bezier);
+  box-shadow: 0 4px 24px -8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.35s var(--brand-bezier), box-shadow 0.35s var(--brand-bezier), border-color 0.35s;
 }
 
 .netflix-card:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.22);
-  border-color: hsl(var(--oxblood) / 0.4);
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px hsl(var(--oxblood) / 0.5);
+  border-color: hsl(var(--oxblood) / 0.6);
 }
 
 /* === PHOTO FILTER — Historical B&W === */
 .historical-photo {
-  filter: grayscale(1) sepia(0.2) contrast(1.1);
+  filter: grayscale(0.9) sepia(0.25) contrast(1.15) brightness(0.9);
 }
 
 /* === FADE + SCALE ENTRANCE === */
 @keyframes fadeScaleIn {
   from {
     opacity: 0;
-    transform: scale(0.98);
+    transform: scale(0.97) translateY(8px);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) translateY(0);
   }
 }
 
@@ -172,8 +179,13 @@
   50% { opacity: 0.4; }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
 .animate-fade-scale {
-  animation: fadeScaleIn 0.6s var(--brand-bezier) forwards;
+  animation: fadeScaleIn 0.7s var(--brand-bezier) forwards;
 }
 
 .animate-fade-in {
@@ -185,14 +197,14 @@
 }
 
 /* === STAGGER DELAYS === */
-.stagger-1 { animation-delay: 40ms; }
-.stagger-2 { animation-delay: 80ms; }
-.stagger-3 { animation-delay: 120ms; }
-.stagger-4 { animation-delay: 160ms; }
-.stagger-5 { animation-delay: 200ms; }
-.stagger-6 { animation-delay: 240ms; }
-.stagger-7 { animation-delay: 280ms; }
-.stagger-8 { animation-delay: 320ms; }
+.stagger-1 { animation-delay: 60ms; }
+.stagger-2 { animation-delay: 130ms; }
+.stagger-3 { animation-delay: 200ms; }
+.stagger-4 { animation-delay: 270ms; }
+.stagger-5 { animation-delay: 340ms; }
+.stagger-6 { animation-delay: 410ms; }
+.stagger-7 { animation-delay: 480ms; }
+.stagger-8 { animation-delay: 550ms; }
 
 /* === DOCUMENT RULE DIVIDER === */
 .rule-primary {
@@ -213,26 +225,26 @@
   font-family: 'Instrument Sans', sans-serif;
   font-size: 0.65rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: hsl(var(--muted-foreground));
 }
 
 .data-value {
-  font-family: 'Instrument Mono', 'Courier New', monospace;
+  font-family: 'Courier New', monospace;
   font-size: 0.875rem;
   color: hsl(var(--foreground));
 }
 
 /* === SCROLL BAR === */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
   background: hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground));
+  background: hsl(var(--stone-mid));
   border-radius: 0;
 }
 
@@ -245,7 +257,7 @@ a.archive-link {
   transition: color 0.2s ease;
 }
 a.archive-link:hover {
-  color: hsl(var(--oxblood));
+  color: hsl(var(--oxblood-bright));
 }
 
 /* === ACCORDION KEYFRAMES === */
@@ -256,4 +268,21 @@ a.archive-link:hover {
 @keyframes accordion-up {
   from { height: var(--radix-accordion-content-height); }
   to { height: 0; }
+}
+
+/* === HERO PORTRAIT GLOW === */
+.portrait-glow {
+  box-shadow: 0 0 0 1px hsl(var(--oxblood) / 0.4),
+              0 32px 64px -16px rgba(0,0,0,0.8),
+              0 0 40px -10px hsl(var(--oxblood) / 0.2);
+}
+
+/* === STAT CARD === */
+.stat-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  transition: border-color 0.3s ease;
+}
+.stat-card:hover {
+  border-color: hsl(var(--oxblood) / 0.5);
 }
