@@ -127,7 +127,15 @@ const Index = () => {
                          </div>
                        </div>
                      </div>
-...
+                  </Link>
+                ))}
+                {/* Spacer to give the stacked cards height */}
+                <div style={{ paddingBottom: "160%", position: "relative" }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Decorative vertical rule */}
         <div
           className="absolute left-1/2 top-0 bottom-0 hidden lg:block"
