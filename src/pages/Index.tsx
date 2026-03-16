@@ -163,9 +163,19 @@ const Index = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div ref={martyrsRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {MARTYRS.slice(0, 4).map((martyr, i) => (
-            <MartyrCard key={martyr.id} martyr={martyr} index={i} />
+            <div
+              key={martyr.id}
+              style={{
+                opacity: martyrsVisible ? 1 : 0,
+                transform: martyrsVisible ? "translateY(0)" : "translateY(32px)",
+                transition: `opacity 0.6s ease, transform 0.6s ease`,
+                transitionDelay: martyrsVisible ? `${i * 120}ms` : "0ms",
+              }}
+            >
+              <MartyrCard martyr={martyr} index={i} />
+            </div>
           ))}
         </div>
       </section>
