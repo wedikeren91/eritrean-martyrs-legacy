@@ -1,16 +1,9 @@
 import { Link } from "react-router-dom";
 import { type PersonRow } from "@/hooks/usePersons";
-import FlowerRating from "@/components/FlowerRating";
 
 interface MartyrCardDBProps {
   person: PersonRow;
   index?: number;
-}
-
-function getSummary(person: PersonRow): string {
-  const source = person.significance || person.bio || "";
-  const sentences = source.match(/[^.!?]+[.!?]+/g) || [];
-  return sentences.slice(0, 2).join(" ").trim();
 }
 
 function formatDate(dateStr: string | null): string {
