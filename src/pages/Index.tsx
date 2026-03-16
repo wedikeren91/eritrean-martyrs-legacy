@@ -26,13 +26,14 @@ const Index = () => {
         </div>
 
         <div className="container mx-auto px-6 h-full relative z-10">
-          <div className="grid grid-cols-12 min-h-[90vh]">
+          {/* Mobile: single column stack. Desktop: side-by-side grid */}
+          <div className="flex flex-col lg:grid lg:grid-cols-12 lg:min-h-[90vh]">
 
             {/* Left — Text */}
-            <div className="col-span-12 lg:col-span-7 flex flex-col justify-center py-20 lg:py-0 lg:pr-16">
+            <div className="lg:col-span-7 flex flex-col justify-center pt-16 pb-10 lg:py-0 lg:pr-16">
               <div className="animate-fade-scale">
                 {/* Emblem */}
-                <div className="mb-8 flex items-center gap-3">
+                <div className="mb-6 flex items-center gap-3">
                   <div className="rule-accent" style={{ background: "hsl(0 75% 35%)" }} />
                   <span className="data-label" style={{ color: "hsl(0 75% 55%)", letterSpacing: "0.18em" }}>
                     Eritrean Martyrs Archive · 1961–1991
@@ -45,32 +46,32 @@ const Index = () => {
                   for our today.
                 </h1>
 
-                <p className="mt-8 text-lg leading-relaxed max-w-lg" style={{ color: "hsl(30 8% 65%)" }}>
+                <p className="mt-6 text-base lg:text-lg leading-relaxed max-w-lg" style={{ color: "hsl(30 8% 65%)" }}>
                   A living archive of those who sacrificed their lives during The Struggle for Eritrean independence. 
                   Every name is a monument. Every record is an act of remembrance.
                 </p>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-px mt-12 mb-10" style={{ background: "hsl(0 75% 35% / 0.3)" }}>
-                  <div className="p-5" style={{ background: "hsl(0 0% 12%)" }}>
-                    <div className="font-mono text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>65K+</div>
+                <div className="grid grid-cols-3 gap-px mt-8 mb-8" style={{ background: "hsl(0 75% 35% / 0.3)" }}>
+                  <div className="p-4 lg:p-5" style={{ background: "hsl(0 0% 12%)" }}>
+                    <div className="font-mono text-2xl lg:text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>65K+</div>
                     <div className="data-label mt-1" style={{ color: "hsl(30 5% 50%)" }}>Martyrs Estimated</div>
                   </div>
-                  <div className="p-5" style={{ background: "hsl(0 0% 12%)" }}>
-                    <div className="font-mono text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>30</div>
+                  <div className="p-4 lg:p-5" style={{ background: "hsl(0 0% 12%)" }}>
+                    <div className="font-mono text-2xl lg:text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>30</div>
                     <div className="data-label mt-1" style={{ color: "hsl(30 5% 50%)" }}>Years of Struggle</div>
                   </div>
-                  <div className="p-5" style={{ background: "hsl(0 0% 12%)" }}>
-                    <div className="font-mono text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>{MARTYRS.length}</div>
+                  <div className="p-4 lg:p-5" style={{ background: "hsl(0 0% 12%)" }}>
+                    <div className="font-mono text-2xl lg:text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>{MARTYRS.length}</div>
                     <div className="data-label mt-1" style={{ color: "hsl(30 5% 50%)" }}>Records in Archive</div>
                   </div>
                 </div>
 
                 {/* CTAs */}
-                <div className="flex gap-4 flex-wrap">
+                <div className="flex gap-3 flex-wrap">
                   <Link
                     to="/archive"
-                    className="inline-block px-8 py-3.5 text-sm font-semibold tracking-widest uppercase transition-colors duration-300"
+                    className="inline-block px-6 py-3 text-sm font-semibold tracking-widest uppercase transition-colors duration-300"
                     style={{ background: "hsl(0 75% 35%)", color: "hsl(30 10% 96%)" }}
                     onMouseEnter={e => (e.currentTarget.style.background = "hsl(0 75% 42%)")}
                     onMouseLeave={e => (e.currentTarget.style.background = "hsl(0 75% 35%)")}
@@ -79,7 +80,7 @@ const Index = () => {
                   </Link>
                   <Link
                     to="/browse"
-                    className="inline-block px-8 py-3.5 text-sm font-semibold tracking-widest uppercase transition-colors duration-300"
+                    className="inline-block px-6 py-3 text-sm font-semibold tracking-widest uppercase transition-colors duration-300"
                     style={{ border: "1px solid hsl(30 10% 96% / 0.2)", color: "hsl(30 8% 65%)" }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = "hsl(30 10% 96% / 0.6)"; e.currentTarget.style.color = "hsl(30 10% 96%)"; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = "hsl(30 10% 96% / 0.2)"; e.currentTarget.style.color = "hsl(30 8% 65%)"; }}
@@ -90,9 +91,9 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Right — Featured Portrait Stack */}
-            <div className="col-span-12 lg:col-span-5 relative flex items-center justify-center py-12 lg:py-0">
-              <div className="relative w-full max-w-sm">
+            {/* Right — Featured Portrait Stack (hidden on small mobile, shown from sm up) */}
+            <div className="lg:col-span-5 relative flex items-center justify-center py-10 lg:py-0">
+              <div className="relative w-full max-w-[260px] sm:max-w-xs mx-auto">
                 {/* Stacked portrait cards */}
                 {featuredMartyrs.slice(0, 3).map((martyr, i) => (
                   <Link
@@ -100,8 +101,8 @@ const Index = () => {
                     key={martyr.id}
                     className={`absolute block animate-fade-scale stagger-${i + 2}`}
                     style={{
-                      top: `${i * 24}px`,
-                      left: `${i * 16}px`,
+                      top: `${i * 20}px`,
+                      left: `${i * 12}px`,
                       right: `${-i * 0}px`,
                       zIndex: 3 - i,
                       transform: `rotate(${(i - 1) * 1.5}deg)`,
@@ -114,9 +115,9 @@ const Index = () => {
                            alt={`${martyr.first_name} ${martyr.last_name}`}
                            className="historical-photo w-full h-full object-cover object-top"
                          />
-                         <div className="absolute bottom-0 left-0 right-0 p-4" style={{ background: "linear-gradient(to top, hsl(0 0% 5%) 0%, transparent 100%)" }}>
+                         <div className="absolute bottom-0 left-0 right-0 p-3" style={{ background: "linear-gradient(to top, hsl(0 0% 5%) 0%, transparent 100%)" }}>
                            <div
-                             className="text-lg font-semibold leading-tight"
+                             className="text-base font-semibold leading-tight"
                              style={{ fontFamily: "'Fraunces', serif", color: "hsl(30 10% 96%)" }}
                            >
                              {martyr.first_name} {martyr.last_name}
@@ -130,7 +131,7 @@ const Index = () => {
                   </Link>
                 ))}
                 {/* Spacer to give the stacked cards height */}
-                <div style={{ paddingBottom: "160%", position: "relative" }} />
+                <div style={{ paddingBottom: "140%", position: "relative" }} />
               </div>
             </div>
           </div>
