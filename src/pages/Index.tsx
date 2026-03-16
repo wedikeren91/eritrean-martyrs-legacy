@@ -191,38 +191,44 @@ const Index = () => {
               <div className="mt-4 w-12 h-px" style={{ background: "hsl(0 75% 45%)" }} />
             </div>
             <div className="col-span-12 md:col-span-7">
-              <div className="data-label mb-4 text-primary">Our Mission</div>
-              <div className="rule-accent mb-6" />
+              <div className="data-label mb-4" style={{ color: "hsl(0 75% 55%)" }}>Our Mission</div>
+              <div className="rule-accent mb-6" style={{ background: "hsl(0 75% 45%)" }} />
               <p
                 className="text-xl leading-relaxed mb-6"
-                style={{ fontFamily: "'Fraunces', serif" }}
+                style={{ fontFamily: "'Fraunces', serif", color: "hsl(30 10% 90%)" }}
               >
                 This archive exists because forgetting is its own form of occupation. 
                 Every name recorded is a small act of liberation.
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+              <p className="text-sm leading-relaxed mb-6" style={{ color: "hsl(30 5% 55%)" }}>
                 The Eritrean liberation struggle (1961–1991) is one of the longest continuous independence 
                 movements in modern African history. An estimated 65,000 fighters gave their lives — men and women 
                 from every ethnic group, every religion, every corner of Eritrea — to secure the freedom of 
                 a nation that the world had forgotten.
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm leading-relaxed" style={{ color: "hsl(30 5% 55%)" }}>
                 This archive is dedicated to making sure they are not forgotten again. 
                 It is built for families, historians, and the global Eritrean diaspora who carry 
                 the weight of this history.
               </p>
 
-              <div className="mt-8 pt-8 border-t border-border grid grid-cols-2 gap-4">
+              <div className="mt-8 pt-8 grid grid-cols-2 gap-4" style={{ borderTop: "1px solid hsl(0 75% 35% / 0.25)" }}>
                 <Link to="/archive" className="group flex items-center gap-3">
-                  <div className="w-8 h-8 border border-border flex items-center justify-center group-hover:bg-foreground group-hover:border-foreground transition-all duration-200">
+                  <div className="w-8 h-8 flex items-center justify-center transition-all duration-200"
+                    style={{ border: "1px solid hsl(30 10% 30%)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "hsl(0 75% 35%)"; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(0 75% 35%)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = ""; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(30 10% 30%)"; }}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                       <path d="M1 6H11M7 2L11 6L7 10" stroke="currentColor" strokeWidth="1.5"/>
                     </svg>
                   </div>
-                  <span className="text-xs font-medium tracking-widest uppercase group-hover:text-primary transition-colors">Search Archive</span>
+                  <span className="text-xs font-medium tracking-widest uppercase transition-colors" style={{ color: "hsl(30 8% 65%)" }}>Search Archive</span>
                 </Link>
                 <Link to="/browse" className="group flex items-center gap-3">
-                  <div className="w-8 h-8 border border-border flex items-center justify-center group-hover:bg-foreground group-hover:border-foreground transition-all duration-200">
+                  <div className="w-8 h-8 flex items-center justify-center transition-all duration-200"
+                    style={{ border: "1px solid hsl(30 10% 30%)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "hsl(0 75% 35%)"; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(0 75% 35%)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = ""; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(30 10% 30%)"; }}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                       <rect x="1" y="1" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
                       <rect x="7" y="1" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
@@ -230,7 +236,7 @@ const Index = () => {
                       <rect x="7" y="7" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
                     </svg>
                   </div>
-                  <span className="text-xs font-medium tracking-widest uppercase group-hover:text-primary transition-colors">Browse History</span>
+                  <span className="text-xs font-medium tracking-widest uppercase transition-colors" style={{ color: "hsl(30 8% 65%)" }}>Browse History</span>
                 </Link>
               </div>
             </div>
