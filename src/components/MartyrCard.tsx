@@ -1,17 +1,9 @@
 import { Link } from "react-router-dom";
 import { type Martyr, formatDate } from "@/data/martyrs";
-import FlowerRating from "@/components/FlowerRating";
 
 interface MartyrCardProps {
   martyr: Martyr;
   index?: number;
-}
-
-// Get 1-2 sentence summary from significance or beginning of bio
-function getSummary(martyr: Martyr): string {
-  const source = martyr.significance || martyr.bio;
-  const sentences = source.match(/[^.!?]+[.!?]+/g) || [];
-  return sentences.slice(0, 2).join(" ").trim();
 }
 
 const MartyrCard = ({ martyr, index = 0 }: MartyrCardProps) => {
