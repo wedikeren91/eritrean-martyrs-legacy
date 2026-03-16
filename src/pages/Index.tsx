@@ -107,39 +107,31 @@ const Index = () => {
                       transform: `rotate(${(i - 1) * 1.5}deg)`,
                     }}
                   >
-                    <div className="bg-card shadow-xl overflow-hidden" style={{ width: "100%", aspectRatio: "3/4" }}>
-                      <div className="relative w-full h-full">
-                        <img
-                          src={martyr.photo_url}
-                          alt={`${martyr.first_name} ${martyr.last_name}`}
-                          className="historical-photo w-full h-full object-cover object-top"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/95 to-transparent">
-                          <div
-                            className="text-lg font-semibold leading-tight text-primary"
-                            style={{ fontFamily: "'Fraunces', serif" }}
-                          >
-                            {martyr.first_name} {martyr.last_name}
-                          </div>
-                          <div className="text-xs text-muted-foreground font-mono mt-0.5">
-                            ✦ {new Date(martyr.date_of_death || "").getFullYear()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-                {/* Spacer to give the stacked cards height */}
-                <div style={{ paddingBottom: "160%", position: "relative" }} />
-              </div>
-            </div>
-          </div>
-        </div>
-
+                     <div className="shadow-2xl overflow-hidden" style={{ width: "100%", aspectRatio: "3/4", background: "hsl(0 0% 14%)", border: "1px solid hsl(0 75% 35% / 0.3)" }}>
+                       <div className="relative w-full h-full">
+                         <img
+                           src={martyr.photo_url}
+                           alt={`${martyr.first_name} ${martyr.last_name}`}
+                           className="historical-photo w-full h-full object-cover object-top"
+                         />
+                         <div className="absolute bottom-0 left-0 right-0 p-4" style={{ background: "linear-gradient(to top, hsl(0 0% 5%) 0%, transparent 100%)" }}>
+                           <div
+                             className="text-lg font-semibold leading-tight"
+                             style={{ fontFamily: "'Fraunces', serif", color: "hsl(30 10% 96%)" }}
+                           >
+                             {martyr.first_name} {martyr.last_name}
+                           </div>
+                           <div className="font-mono mt-0.5 text-xs" style={{ color: "hsl(0 75% 55%)" }}>
+                             ✦ {new Date(martyr.date_of_death || "").getFullYear()}
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+...
         {/* Decorative vertical rule */}
         <div
           className="absolute left-1/2 top-0 bottom-0 hidden lg:block"
-          style={{ width: "1px", background: "hsla(0, 0%, 0%, 0.06)" }}
+          style={{ width: "1px", background: "hsl(0 75% 35% / 0.15)" }}
         />
       </section>
 
