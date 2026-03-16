@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./hooks/useAuth";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import Index from "./pages/Index.tsx";
 import Archive from "./pages/Archive.tsx";
 import Browse from "./pages/Browse.tsx";
