@@ -7,6 +7,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 const featuredMartyrs = MARTYRS.slice(0, 3);
 
 const Index = () => {
+  const { ref: martyrsRef, visible: martyrsVisible } = useScrollReveal(0.1);
   return (
     <div className="min-h-screen bg-background grain-overlay">
       <SiteHeader />
