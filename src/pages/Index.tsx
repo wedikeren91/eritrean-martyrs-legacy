@@ -11,8 +11,21 @@ const Index = () => {
       <SiteHeader />
 
       {/* HERO */}
-      <section className="relative border-b border-border overflow-hidden" style={{ minHeight: "90vh" }}>
-        <div className="container mx-auto px-6 h-full">
+      <section className="relative border-b border-border overflow-hidden" style={{ minHeight: "90vh", background: "hsl(0 0% 8%)" }}>
+        {/* Subtle red vignette from top-left */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: "radial-gradient(ellipse 70% 60% at 10% 20%, hsl(0 75% 35% / 0.18) 0%, transparent 70%)"
+        }} />
+        {/* Grain texture overlay */}
+        <div className="absolute inset-0 pointer-events-none opacity-30 grain-overlay" />
+        {/* Large ghost year watermark */}
+        <div className="absolute right-0 bottom-0 pointer-events-none select-none overflow-hidden"
+          style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(10rem, 28vw, 22rem)", fontWeight: 700, lineHeight: 0.85,
+            color: "hsl(0 75% 35% / 0.07)", letterSpacing: "-0.04em" }}>
+          1991
+        </div>
+
+        <div className="container mx-auto px-6 h-full relative z-10">
           <div className="grid grid-cols-12 min-h-[90vh]">
 
             {/* Left — Text */}
@@ -20,34 +33,36 @@ const Index = () => {
               <div className="animate-fade-scale">
                 {/* Emblem */}
                 <div className="mb-8 flex items-center gap-3">
-                  <div className="rule-accent" />
-                  <span className="data-label text-primary">Eritrean Martyrs Archive · 1961–1991</span>
+                  <div className="rule-accent" style={{ background: "hsl(0 75% 35%)" }} />
+                  <span className="data-label" style={{ color: "hsl(0 75% 55%)", letterSpacing: "0.18em" }}>
+                    Eritrean Martyrs Archive · 1961–1991
+                  </span>
                 </div>
 
-                <h1 className="display-name mb-4" style={{ fontFamily: "'Fraunces', serif" }}>
+                <h1 className="display-name mb-4" style={{ fontFamily: "'Fraunces', serif", color: "hsl(30 10% 96%)" }}>
                   They gave their<br />
-                  <span className="text-primary">tomorrows</span><br />
+                  <span style={{ color: "hsl(0 75% 55%)" }}>tomorrows</span><br />
                   for our today.
                 </h1>
 
-                <p className="mt-8 text-lg text-muted-foreground leading-relaxed max-w-lg">
+                <p className="mt-8 text-lg leading-relaxed max-w-lg" style={{ color: "hsl(30 8% 65%)" }}>
                   A living archive of those who sacrificed their lives during The Struggle for Eritrean independence. 
                   Every name is a monument. Every record is an act of remembrance.
                 </p>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-px bg-border mt-12 mb-10">
-                  <div className="bg-background p-5">
-                    <div className="font-mono text-3xl font-bold text-foreground">65K+</div>
-                    <div className="data-label mt-1">Martyrs Estimated</div>
+                <div className="grid grid-cols-3 gap-px mt-12 mb-10" style={{ background: "hsl(0 75% 35% / 0.3)" }}>
+                  <div className="p-5" style={{ background: "hsl(0 0% 12%)" }}>
+                    <div className="font-mono text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>65K+</div>
+                    <div className="data-label mt-1" style={{ color: "hsl(30 5% 50%)" }}>Martyrs Estimated</div>
                   </div>
-                  <div className="bg-background p-5">
-                    <div className="font-mono text-3xl font-bold text-foreground">30</div>
-                    <div className="data-label mt-1">Years of Struggle</div>
+                  <div className="p-5" style={{ background: "hsl(0 0% 12%)" }}>
+                    <div className="font-mono text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>30</div>
+                    <div className="data-label mt-1" style={{ color: "hsl(30 5% 50%)" }}>Years of Struggle</div>
                   </div>
-                  <div className="bg-background p-5">
-                    <div className="font-mono text-3xl font-bold text-foreground">{MARTYRS.length}</div>
-                    <div className="data-label mt-1">Records in Archive</div>
+                  <div className="p-5" style={{ background: "hsl(0 0% 12%)" }}>
+                    <div className="font-mono text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>{MARTYRS.length}</div>
+                    <div className="data-label mt-1" style={{ color: "hsl(30 5% 50%)" }}>Records in Archive</div>
                   </div>
                 </div>
 
@@ -55,13 +70,19 @@ const Index = () => {
                 <div className="flex gap-4 flex-wrap">
                   <Link
                     to="/archive"
-                    className="inline-block bg-foreground text-background px-8 py-3.5 text-sm font-semibold tracking-widest uppercase hover:bg-primary transition-colors duration-300"
+                    className="inline-block px-8 py-3.5 text-sm font-semibold tracking-widest uppercase transition-colors duration-300"
+                    style={{ background: "hsl(0 75% 35%)", color: "hsl(30 10% 96%)" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "hsl(0 75% 42%)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "hsl(0 75% 35%)")}
                   >
                     Enter the Archive
                   </Link>
                   <Link
                     to="/browse"
-                    className="inline-block border border-border px-8 py-3.5 text-sm font-semibold tracking-widest uppercase text-muted-foreground hover:text-foreground hover:border-foreground transition-colors duration-300"
+                    className="inline-block px-8 py-3.5 text-sm font-semibold tracking-widest uppercase transition-colors duration-300"
+                    style={{ border: "1px solid hsl(30 10% 96% / 0.2)", color: "hsl(30 8% 65%)" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = "hsl(30 10% 96% / 0.6)"; e.currentTarget.style.color = "hsl(30 10% 96%)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "hsl(30 10% 96% / 0.2)"; e.currentTarget.style.color = "hsl(30 8% 65%)"; }}
                   >
                     Browse the Struggle
                   </Link>
@@ -86,26 +107,26 @@ const Index = () => {
                       transform: `rotate(${(i - 1) * 1.5}deg)`,
                     }}
                   >
-                    <div className="bg-card shadow-xl overflow-hidden" style={{ width: "100%", aspectRatio: "3/4" }}>
-                      <div className="relative w-full h-full">
-                        <img
-                          src={martyr.photo_url}
-                          alt={`${martyr.first_name} ${martyr.last_name}`}
-                          className="historical-photo w-full h-full object-cover object-top"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/95 to-transparent">
-                          <div
-                            className="text-lg font-semibold leading-tight text-primary"
-                            style={{ fontFamily: "'Fraunces', serif" }}
-                          >
-                            {martyr.first_name} {martyr.last_name}
-                          </div>
-                          <div className="text-xs text-muted-foreground font-mono mt-0.5">
-                            ✦ {new Date(martyr.date_of_death || "").getFullYear()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                     <div className="shadow-2xl overflow-hidden" style={{ width: "100%", aspectRatio: "3/4", background: "hsl(0 0% 14%)", border: "1px solid hsl(0 75% 35% / 0.3)" }}>
+                       <div className="relative w-full h-full">
+                         <img
+                           src={martyr.photo_url}
+                           alt={`${martyr.first_name} ${martyr.last_name}`}
+                           className="historical-photo w-full h-full object-cover object-top"
+                         />
+                         <div className="absolute bottom-0 left-0 right-0 p-4" style={{ background: "linear-gradient(to top, hsl(0 0% 5%) 0%, transparent 100%)" }}>
+                           <div
+                             className="text-lg font-semibold leading-tight"
+                             style={{ fontFamily: "'Fraunces', serif", color: "hsl(30 10% 96%)" }}
+                           >
+                             {martyr.first_name} {martyr.last_name}
+                           </div>
+                           <div className="font-mono mt-0.5 text-xs" style={{ color: "hsl(0 75% 55%)" }}>
+                             ✦ {new Date(martyr.date_of_death || "").getFullYear()}
+                           </div>
+                         </div>
+                       </div>
+                     </div>
                   </Link>
                 ))}
                 {/* Spacer to give the stacked cards height */}
@@ -118,7 +139,7 @@ const Index = () => {
         {/* Decorative vertical rule */}
         <div
           className="absolute left-1/2 top-0 bottom-0 hidden lg:block"
-          style={{ width: "1px", background: "hsla(0, 0%, 0%, 0.06)" }}
+          style={{ width: "1px", background: "hsl(0 75% 35% / 0.15)" }}
         />
       </section>
 
@@ -147,57 +168,67 @@ const Index = () => {
       </section>
 
       {/* MISSION STATEMENT */}
-      <section className="bg-card border-t border-b border-border">
+      <section className="border-t border-b border-border" style={{ background: "hsl(0 0% 10%)" }}>
         <div className="container mx-auto px-6 py-16">
           <div className="grid grid-cols-12 gap-8 items-center">
-            <div className="col-span-12 md:col-span-5">
-              {/* Large decorative year */}
+            <div className="col-span-12 md:col-span-5 relative">
+              {/* Large decorative year — now oxblood and bold */}
               <div
-                className="text-[8rem] font-bold leading-none text-border select-none"
-                style={{ fontFamily: "'Fraunces', serif", color: "hsla(0, 0%, 0%, 0.06)" }}
+                className="select-none leading-none"
+                style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(5rem, 16vw, 9rem)", fontWeight: 700,
+                  color: "hsl(0 75% 35% / 0.35)", letterSpacing: "-0.03em" }}
               >
                 1961
               </div>
               <div
-                className="text-[8rem] font-bold leading-none text-border select-none -mt-4"
-                style={{ fontFamily: "'Fraunces', serif", color: "hsla(0, 0%, 0%, 0.06)" }}
+                className="select-none leading-none -mt-3"
+                style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(5rem, 16vw, 9rem)", fontWeight: 700,
+                  color: "hsl(0 75% 35% / 0.55)", letterSpacing: "-0.03em" }}
               >
                 1991
               </div>
+              {/* Thin red accent line */}
+              <div className="mt-4 w-12 h-px" style={{ background: "hsl(0 75% 45%)" }} />
             </div>
             <div className="col-span-12 md:col-span-7">
-              <div className="data-label mb-4 text-primary">Our Mission</div>
-              <div className="rule-accent mb-6" />
+              <div className="data-label mb-4" style={{ color: "hsl(0 75% 55%)" }}>Our Mission</div>
+              <div className="rule-accent mb-6" style={{ background: "hsl(0 75% 45%)" }} />
               <p
                 className="text-xl leading-relaxed mb-6"
-                style={{ fontFamily: "'Fraunces', serif" }}
+                style={{ fontFamily: "'Fraunces', serif", color: "hsl(30 10% 90%)" }}
               >
                 This archive exists because forgetting is its own form of occupation. 
                 Every name recorded is a small act of liberation.
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+              <p className="text-sm leading-relaxed mb-6" style={{ color: "hsl(30 5% 55%)" }}>
                 The Eritrean liberation struggle (1961–1991) is one of the longest continuous independence 
                 movements in modern African history. An estimated 65,000 fighters gave their lives — men and women 
                 from every ethnic group, every religion, every corner of Eritrea — to secure the freedom of 
                 a nation that the world had forgotten.
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm leading-relaxed" style={{ color: "hsl(30 5% 55%)" }}>
                 This archive is dedicated to making sure they are not forgotten again. 
                 It is built for families, historians, and the global Eritrean diaspora who carry 
                 the weight of this history.
               </p>
 
-              <div className="mt-8 pt-8 border-t border-border grid grid-cols-2 gap-4">
+              <div className="mt-8 pt-8 grid grid-cols-2 gap-4" style={{ borderTop: "1px solid hsl(0 75% 35% / 0.25)" }}>
                 <Link to="/archive" className="group flex items-center gap-3">
-                  <div className="w-8 h-8 border border-border flex items-center justify-center group-hover:bg-foreground group-hover:border-foreground transition-all duration-200">
+                  <div className="w-8 h-8 flex items-center justify-center transition-all duration-200"
+                    style={{ border: "1px solid hsl(30 10% 30%)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "hsl(0 75% 35%)"; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(0 75% 35%)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = ""; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(30 10% 30%)"; }}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                       <path d="M1 6H11M7 2L11 6L7 10" stroke="currentColor" strokeWidth="1.5"/>
                     </svg>
                   </div>
-                  <span className="text-xs font-medium tracking-widest uppercase group-hover:text-primary transition-colors">Search Archive</span>
+                  <span className="text-xs font-medium tracking-widest uppercase transition-colors" style={{ color: "hsl(30 8% 65%)" }}>Search Archive</span>
                 </Link>
                 <Link to="/browse" className="group flex items-center gap-3">
-                  <div className="w-8 h-8 border border-border flex items-center justify-center group-hover:bg-foreground group-hover:border-foreground transition-all duration-200">
+                  <div className="w-8 h-8 flex items-center justify-center transition-all duration-200"
+                    style={{ border: "1px solid hsl(30 10% 30%)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "hsl(0 75% 35%)"; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(0 75% 35%)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = ""; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(30 10% 30%)"; }}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                       <rect x="1" y="1" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
                       <rect x="7" y="1" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
@@ -205,7 +236,7 @@ const Index = () => {
                       <rect x="7" y="7" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
                     </svg>
                   </div>
-                  <span className="text-xs font-medium tracking-widest uppercase group-hover:text-primary transition-colors">Browse History</span>
+                  <span className="text-xs font-medium tracking-widest uppercase transition-colors" style={{ color: "hsl(30 8% 65%)" }}>Browse History</span>
                 </Link>
               </div>
             </div>
