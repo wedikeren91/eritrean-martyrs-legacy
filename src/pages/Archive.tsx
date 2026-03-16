@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
-import MartyrCard from "@/components/MartyrCard";
 import SearchBar from "@/components/SearchBar";
-import { MARTYRS, CATEGORIES, searchMartyrs } from "@/data/martyrs";
+import { CATEGORIES } from "@/data/martyrs";
+import { usePersons } from "@/hooks/usePersons";
+import MartyrCardDB from "@/components/MartyrCardDB";
 
 const Archive = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-
-  const results = searchMartyrs(query, activeCategory);
+  const { persons, loading, total } = usePersons(query, activeCategory);
 
   return (
     <div className="min-h-screen bg-background grain-overlay">
@@ -19,7 +19,9 @@ const Archive = () => {
       <section className="border-b border-border bg-card">
         <div className="container mx-auto px-6 py-12">
           <div className="max-w-3xl">
-            <div className="data-label mb-4">The Archive · {MARTYRS.length} Records</div>
+            <div className="data-label mb-4">
+              The Archive · {loading ? "…" : `${total} Records`}
+            </div>
             <h1 className="display-title text-4xl md:text-5xl mb-6" style={{ fontFamily: "'Fraunces', serif" }}>
               Eritrean Martyrs<br />Directory
             </h1>
@@ -56,7 +58,13 @@ const Archive = () => {
 
       {/* Results */}
       <section className="container mx-auto px-6 py-10">
-        {results.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="bg-card border border-border animate-pulse" style={{ aspectRatio: "3/4" }} />
+            ))}
+          </div>
+        ) : persons.length === 0 ? (
           <div className="text-center py-24 animate-fade-scale">
             <div className="text-5xl mb-6 opacity-20">∅</div>
             <h3
@@ -67,26 +75,26 @@ const Archive = () => {
             </h3>
             <p className="text-muted-foreground text-sm">
               Help us complete the archive.{" "}
-              <a href="mailto:contribute@eritrean-martyrs.org" className="archive-link">
+              <Link to="/contributors" className="archive-link">
                 Submit a record →
-              </a>
+              </Link>
             </p>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between mb-6">
               <div className="data-label">
-                {results.length} {results.length === 1 ? "Record" : "Records"} Found
+                {persons.length} {persons.length === 1 ? "Record" : "Records"} Found
                 {query && ` · "${query}"`}
               </div>
               <div className="text-xs text-muted-foreground font-mono">
-                Page 1 of {Math.ceil(results.length / 10)}
+                Page 1 of {Math.ceil(persons.length / 10)}
               </div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-              {results.map((martyr, i) => (
-                <MartyrCard key={martyr.id} martyr={martyr} index={i} />
+              {persons.map((person, i) => (
+                <MartyrCardDB key={person.id} person={person} index={i} />
               ))}
             </div>
           </>

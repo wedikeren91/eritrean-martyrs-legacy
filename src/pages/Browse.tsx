@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
-import MartyrCard from "@/components/MartyrCard";
 import SearchBar from "@/components/SearchBar";
-import { CATEGORIES, searchMartyrs } from "@/data/martyrs";
+import { CATEGORIES } from "@/data/martyrs";
+import { usePersons } from "@/hooks/usePersons";
+import MartyrCardDB from "@/components/MartyrCardDB";
 
 const Browse = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-
-  const results = searchMartyrs(query, activeCategory);
+  const { persons, loading } = usePersons(query, activeCategory);
 
   const timelineEras = [
     { period: "1961–1970", label: "The Ignition", desc: "First shots fired at Mount Adal. Early organisation of liberation forces." },
@@ -71,7 +71,13 @@ const Browse = () => {
           </div>
         </div>
 
-        {results.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-card border border-border animate-pulse" style={{ aspectRatio: "3/4" }} />
+            ))}
+          </div>
+        ) : persons.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-muted-foreground text-sm">
               No record found. Help us complete the archive.{" "}
@@ -82,8 +88,8 @@ const Browse = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-            {results.map((martyr, i) => (
-              <MartyrCard key={martyr.id} martyr={martyr} index={i} />
+            {persons.map((person, i) => (
+              <MartyrCardDB key={person.id} person={person} index={i} />
             ))}
           </div>
         )}
