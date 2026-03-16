@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import MartyrCard from "@/components/MartyrCard";
 import { MARTYRS } from "@/data/martyrs";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const featuredMartyrs = MARTYRS.slice(0, 3);
 
