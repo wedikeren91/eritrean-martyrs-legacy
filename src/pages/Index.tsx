@@ -8,84 +8,119 @@ const featuredMartyrs = MARTYRS.slice(0, 3);
 
 const Index = () => {
   const { ref: martyrsRef, visible: martyrsVisible } = useScrollReveal(0.1);
+  const { ref: missionRef, visible: missionVisible } = useScrollReveal(0.1);
+
   return (
     <div className="min-h-screen bg-background grain-overlay">
       <SiteHeader />
 
       {/* HERO */}
-      <section className="relative border-b border-border overflow-hidden" style={{ minHeight: "90vh", background: "hsl(0 0% 8%)" }}>
-        {/* Subtle red vignette from top-left */}
+      <section className="relative border-b border-border overflow-hidden" style={{ minHeight: "92vh", background: "hsl(220 15% 6%)" }}>
+        {/* Ambient red glow top-left */}
         <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse 70% 60% at 10% 20%, hsl(0 75% 35% / 0.18) 0%, transparent 70%)"
+          background: "radial-gradient(ellipse 65% 55% at 5% 15%, hsl(4 82% 48% / 0.14) 0%, transparent 70%)"
         }} />
-        {/* Grain texture overlay */}
-        <div className="absolute inset-0 pointer-events-none opacity-30 grain-overlay" />
+        {/* Subtle bottom vignette */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none" style={{
+          background: "linear-gradient(to top, hsl(220 15% 6%) 0%, transparent 100%)"
+        }} />
         {/* Large ghost year watermark */}
         <div className="absolute right-0 bottom-0 pointer-events-none select-none overflow-hidden"
-          style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(10rem, 28vw, 22rem)", fontWeight: 700, lineHeight: 0.85,
-            color: "hsl(0 75% 35% / 0.07)", letterSpacing: "-0.04em" }}>
+          style={{
+            fontFamily: "'Fraunces', serif",
+            fontSize: "clamp(10rem, 28vw, 22rem)",
+            fontWeight: 700,
+            lineHeight: 0.85,
+            color: "hsl(4 82% 48% / 0.055)",
+            letterSpacing: "-0.04em"
+          }}>
           1991
         </div>
 
         <div className="container mx-auto px-6 h-full relative z-10">
-          {/* Mobile: single column stack. Desktop: side-by-side grid */}
-          <div className="flex flex-col lg:grid lg:grid-cols-12 lg:min-h-[90vh]">
+          <div className="flex flex-col lg:grid lg:grid-cols-12 lg:min-h-[92vh]">
 
             {/* Left — Text */}
-            <div className="lg:col-span-7 flex flex-col justify-center pt-16 pb-10 lg:py-0 lg:pr-16">
+            <div className="lg:col-span-7 flex flex-col justify-center pt-20 pb-10 lg:py-0 lg:pr-16">
               <div className="animate-fade-scale">
-                {/* Emblem */}
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="rule-accent" style={{ background: "hsl(0 75% 35%)" }} />
-                  <span className="data-label" style={{ color: "hsl(0 75% 55%)", letterSpacing: "0.18em" }}>
+                {/* Label */}
+                <div className="mb-7 flex items-center gap-3">
+                  <div className="h-px w-8" style={{ background: "hsl(var(--oxblood))" }} />
+                  <span className="data-label" style={{ color: "hsl(var(--oxblood-bright))", letterSpacing: "0.2em" }}>
                     Eritrean Martyrs Archive · 1961–1991
                   </span>
                 </div>
 
-                <h1 className="display-name mb-4" style={{ fontFamily: "'Fraunces', serif", color: "hsl(30 10% 96%)" }}>
+                <h1 className="display-name mb-5" style={{ color: "hsl(var(--foreground))" }}>
                   They gave their<br />
-                  <span style={{ color: "hsl(0 75% 55%)" }}>tomorrows</span><br />
+                  <em style={{
+                    fontStyle: "italic",
+                    color: "hsl(var(--oxblood-bright))",
+                    textShadow: "0 0 40px hsl(4 82% 48% / 0.35)"
+                  }}>tomorrows</em><br />
                   for our today.
                 </h1>
 
-                <p className="mt-6 text-base lg:text-lg leading-relaxed max-w-lg" style={{ color: "hsl(30 8% 65%)" }}>
-                  A living archive of those who sacrificed their lives during The Struggle for Eritrean independence. 
+                <p className="mt-5 text-base lg:text-lg leading-relaxed max-w-lg" style={{ color: "hsl(var(--muted-foreground))" }}>
+                  A living archive of those who sacrificed their lives during The Struggle for Eritrean independence.
                   Every name is a monument. Every record is an act of remembrance.
                 </p>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-px mt-8 mb-8" style={{ background: "hsl(0 75% 35% / 0.3)" }}>
-                  <div className="p-4 lg:p-5" style={{ background: "hsl(0 0% 12%)" }}>
-                    <div className="font-mono text-2xl lg:text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>65K+</div>
-                    <div className="data-label mt-1" style={{ color: "hsl(30 5% 50%)" }}>Martyrs Estimated</div>
-                  </div>
-                  <div className="p-4 lg:p-5" style={{ background: "hsl(0 0% 12%)" }}>
-                    <div className="font-mono text-2xl lg:text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>30</div>
-                    <div className="data-label mt-1" style={{ color: "hsl(30 5% 50%)" }}>Years of Struggle</div>
-                  </div>
-                  <div className="p-4 lg:p-5" style={{ background: "hsl(0 0% 12%)" }}>
-                    <div className="font-mono text-2xl lg:text-3xl font-bold" style={{ color: "hsl(0 75% 60%)" }}>{MARTYRS.length}</div>
-                    <div className="data-label mt-1" style={{ color: "hsl(30 5% 50%)" }}>Records in Archive</div>
-                  </div>
+                <div className="grid grid-cols-3 gap-3 mt-8 mb-9">
+                  {[
+                    { value: "65K+", label: "Martyrs Estimated" },
+                    { value: "30", label: "Years of Struggle" },
+                    { value: MARTYRS.length.toString(), label: "Records in Archive" },
+                  ].map((stat) => (
+                    <div key={stat.label} className="stat-card p-4 lg:p-5">
+                      <div
+                        className="font-mono text-2xl lg:text-3xl font-bold"
+                        style={{ color: "hsl(var(--oxblood-bright))" }}
+                      >
+                        {stat.value}
+                      </div>
+                      <div className="data-label mt-1.5">{stat.label}</div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* CTAs */}
                 <div className="flex gap-3 flex-wrap">
                   <Link
                     to="/archive"
-                    className="inline-block px-6 py-3 text-sm font-semibold tracking-widest uppercase transition-colors duration-300"
-                    style={{ background: "hsl(0 75% 35%)", color: "hsl(30 10% 96%)" }}
-                    onMouseEnter={e => (e.currentTarget.style.background = "hsl(0 75% 42%)")}
-                    onMouseLeave={e => (e.currentTarget.style.background = "hsl(0 75% 35%)")}
+                    className="inline-block px-7 py-3.5 text-xs font-bold tracking-[0.18em] uppercase transition-all duration-300"
+                    style={{
+                      background: "hsl(var(--oxblood))",
+                      color: "hsl(var(--primary-foreground))",
+                      boxShadow: "0 4px 20px -4px hsl(4 82% 48% / 0.5)"
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = "hsl(var(--oxblood-bright))";
+                      e.currentTarget.style.boxShadow = "0 6px 28px -4px hsl(4 82% 48% / 0.65)";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = "hsl(var(--oxblood))";
+                      e.currentTarget.style.boxShadow = "0 4px 20px -4px hsl(4 82% 48% / 0.5)";
+                    }}
                   >
                     Enter the Archive
                   </Link>
                   <Link
                     to="/browse"
-                    className="inline-block px-6 py-3 text-sm font-semibold tracking-widest uppercase transition-colors duration-300"
-                    style={{ border: "1px solid hsl(30 10% 96% / 0.2)", color: "hsl(30 8% 65%)" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = "hsl(30 10% 96% / 0.6)"; e.currentTarget.style.color = "hsl(30 10% 96%)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = "hsl(30 10% 96% / 0.2)"; e.currentTarget.style.color = "hsl(30 8% 65%)"; }}
+                    className="inline-block px-7 py-3.5 text-xs font-bold tracking-[0.18em] uppercase transition-all duration-300"
+                    style={{
+                      border: "1px solid hsl(var(--border))",
+                      color: "hsl(var(--muted-foreground))"
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = "hsl(var(--foreground) / 0.4)";
+                      e.currentTarget.style.color = "hsl(var(--foreground))";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = "hsl(var(--border))";
+                      e.currentTarget.style.color = "hsl(var(--muted-foreground))";
+                    }}
                   >
                     Browse the Struggle
                   </Link>
@@ -93,85 +128,104 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Right — Featured Portrait Stack (hidden on small mobile, shown from sm up) */}
-            <div className="lg:col-span-5 relative flex items-center justify-center py-10 lg:py-0">
+            {/* Right — Featured Portrait Stack */}
+            <div className="lg:col-span-5 relative flex items-center justify-center py-12 lg:py-0">
               <div className="relative w-full max-w-[260px] sm:max-w-xs mx-auto">
-                {/* Stacked portrait cards */}
                 {featuredMartyrs.slice(0, 3).map((martyr, i) => (
                   <Link
                     to={`/martyr/${martyr.slug}`}
                     key={martyr.id}
                     className={`absolute block animate-fade-scale stagger-${i + 2}`}
                     style={{
-                      top: `${i * 20}px`,
-                      left: `${i * 12}px`,
-                      right: `${-i * 0}px`,
+                      top: `${i * 22}px`,
+                      left: `${i * 14}px`,
                       zIndex: 3 - i,
-                      transform: `rotate(${(i - 1) * 1.5}deg)`,
+                      transform: `rotate(${(i - 1) * 1.8}deg)`,
                     }}
                   >
-                     <div className="shadow-2xl overflow-hidden" style={{ width: "100%", aspectRatio: "3/4", background: "hsl(0 0% 14%)", border: "1px solid hsl(0 75% 35% / 0.3)" }}>
-                       <div className="relative w-full h-full">
-                         <img
-                           src={martyr.photo_url}
-                           alt={`${martyr.first_name} ${martyr.last_name}`}
-                           className="historical-photo w-full h-full object-cover object-top"
-                         />
-                         <div className="absolute bottom-0 left-0 right-0 p-3" style={{ background: "linear-gradient(to top, hsl(0 0% 5%) 0%, transparent 100%)" }}>
-                           <div
-                             className="text-base font-semibold leading-tight"
-                             style={{ fontFamily: "'Fraunces', serif", color: "hsl(30 10% 96%)" }}
-                           >
-                             {martyr.first_name} {martyr.last_name}
-                           </div>
-                           <div className="font-mono mt-0.5 text-xs" style={{ color: "hsl(0 75% 55%)" }}>
-                             ✦ {new Date(martyr.date_of_death || "").getFullYear()}
-                           </div>
-                         </div>
-                       </div>
-                     </div>
+                    <div
+                      className="overflow-hidden portrait-glow"
+                      style={{
+                        width: "100%",
+                        aspectRatio: "3/4",
+                        background: "hsl(var(--card))",
+                        border: `1px solid hsl(4 82% 48% / ${i === 0 ? "0.5" : "0.2"})`,
+                        opacity: i === 0 ? 1 : i === 1 ? 0.85 : 0.65,
+                      }}
+                    >
+                      <div className="relative w-full h-full">
+                        <img
+                          src={martyr.photo_url}
+                          alt={`${martyr.first_name} ${martyr.last_name}`}
+                          className="historical-photo w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
+                        />
+                        {/* Strong gradient for text legibility */}
+                        <div
+                          className="absolute bottom-0 left-0 right-0 p-4"
+                          style={{
+                            background: "linear-gradient(to top, rgba(10,10,14,0.97) 0%, rgba(10,10,14,0.7) 50%, transparent 100%)",
+                            paddingTop: "3rem"
+                          }}
+                        >
+                          <div
+                            className="text-sm font-semibold leading-tight"
+                            style={{ fontFamily: "'Fraunces', serif", color: "hsl(35 20% 93%)" }}
+                          >
+                            {martyr.first_name} {martyr.last_name}
+                          </div>
+                          <div className="font-mono mt-1 text-xs flex items-center gap-1.5" style={{ color: "hsl(var(--oxblood-bright))" }}>
+                            <span style={{ color: "hsl(var(--gold))" }}>✦</span>
+                            <span>{new Date(martyr.date_of_death || "").getFullYear()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </Link>
                 ))}
-                {/* Spacer to give the stacked cards height */}
-                <div style={{ paddingBottom: "140%", position: "relative" }} />
+                {/* Spacer */}
+                <div style={{ paddingBottom: "145%", position: "relative" }} />
               </div>
             </div>
+
           </div>
         </div>
 
         {/* Decorative vertical rule */}
         <div
           className="absolute left-1/2 top-0 bottom-0 hidden lg:block"
-          style={{ width: "1px", background: "hsl(0 75% 35% / 0.15)" }}
+          style={{ width: "1px", background: "hsl(4 82% 48% / 0.1)" }}
         />
       </section>
 
       {/* FEATURED MARTYRS */}
-      <section className="container mx-auto px-6 py-16">
-        <div className="flex items-end justify-between mb-8">
+      <section className="container mx-auto px-6 py-16 lg:py-20">
+        <div className="flex items-end justify-between mb-10">
           <div>
-            <div className="data-label mb-2">Featured Records</div>
-            <h2 className="display-sm text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>
+            <div className="data-label mb-2" style={{ color: "hsl(var(--oxblood-bright))" }}>Featured Records</div>
+            <h2 className="display-sm text-2xl" style={{ fontFamily: "'Fraunces', serif", color: "hsl(var(--foreground))" }}>
               Cornerstone Figures of The Struggle
             </h2>
           </div>
           <Link
             to="/archive"
-            className="text-xs font-mono tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4 decoration-1"
+            className="text-xs font-mono tracking-widest uppercase transition-colors underline underline-offset-4 decoration-1"
+            style={{ color: "hsl(var(--muted-foreground))" }}
+            onMouseEnter={e => e.currentTarget.style.color = "hsl(var(--foreground))"}
+            onMouseLeave={e => e.currentTarget.style.color = "hsl(var(--muted-foreground))"}
           >
-            View All {MARTYRS.length} Records →
+            View All {MARTYRS.length} →
           </Link>
         </div>
 
-        <div ref={martyrsRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div ref={martyrsRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
           {MARTYRS.slice(0, 4).map((martyr, i) => (
             <div
               key={martyr.id}
               style={{
                 opacity: martyrsVisible ? 1 : 0,
-                transform: martyrsVisible ? "translateY(0)" : "translateY(32px)",
-                transition: `opacity 0.6s ease, transform 0.6s ease`,
-                transitionDelay: martyrsVisible ? `${i * 120}ms` : "0ms",
+                transform: martyrsVisible ? "translateY(0)" : "translateY(40px)",
+                transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)`,
+                transitionDelay: martyrsVisible ? `${i * 130}ms` : "0ms",
               }}
             >
               <MartyrCard martyr={martyr} index={i} />
@@ -181,116 +235,154 @@ const Index = () => {
       </section>
 
       {/* MISSION STATEMENT */}
-      <section className="border-t border-b border-border" style={{ background: "hsl(0 0% 10%)" }}>
-        <div className="container mx-auto px-6 py-16">
+      <section
+        className="border-t border-b border-border"
+        style={{ background: "hsl(220 15% 5%)" }}
+        ref={missionRef}
+      >
+        <div className="container mx-auto px-6 py-16 lg:py-20">
           <div className="grid grid-cols-12 gap-8 items-center">
-            <div className="col-span-12 md:col-span-5 relative">
-              {/* Large decorative year — now oxblood and bold */}
+
+            {/* Years decoration */}
+            <div
+              className="col-span-12 md:col-span-5 relative"
+              style={{
+                opacity: missionVisible ? 1 : 0,
+                transform: missionVisible ? "translateX(0)" : "translateX(-32px)",
+                transition: "opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1)",
+              }}
+            >
               <div
                 className="select-none leading-none"
-                style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(5rem, 16vw, 9rem)", fontWeight: 700,
-                  color: "hsl(0 75% 35% / 0.35)", letterSpacing: "-0.03em" }}
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  fontSize: "clamp(5rem, 16vw, 9rem)",
+                  fontWeight: 700,
+                  color: "hsl(4 82% 48% / 0.25)",
+                  letterSpacing: "-0.03em"
+                }}
               >
                 1961
               </div>
               <div
-                className="select-none leading-none -mt-3"
-                style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(5rem, 16vw, 9rem)", fontWeight: 700,
-                  color: "hsl(0 75% 35% / 0.55)", letterSpacing: "-0.03em" }}
+                className="select-none leading-none -mt-2"
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  fontSize: "clamp(5rem, 16vw, 9rem)",
+                  fontWeight: 700,
+                  color: "hsl(4 82% 48% / 0.5)",
+                  letterSpacing: "-0.03em"
+                }}
               >
                 1991
               </div>
-              {/* Thin red accent line */}
-              <div className="mt-4 w-12 h-px" style={{ background: "hsl(0 75% 45%)" }} />
+              <div className="mt-5 w-12 h-0.5" style={{ background: "hsl(var(--oxblood))" }} />
             </div>
-            <div className="col-span-12 md:col-span-7">
-              <div className="data-label mb-4" style={{ color: "hsl(0 75% 55%)" }}>Our Mission</div>
-              <div className="rule-accent mb-6" style={{ background: "hsl(0 75% 45%)" }} />
+
+            {/* Text */}
+            <div
+              className="col-span-12 md:col-span-7"
+              style={{
+                opacity: missionVisible ? 1 : 0,
+                transform: missionVisible ? "translateX(0)" : "translateX(32px)",
+                transition: "opacity 0.8s cubic-bezier(0.16,1,0.3,1) 0.15s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 0.15s",
+              }}
+            >
+              <div className="data-label mb-4" style={{ color: "hsl(var(--oxblood-bright))" }}>Our Mission</div>
+              <div className="rule-accent mb-6" />
               <p
                 className="text-xl leading-relaxed mb-6"
-                style={{ fontFamily: "'Fraunces', serif", color: "hsl(30 10% 90%)" }}
+                style={{ fontFamily: "'Fraunces', serif", color: "hsl(var(--foreground))" }}
               >
-                This archive exists because forgetting is its own form of occupation. 
+                This archive exists because forgetting is its own form of occupation.
                 Every name recorded is a small act of liberation.
               </p>
-              <p className="text-sm leading-relaxed mb-6" style={{ color: "hsl(30 5% 55%)" }}>
-                The Eritrean liberation struggle (1961–1991) is one of the longest continuous independence 
-                movements in modern African history. An estimated 65,000 fighters gave their lives — men and women 
-                from every ethnic group, every religion, every corner of Eritrea — to secure the freedom of 
+              <p className="text-sm leading-relaxed mb-4" style={{ color: "hsl(var(--muted-foreground))" }}>
+                The Eritrean liberation struggle (1961–1991) is one of the longest continuous independence
+                movements in modern African history. An estimated 65,000 fighters gave their lives — men and women
+                from every ethnic group, every religion, every corner of Eritrea — to secure the freedom of
                 a nation that the world had forgotten.
               </p>
-              <p className="text-sm leading-relaxed" style={{ color: "hsl(30 5% 55%)" }}>
-                This archive is dedicated to making sure they are not forgotten again. 
-                It is built for families, historians, and the global Eritrean diaspora who carry 
+              <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>
+                This archive is dedicated to making sure they are not forgotten again.
+                It is built for families, historians, and the global Eritrean diaspora who carry
                 the weight of this history.
               </p>
 
-              <div className="mt-8 pt-8 grid grid-cols-2 gap-4" style={{ borderTop: "1px solid hsl(0 75% 35% / 0.25)" }}>
-                <Link to="/archive" className="group flex items-center gap-3">
-                  <div className="w-8 h-8 flex items-center justify-center transition-all duration-200"
-                    style={{ border: "1px solid hsl(30 10% 30%)" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "hsl(0 75% 35%)"; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(0 75% 35%)"; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = ""; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(30 10% 30%)"; }}>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M1 6H11M7 2L11 6L7 10" stroke="currentColor" strokeWidth="1.5"/>
-                    </svg>
-                  </div>
-                  <span className="text-xs font-medium tracking-widest uppercase transition-colors" style={{ color: "hsl(30 8% 65%)" }}>Search Archive</span>
-                </Link>
-                <Link to="/browse" className="group flex items-center gap-3">
-                  <div className="w-8 h-8 flex items-center justify-center transition-all duration-200"
-                    style={{ border: "1px solid hsl(30 10% 30%)" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "hsl(0 75% 35%)"; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(0 75% 35%)"; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = ""; (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(30 10% 30%)"; }}>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <rect x="1" y="1" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
-                      <rect x="7" y="1" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
-                      <rect x="1" y="7" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
-                      <rect x="7" y="7" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/>
-                    </svg>
-                  </div>
-                  <span className="text-xs font-medium tracking-widest uppercase transition-colors" style={{ color: "hsl(30 8% 65%)" }}>Browse History</span>
-                </Link>
+              <div
+                className="mt-8 pt-8 grid grid-cols-2 gap-4"
+                style={{ borderTop: "1px solid hsl(var(--border))" }}
+              >
+                {[
+                  { to: "/archive", label: "Search Archive", icon: <path d="M1 6H11M7 2L11 6L7 10" stroke="currentColor" strokeWidth="1.5"/> },
+                  { to: "/browse", label: "Browse History", icon: <><rect x="1" y="1" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/><rect x="7" y="1" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/><rect x="1" y="7" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/><rect x="7" y="7" width="4" height="4" stroke="currentColor" strokeWidth="1.5"/></> },
+                ].map((item) => (
+                  <Link key={item.to} to={item.to} className="group flex items-center gap-3">
+                    <div
+                      className="w-8 h-8 flex items-center justify-center transition-all duration-200"
+                      style={{ border: "1px solid hsl(var(--border))" }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLDivElement).style.background = "hsl(var(--oxblood))";
+                        (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(var(--oxblood))";
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLDivElement).style.background = "";
+                        (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(var(--border))";
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">{item.icon}</svg>
+                    </div>
+                    <span
+                      className="text-xs font-medium tracking-widest uppercase transition-colors"
+                      style={{ color: "hsl(var(--muted-foreground))" }}
+                      onMouseEnter={e => e.currentTarget.style.color = "hsl(var(--foreground))"}
+                      onMouseLeave={e => e.currentTarget.style.color = "hsl(var(--muted-foreground))"}
+                    >
+                      {item.label}
+                    </span>
+                  </Link>
+                ))}
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
       {/* MARTYRS' DAY BANNER */}
-      <section className="bg-primary text-primary-foreground">
+      <section style={{ background: "hsl(4 82% 40%)" }}>
         <div className="container mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <div className="text-xs font-mono tracking-widest uppercase opacity-70 mb-1">
+            <div className="text-xs font-mono tracking-widest uppercase mb-1" style={{ color: "hsl(4 82% 75%)" }}>
               Commemorated Annually
             </div>
-            <p className="font-semibold text-lg" style={{ fontFamily: "'Fraunces', serif" }}>
+            <p className="font-semibold text-lg" style={{ fontFamily: "'Fraunces', serif", color: "hsl(35 20% 96%)" }}>
               Martyrs' Day — June 20th
             </p>
           </div>
-          <p className="text-sm opacity-80 max-w-md text-center md:text-right leading-relaxed">
-            On June 20 each year, Eritreans around the world pause to remember those 
+          <p className="text-sm max-w-md text-center md:text-right leading-relaxed" style={{ color: "hsl(4 82% 88%)" }}>
+            On June 20 each year, Eritreans around the world pause to remember those
             who gave their lives for the nation's independence.
           </p>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-border">
-        <div className="container mx-auto px-6 py-10">
+      <footer className="border-t border-border" style={{ background: "hsl(220 15% 5%)" }}>
+        <div className="container mx-auto px-6 py-12">
           <div className="grid grid-cols-12 gap-8">
             <div className="col-span-12 md:col-span-4">
-              <div className="display-sm text-lg mb-2" style={{ fontFamily: "'Fraunces', serif" }}>
+              <div className="display-sm text-lg mb-1" style={{ fontFamily: "'Fraunces', serif", color: "hsl(var(--foreground))" }}>
                 Eritrean Martyrs Archive
               </div>
-              <div className="data-label text-muted-foreground mb-4">1961 — 1991 · The Struggle</div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
+              <div className="data-label mb-4" style={{ color: "hsl(var(--oxblood-bright))" }}>1961 — 1991 · The Struggle</div>
+              <p className="text-xs leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>
                 A living, searchable site of remembrance for the fallen of Eritrea's liberation struggle.
               </p>
             </div>
             <div className="col-span-6 md:col-span-2 md:col-start-7">
               <div className="data-label mb-4">Navigate</div>
-              <nav className="space-y-2">
+              <nav className="space-y-2.5">
                 {[
                   { to: "/", label: "Home" },
                   { to: "/archive", label: "Archive" },
@@ -300,7 +392,10 @@ const Index = () => {
                   <Link
                     key={link.to}
                     to={link.to}
-                    className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="block text-xs transition-colors"
+                    style={{ color: "hsl(var(--muted-foreground))" }}
+                    onMouseEnter={e => e.currentTarget.style.color = "hsl(var(--foreground))"}
+                    onMouseLeave={e => e.currentTarget.style.color = "hsl(var(--muted-foreground))"}
                   >
                     {link.label}
                   </Link>
@@ -309,33 +404,32 @@ const Index = () => {
             </div>
             <div className="col-span-6 md:col-span-2">
               <div className="data-label mb-4">Contribute</div>
-              <nav className="space-y-2">
-                {[
-                  { href: "/contributors", label: "Submit a Record", internal: true },
-                  { href: "mailto:info@eritrean-martyrs.org", label: "Contact", internal: false },
-                ].map((link) => (
-                  link.internal ? (
-                    <Link
-                      key={link.href}
-                      to={link.href}
-                      className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  ) : (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </a>
-                  )
-                ))}
+              <nav className="space-y-2.5">
+                <Link
+                  to="/contributors"
+                  className="block text-xs transition-colors"
+                  style={{ color: "hsl(var(--muted-foreground))" }}
+                  onMouseEnter={e => e.currentTarget.style.color = "hsl(var(--foreground))"}
+                  onMouseLeave={e => e.currentTarget.style.color = "hsl(var(--muted-foreground))"}
+                >
+                  Submit a Record
+                </Link>
+                <a
+                  href="mailto:info@eritrean-martyrs.org"
+                  className="block text-xs transition-colors"
+                  style={{ color: "hsl(var(--muted-foreground))" }}
+                  onMouseEnter={e => e.currentTarget.style.color = "hsl(var(--foreground))"}
+                  onMouseLeave={e => e.currentTarget.style.color = "hsl(var(--muted-foreground))"}
+                >
+                  Contact
+                </a>
               </nav>
             </div>
           </div>
-          <div className="mt-12 pt-8 border-t border-border text-xs text-muted-foreground flex flex-col md:flex-row justify-between gap-2">
+          <div
+            className="mt-12 pt-8 text-xs flex flex-col md:flex-row justify-between gap-2"
+            style={{ borderTop: "1px solid hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}
+          >
             <p>© 2025 Eritrean Martyrs Archive. Built with dignity.</p>
             <p className="font-mono">ዝሓለፉ ሰማእታት ንዘልኣለም ይዘከሩ — The fallen shall be remembered forever.</p>
           </div>

@@ -69,7 +69,13 @@ export default {
         },
         oxblood: {
           DEFAULT: "hsl(var(--oxblood))",
+          bright: "hsl(var(--oxblood-bright))",
           dark: "hsl(var(--oxblood-dark))",
+          glow: "hsl(var(--oxblood-glow))",
+        },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          dim: "hsl(var(--gold-dim))",
         },
         paper: "hsl(var(--paper))",
         ink: "hsl(var(--ink))",
@@ -89,14 +95,14 @@ export default {
           to: { height: "0" },
         },
         "fade-scale-in": {
-          from: { opacity: "0", transform: "scale(0.98)" },
-          to: { opacity: "1", transform: "scale(1)" },
+          from: { opacity: "0", transform: "scale(0.97) translateY(8px)" },
+          to: { opacity: "1", transform: "scale(1) translateY(0)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-scale-in": "fade-scale-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "fade-scale-in": "fade-scale-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards",
       },
       letterSpacing: {
         tightest: "-0.04em",
