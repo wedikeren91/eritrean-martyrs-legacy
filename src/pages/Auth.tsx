@@ -23,16 +23,17 @@ export default function Auth() {
       if (error) setMessage({ type: "error", text: error.message });
       else navigate("/");
     } else if (mode === "signup") {
+      const redirectTo = `${window.location.origin}/auth`;
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: { display_name: displayName || email.split("@")[0] },
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: redirectTo,
         },
       });
       if (error) setMessage({ type: "error", text: error.message });
-      else setMessage({ type: "success", text: "Check your email for a verification link. You can log in once verified." });
+      else setMessage({ type: "success", text: `Check your email for a verification link. Once you click it you'll be taken back here to sign in. (Make sure to open the link on the same device.)` });
     } else {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
