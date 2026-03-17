@@ -15,14 +15,10 @@ const Index = () => {
       <SiteHeader />
 
       {/* HERO */}
-      <section className="relative border-b border-border overflow-hidden" style={{ minHeight: "92vh", background: "hsl(220 15% 6%)" }}>
-        {/* Ambient red glow top-left */}
+      <section className="relative border-b border-border overflow-hidden" style={{ minHeight: "92vh", background: "hsl(var(--background))" }}>
+        {/* Subtle warm tint top-left */}
         <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse 65% 55% at 5% 15%, hsl(4 82% 48% / 0.14) 0%, transparent 70%)"
-        }} />
-        {/* Subtle bottom vignette */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none" style={{
-          background: "linear-gradient(to top, hsl(220 15% 6%) 0%, transparent 100%)"
+          background: "radial-gradient(ellipse 65% 55% at 5% 15%, hsl(4 78% 42% / 0.06) 0%, transparent 70%)"
         }} />
         {/* Large ghost year watermark */}
         <div className="absolute right-0 bottom-0 pointer-events-none select-none overflow-hidden"
@@ -31,7 +27,7 @@ const Index = () => {
             fontSize: "clamp(10rem, 28vw, 22rem)",
             fontWeight: 700,
             lineHeight: 0.85,
-            color: "hsl(4 82% 48% / 0.055)",
+            color: "hsl(4 78% 42% / 0.07)",
             letterSpacing: "-0.04em"
           }}>
           1991
@@ -237,7 +233,7 @@ const Index = () => {
       {/* MISSION STATEMENT */}
       <section
         className="border-t border-b border-border"
-        style={{ background: "hsl(220 15% 5%)" }}
+        style={{ background: "hsl(var(--muted))" }}
         ref={missionRef}
       >
         <div className="container mx-auto px-6 py-16 lg:py-20">
@@ -368,7 +364,7 @@ const Index = () => {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-border" style={{ background: "hsl(220 15% 5%)" }}>
+      <footer className="border-t border-border" style={{ background: "hsl(var(--foreground))" }}>
         <div className="container mx-auto px-6 py-12">
           <div className="grid grid-cols-12 gap-8">
             <div className="col-span-12 md:col-span-4">
