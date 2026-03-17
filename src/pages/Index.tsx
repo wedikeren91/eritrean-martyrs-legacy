@@ -364,7 +364,7 @@ const Index = () => {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-border" style={{ background: "hsl(220 15% 5%)" }}>
+      <footer className="border-t border-border" style={{ background: "hsl(var(--foreground))" }}>
         <div className="container mx-auto px-6 py-12">
           <div className="grid grid-cols-12 gap-8">
             <div className="col-span-12 md:col-span-4">
