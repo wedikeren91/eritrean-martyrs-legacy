@@ -11,7 +11,7 @@ const MartyrCard = ({ martyr, index = 0 }: MartyrCardProps) => {
 
   return (
     <Link to={`/martyr/${martyr.slug}`} className={`opacity-0 animate-fade-scale ${staggerClass} group block`}>
-      <article className="netflix-card overflow-hidden relative cursor-pointer" style={{ aspectRatio: "3/4", background: "hsl(var(--card))" }}>
+      <article className="netflix-card overflow-hidden relative cursor-pointer" style={{ aspectRatio: "3/4", background: "hsl(var(--muted))" }}>
         {/* Portrait — full bleed */}
         <img
           src={martyr.photo_url}
@@ -21,38 +21,35 @@ const MartyrCard = ({ martyr, index = 0 }: MartyrCardProps) => {
         />
 
         {/* Category badge */}
-        <div className="absolute top-3 left-3 z-10" style={{ background: "hsl(220 15% 6% / 0.85)", padding: "2px 8px" }}>
-          <span className="text-[8px] font-mono font-bold tracking-widest uppercase" style={{ color: "hsl(var(--oxblood-bright))" }}>
+        <div className="absolute top-3 left-3 z-10" style={{ background: "hsl(var(--oxblood))", padding: "2px 8px" }}>
+          <span className="text-[8px] font-mono font-bold tracking-widest uppercase" style={{ color: "hsl(35 25% 97%)" }}>
             {martyr.category}
           </span>
         </div>
 
-        {/* Strong bottom gradient overlay — always visible */}
+        {/* Strong bottom gradient — guarantees legibility */}
         <div
-          className="absolute bottom-0 left-0 right-0 z-10"
-          style={{
-            background: "linear-gradient(to top, hsl(220 15% 6%) 0%, hsl(220 15% 6% / 0.85) 45%, transparent 100%)",
-            padding: "1.5rem 1rem 1rem",
-          }}
+          className="card-text-overlay absolute bottom-0 left-0 right-0 z-10"
+          style={{ padding: "2rem 0.75rem 0.85rem" }}
         >
           {/* Name */}
           <h3
-            className="text-sm font-semibold leading-tight mb-1.5 group-hover:text-primary transition-colors duration-300"
-            style={{ fontFamily: "'Fraunces', serif", color: "hsl(35 20% 96%)" }}
+            className="text-sm font-semibold leading-tight mb-1 group-hover:text-oxblood-bright transition-colors duration-300"
+            style={{ fontFamily: "'Fraunces', serif", color: "#fff" }}
           >
             {martyr.first_name} {martyr.last_name}
           </h3>
           {martyr.known_as && (
-            <p className="text-[9px] italic mb-1.5" style={{ color: "hsl(35 20% 70%)" }}>"{martyr.known_as}"</p>
+            <p className="text-[9px] italic mb-1.5" style={{ color: "hsl(35 20% 78%)" }}>"{martyr.known_as}"</p>
           )}
 
-          {/* Dates row */}
-          <div className="flex items-center gap-2 text-[10px] font-mono">
-            <span style={{ color: "hsl(35 20% 65%)" }}>
-              ✦ {martyr.date_of_birth ? formatDate(martyr.date_of_birth) : "—"}
+          {/* Dates row — high contrast */}
+          <div className="flex items-center gap-1.5 text-[11px] font-mono font-semibold">
+            <span style={{ color: "hsl(38 70% 72%)" }}>
+              {martyr.date_of_birth ? formatDate(martyr.date_of_birth) : "—"}
             </span>
-            <span style={{ color: "hsl(220 10% 35%)" }}>→</span>
-            <span style={{ color: "hsl(var(--oxblood-bright))", fontWeight: 700 }}>
+            <span style={{ color: "hsl(220 10% 55%)" }}>–</span>
+            <span style={{ color: "hsl(4 85% 72%)", fontWeight: 700 }}>
               {martyr.date_of_death ? formatDate(martyr.date_of_death) : "—"}
             </span>
           </div>
