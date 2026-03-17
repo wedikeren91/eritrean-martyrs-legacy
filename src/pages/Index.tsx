@@ -233,7 +233,7 @@ const Index = () => {
       {/* MISSION STATEMENT */}
       <section
         className="border-t border-b border-border"
-        style={{ background: "hsl(220 15% 5%)" }}
+        style={{ background: "hsl(var(--muted))" }}
         ref={missionRef}
       >
         <div className="container mx-auto px-6 py-16 lg:py-20">
