@@ -43,6 +43,13 @@ const ERITREAN_REGIONS = [
 
 const CATEGORIES = ["Martyr", "ELF", "EPLF", "PLF", "Civilian", "Unknown", "Other"];
 
+const WARS = [
+  { value: "War of Liberation 1961–1991", label: "War of Liberation (1961–1991)" },
+  { value: "War of 1998–2000", label: "Eritrea–Ethiopia War (1998–2000)" },
+  { value: "Tigray War 2019–2022", label: "Tigray War (2019–2022)" },
+  { value: "Other", label: "Other / Unknown" },
+];
+
 const RELATION_OPTIONS = [
   { value: "family_direct", label: "Direct family (parent / sibling / child)" },
   { value: "family_extended", label: "Extended family (uncle, aunt, cousin…)" },

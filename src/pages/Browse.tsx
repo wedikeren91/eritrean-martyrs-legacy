@@ -16,6 +16,8 @@ const Browse = () => {
     { period: "1971–1980", label: "The Consolidation", desc: "EPLF formation. Strategic Withdrawal. The Siege of Nakfa begins." },
     { period: "1981–1988", label: "The Endurance", desc: "Nakfa holds. Six Ethiopian strategic offensives repelled. Red Star campaign defeated." },
     { period: "1989–1991", label: "The Liberation", desc: "Battle of Afabet. Fall of Keren, Massawa, Asmara. Independence: May 24, 1991." },
+    { period: "1998–2000", label: "War of 1998", desc: "Eritrea–Ethiopia border war. Over 70,000 lives lost across two years of intense fighting." },
+    { period: "2019–2022", label: "Tigray War", desc: "Eritrean forces engaged in the Tigray conflict. Significant casualties on all sides." },
   ];
 
   return (
