@@ -72,6 +72,24 @@ const Browse = () => {
               </button>
             ))}
           </div>
+
+          {/* War / Conflict filter */}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="data-label self-center mr-1 opacity-60">Conflict:</span>
+            {WARS.map((w) => (
+              <button
+                key={w.value}
+                onClick={() => setActiveWar(w.value)}
+                className={`px-3 py-1.5 text-xs font-mono tracking-wider uppercase transition-all duration-200 border ${
+                  activeWar === w.value
+                    ? "border-primary text-primary bg-primary/10"
+                    : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+                }`}
+              >
+                {w.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
