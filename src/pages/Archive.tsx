@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import SearchBar from "@/components/SearchBar";
 import { CATEGORIES } from "@/data/martyrs";
-import { usePersons } from "@/hooks/usePersons";
+import { usePersons, WARS } from "@/hooks/usePersons";
 import MartyrCardDB from "@/components/MartyrCardDB";
 
 const Archive = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const { persons, loading, total } = usePersons(query, activeCategory);
+  const [activeWar, setActiveWar] = useState("All");
+  const { persons, loading, total } = usePersons(query, activeCategory, activeWar);
 
   return (
     <div className="min-h-screen bg-background grain-overlay">
