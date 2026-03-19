@@ -23,7 +23,14 @@ export type PersonRow = {
   battle: string | null;
 };
 
-export function usePersons(query: string, category: string) {
+export const WARS = [
+  { value: "All", label: "All Conflicts" },
+  { value: "War of Liberation 1961–1991", label: "Liberation War (1961–1991)" },
+  { value: "War of 1998–2000", label: "War of 1998–2000" },
+  { value: "Tigray War 2019–2022", label: "Tigray War (2019–2022)" },
+];
+
+export function usePersons(query: string, category: string, war = "All") {
   const [persons, setPersons] = useState<PersonRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -41,6 +48,10 @@ export function usePersons(query: string, category: string) {
       q = q.ilike("category", `%${category}%`);
     }
 
+    if (war && war !== "All") {
+      q = q.ilike("battle", `%${war}%`);
+    }
+
     if (query.trim()) {
       const term = `%${query.trim()}%`;
       q = q.or(
@@ -52,7 +63,7 @@ export function usePersons(query: string, category: string) {
     setPersons((data as PersonRow[]) ?? []);
     setTotal(count ?? 0);
     setLoading(false);
-  }, [query, category]);
+  }, [query, category, war]);
 
   useEffect(() => {
     fetch();
