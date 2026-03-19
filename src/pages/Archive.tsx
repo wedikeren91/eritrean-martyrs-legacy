@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import SearchBar from "@/components/SearchBar";
 import { CATEGORIES } from "@/data/martyrs";
-import { usePersons } from "@/hooks/usePersons";
+import { usePersons, WARS } from "@/hooks/usePersons";
 import MartyrCardDB from "@/components/MartyrCardDB";
 
 const Archive = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const { persons, loading, total } = usePersons(query, activeCategory);
+  const [activeWar, setActiveWar] = useState("All");
+  const { persons, loading, total } = usePersons(query, activeCategory, activeWar);
 
   return (
     <div className="min-h-screen bg-background grain-overlay">
@@ -37,7 +38,7 @@ const Archive = () => {
             <SearchBar value={query} onChange={setQuery} />
           </div>
 
-          {/* Filters */}
+          {/* Organisation Filters */}
           <div className="mt-6 flex flex-wrap gap-2">
             {["All", ...CATEGORIES].map((cat) => (
               <button
@@ -50,6 +51,24 @@ const Archive = () => {
                 }`}
               >
                 {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* War / Conflict Filters */}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="data-label self-center mr-1 opacity-60">Conflict:</span>
+            {WARS.map((w) => (
+              <button
+                key={w.value}
+                onClick={() => setActiveWar(w.value)}
+                className={`px-3 py-1.5 text-xs font-mono font-semibold tracking-wider uppercase transition-all duration-200 border ${
+                  activeWar === w.value
+                    ? "border-primary text-primary bg-primary/10"
+                    : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+                }`}
+              >
+                {w.label}
               </button>
             ))}
           </div>

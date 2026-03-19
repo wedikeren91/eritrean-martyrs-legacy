@@ -15,6 +15,7 @@ import ResetPassword from "./pages/ResetPassword.tsx";
 import Admin from "./pages/Admin.tsx";
 import AdminReview from "./pages/AdminReview.tsx";
 import Install from "./pages/Install.tsx";
+import OrgOnboarding from "./pages/OrgOnboarding.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/review" element={<AdminReview />} />
               <Route path="/install" element={<Install />} />
+              <Route path="/org/start" element={<OrgOnboarding />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -14,6 +14,7 @@ const SiteHeader = () => {
     { to: "/archive", label: "Archive" },
     { to: "/browse", label: "Browse" },
     { to: "/contributors", label: "Contributors" },
+    { to: "/org/start", label: "Start Your Archive" },
     { to: "/install", label: "Install App" },
   ];
 
