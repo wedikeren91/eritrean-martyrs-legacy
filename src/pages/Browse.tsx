@@ -33,7 +33,7 @@ const Browse = () => {
           </h1>
           <div className="rule-accent mb-8" />
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-px bg-border">
             {timelineEras.map((era) => (
               <div key={era.period} className="bg-background p-5 hover:bg-card transition-colors duration-200 cursor-pointer group">
                 <div className="font-mono text-xs text-primary font-bold mb-1">{era.period}</div>
