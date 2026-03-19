@@ -50,7 +50,7 @@ const SiteHeader = () => {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-5">
-            {navLinks.slice(1, 4).map((link) => (
+            {navLinks.slice(1, 5).map((link) => (
               <Link key={link.to} to={link.to}
                 className={`text-xs font-medium tracking-widest uppercase transition-colors duration-200 underline-offset-4 decoration-1
                   ${pathname === link.to
