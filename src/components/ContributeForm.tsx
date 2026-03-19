@@ -43,6 +43,13 @@ const ERITREAN_REGIONS = [
 
 const CATEGORIES = ["Martyr", "ELF", "EPLF", "PLF", "Civilian", "Unknown", "Other"];
 
+const WARS = [
+  { value: "War of Liberation 1961–1991", label: "War of Liberation (1961–1991)" },
+  { value: "War of 1998–2000", label: "Eritrea–Ethiopia War (1998–2000)" },
+  { value: "Tigray War 2019–2022", label: "Tigray War (2019–2022)" },
+  { value: "Other", label: "Other / Unknown" },
+];
+
 const RELATION_OPTIONS = [
   { value: "family_direct", label: "Direct family (parent / sibling / child)" },
   { value: "family_extended", label: "Extended family (uncle, aunt, cousin…)" },
@@ -265,9 +272,12 @@ export default function ContributeForm({ onSuccess, onCancel }: ContributeFormPr
               <input value={form.role} onChange={(e) => set("role", e.target.value)}
                 className={inputCls} placeholder="e.g. Field medic, Teacher, Fighter" />
             </Field>
-            <Field label="Battle / Operation">
-              <input value={form.battle} onChange={(e) => set("battle", e.target.value)}
-                className={inputCls} placeholder="e.g. Battle of Afabet" />
+            <Field label="War / Conflict" hint="Select the conflict, then add specific battle name below if known">
+              <select value={form.battle} onChange={(e) => set("battle", e.target.value)}
+                className={inputCls}>
+                <option value="">Select war / conflict…</option>
+                {WARS.map((w) => <option key={w.value} value={w.value}>{w.label}</option>)}
+              </select>
             </Field>
             <Field label="Biography" hint="Share everything you know — dates, places, stories">
               <textarea value={form.bio} onChange={(e) => set("bio", e.target.value)}
