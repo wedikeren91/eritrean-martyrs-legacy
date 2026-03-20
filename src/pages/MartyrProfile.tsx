@@ -17,6 +17,7 @@ function formatDate(dateStr: string | null | undefined): string {
 
 const MartyrProfile = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { isAdmin } = useAuth();
   const [person, setPerson] = useState<PersonRow | null>(null);
   const [loading, setLoading] = useState(true);
 
