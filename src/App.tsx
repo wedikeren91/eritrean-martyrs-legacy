@@ -16,6 +16,7 @@ import Admin from "./pages/Admin.tsx";
 import AdminReview from "./pages/AdminReview.tsx";
 import Install from "./pages/Install.tsx";
 import OrgOnboarding from "./pages/OrgOnboarding.tsx";
+import EditRecord from "./pages/EditRecord.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
