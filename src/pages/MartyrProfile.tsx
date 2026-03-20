@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
 import { getMartyrBySlug } from "@/data/martyrs";
+import { useAuth } from "@/hooks/useAuth";
 
 function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "Unknown";
@@ -16,6 +17,7 @@ function formatDate(dateStr: string | null | undefined): string {
 
 const MartyrProfile = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { isAdmin } = useAuth();
   const [person, setPerson] = useState<PersonRow | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -93,12 +95,22 @@ const MartyrProfile = () => {
 
       {/* Breadcrumb */}
       <div className="border-b border-border bg-card">
-        <div className="container mx-auto px-6 py-3 flex items-center gap-2 text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
-          <span>/</span>
-          <Link to="/archive" className="hover:text-foreground transition-colors">Archive</Link>
-          <span>/</span>
-          <span className="text-foreground">{person.first_name} {person.last_name}</span>
+        <div className="container mx-auto px-6 py-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+            <span>/</span>
+            <Link to="/archive" className="hover:text-foreground transition-colors">Archive</Link>
+            <span>/</span>
+            <span className="text-foreground">{person.first_name} {person.last_name}</span>
+          </div>
+          {isAdmin && (
+            <Link
+              to={`/admin/edit/${person.slug}`}
+              className="bg-primary text-primary-foreground px-3 py-1.5 font-semibold tracking-wider uppercase hover:bg-primary/90 transition-colors"
+            >
+              ✏️ Edit Record
+            </Link>
+          )}
         </div>
       </div>
 
