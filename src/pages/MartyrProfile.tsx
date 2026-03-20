@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
 import { getMartyrBySlug } from "@/data/martyrs";
+import { useAuth } from "@/hooks/useAuth";
 
 function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "Unknown";
