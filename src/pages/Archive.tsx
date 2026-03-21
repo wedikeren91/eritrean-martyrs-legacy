@@ -56,13 +56,13 @@ const Archive = () => {
           </div>
 
           {/* War / Conflict Filters */}
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="data-label self-center mr-1 opacity-60">Conflict:</span>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="data-label opacity-60 shrink-0">Conflict:</span>
             {WARS.map((w) => (
               <button
                 key={w.value}
                 onClick={() => setActiveWar(w.value)}
-                className={`px-3 py-1.5 text-xs font-mono font-semibold tracking-wider uppercase transition-all duration-200 border ${
+                className={`px-3 py-1.5 text-xs font-mono font-semibold tracking-wider uppercase transition-all duration-200 border whitespace-nowrap ${
                   activeWar === w.value
                     ? "border-primary text-primary bg-primary/10"
                     : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
