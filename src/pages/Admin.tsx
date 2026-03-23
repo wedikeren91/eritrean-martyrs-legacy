@@ -203,21 +203,23 @@ export default function Admin() {
                       </button>
 
                       {rejectOpen === c.id ? (
-                        <div className="flex items-center gap-2 flex-1">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 w-full">
                           <input
                             value={rejectReason[c.id] ?? ""}
                             onChange={(e) => setRejectReason((p) => ({ ...p, [c.id]: e.target.value }))}
                             placeholder="Reason (optional)…"
-                            className="flex-1 bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors"
+                            className="flex-1 min-w-0 bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors"
                           />
-                          <button onClick={() => reject(c.id)} disabled={actionLoading === c.id}
-                            className="bg-destructive text-destructive-foreground px-4 py-1.5 text-xs font-semibold tracking-wider uppercase hover:bg-destructive/90 transition-colors disabled:opacity-50">
-                            Confirm Reject
-                          </button>
-                          <button onClick={() => setRejectOpen(null)}
-                            className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                            Cancel
-                          </button>
+                          <div className="flex gap-2 shrink-0">
+                            <button onClick={() => reject(c.id)} disabled={actionLoading === c.id}
+                              className="bg-destructive text-destructive-foreground px-4 py-1.5 text-xs font-semibold tracking-wider uppercase hover:bg-destructive/90 transition-colors disabled:opacity-50">
+                              Confirm Reject
+                            </button>
+                            <button onClick={() => setRejectOpen(null)}
+                              className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2">
+                              Cancel
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <button onClick={() => setRejectOpen(c.id)}
