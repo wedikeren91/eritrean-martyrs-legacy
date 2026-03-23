@@ -31,36 +31,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     mountedRef.current = true;
 
-    // Step 1: Get the current session synchronously-ish so the UI doesn't flicker
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      if (!mountedRef.current) return;
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
+    // Step 1: Get the current session so UI doesn't flicker
+    const init = async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!mountedRef.current) return;
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
 
-      if (currentSession?.user) {
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", currentSession.user.id)
-          .single()
-          .then(({ data }) => {
+        if (currentSession?.user) {
+          try {
+            const { data } = await supabase
+              .from("user_roles")
+              .select("role")
+              .eq("user_id", currentSession.user.id)
+              .single();
             if (!mountedRef.current) return;
             setRole((data?.role as AppRole) ?? "user");
-            setLoading(false);
-          })
-          .catch(() => {
+          } catch {
             if (!mountedRef.current) return;
             setRole("user");
-            setLoading(false);
-          });
-      } else {
-        setRole(null);
-        setLoading(false);
+          }
+        } else {
+          setRole(null);
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (mountedRef.current) setLoading(false);
       }
-    }).catch(() => {
-      if (!mountedRef.current) return;
-      setLoading(false);
-    });
+    };
+    init();
 
     // Step 2: Listen for future auth changes (sign in / sign out)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
