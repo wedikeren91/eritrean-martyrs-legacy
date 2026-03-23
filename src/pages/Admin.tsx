@@ -79,22 +79,22 @@ export default function Admin() {
   ];
 
   return (
-    <div className="min-h-screen bg-background grain-overlay">
+    <div className="min-h-screen bg-background grain-overlay w-full max-w-full overflow-x-hidden">
       {/* Top bar */}
       <div className="border-b border-border bg-card">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-2 min-w-0">
           <div className="flex items-center gap-4">
-            <Link to="/" className="data-label text-muted-foreground hover:text-foreground transition-colors">← Archive</Link>
-            <div className="h-4 w-px bg-border" />
-            <div className="data-label text-primary">{isFounder ? "Founder Dashboard" : "Admin Dashboard"}</div>
+          <Link to="/" className="data-label text-muted-foreground hover:text-foreground transition-colors shrink-0">← Archive</Link>
+            <div className="h-4 w-px bg-border shrink-0" />
+            <div className="data-label text-primary truncate">{isFounder ? "Founder Dashboard" : "Admin Dashboard"}</div>
           </div>
-          <div className="text-xs text-muted-foreground">{user?.email}</div>
+          <div className="text-xs text-muted-foreground truncate max-w-[140px] hidden sm:block">{user?.email}</div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 py-6">
         {/* Mobile review queue shortcut */}
-        <div className="mb-6 p-4 border border-border bg-card flex items-center justify-between gap-4">
+        <div className="mb-6 p-4 border border-border bg-card flex items-center justify-between gap-3 flex-wrap">
           <div>
             <div className="data-label mb-0.5">Mobile Review</div>
             <p className="text-xs text-muted-foreground">Optimised for phone-based approvals</p>
@@ -108,7 +108,7 @@ export default function Admin() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-8 border-b border-border">
+        <div className="flex gap-1 mb-6 border-b border-border overflow-x-auto no-scrollbar">
           {tabs.map((t) => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors border-b-2 -mb-px ${
@@ -124,8 +124,8 @@ export default function Admin() {
         {/* ── Review Queue ── */}
         {tab === "queue" && (
           <div>
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>
+            <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
+              <h1 className="text-xl sm:text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>
                 Pending Contributions
               </h1>
               <span className="data-label text-muted-foreground">{contributions.length} awaiting review</span>
@@ -146,28 +146,28 @@ export default function Admin() {
                 return (
                   <div key={c.id} className="bg-card border border-border">
                     {/* Card header */}
-                    <div className="border-b border-border px-6 py-3 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <span className={`text-[10px] font-bold tracking-wider px-2 py-0.5 uppercase ${
+                    <div className="border-b border-border px-4 py-3 flex items-start justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap min-w-0">
+                        <span className={`text-[10px] font-bold tracking-wider px-2 py-0.5 uppercase shrink-0 ${
                           c.source_type === "bulk_upload"
                             ? "bg-blue-50 text-blue-700 border border-blue-200"
                             : "bg-amber-50 text-amber-700 border border-amber-200"
                         }`}>
                           {c.source_type === "bulk_upload" ? "Bulk" : "Form"}
                         </span>
-                        <span className="text-sm font-semibold text-foreground">
+                        <span className="text-sm font-semibold text-foreground truncate">
                           {pd.first_name} {pd.last_name}
                         </span>
-                        {pd.known_as && <span className="text-xs text-muted-foreground">"{pd.known_as}"</span>}
+                        {pd.known_as && <span className="text-xs text-muted-foreground truncate">"{pd.known_as}"</span>}
                       </div>
-                      <span className="text-[10px] text-muted-foreground font-mono">
+                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">
                         {new Date(c.submitted_at).toLocaleDateString()}
                         {c.profiles?.display_name && ` · ${c.profiles.display_name}`}
                       </span>
                     </div>
 
                     {/* Data grid */}
-                    <div className="px-6 py-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="px-4 py-4 grid grid-cols-2 md:grid-cols-4 gap-3">
                       {[
                         ["Category", pd.category],
                         ["Status", pd.status],
@@ -186,14 +186,14 @@ export default function Admin() {
                     </div>
 
                     {pd.bio && (
-                      <div className="px-6 pb-4">
+                      <div className="px-4 pb-4">
                         <div className="data-label mb-1">Bio</div>
                         <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{pd.bio}</p>
                       </div>
                     )}
 
                     {/* Actions */}
-                    <div className="border-t border-border px-6 py-3 flex items-center gap-3">
+                    <div className="border-t border-border px-4 py-3 flex items-center gap-2 flex-wrap">
                       <button
                         onClick={() => approve(c.id)}
                         disabled={actionLoading === c.id}
@@ -203,21 +203,23 @@ export default function Admin() {
                       </button>
 
                       {rejectOpen === c.id ? (
-                        <div className="flex items-center gap-2 flex-1">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 w-full">
                           <input
                             value={rejectReason[c.id] ?? ""}
                             onChange={(e) => setRejectReason((p) => ({ ...p, [c.id]: e.target.value }))}
                             placeholder="Reason (optional)…"
-                            className="flex-1 bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors"
+                            className="flex-1 min-w-0 bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors"
                           />
-                          <button onClick={() => reject(c.id)} disabled={actionLoading === c.id}
-                            className="bg-destructive text-destructive-foreground px-4 py-1.5 text-xs font-semibold tracking-wider uppercase hover:bg-destructive/90 transition-colors disabled:opacity-50">
-                            Confirm Reject
-                          </button>
-                          <button onClick={() => setRejectOpen(null)}
-                            className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                            Cancel
-                          </button>
+                          <div className="flex gap-2 shrink-0">
+                            <button onClick={() => reject(c.id)} disabled={actionLoading === c.id}
+                              className="bg-destructive text-destructive-foreground px-4 py-1.5 text-xs font-semibold tracking-wider uppercase hover:bg-destructive/90 transition-colors disabled:opacity-50">
+                              Confirm Reject
+                            </button>
+                            <button onClick={() => setRejectOpen(null)}
+                              className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2">
+                              Cancel
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <button onClick={() => setRejectOpen(c.id)}
@@ -292,9 +294,9 @@ function UsersPanel() {
 
   return (
     <div>
-      <h1 className="text-2xl mb-6" style={{ fontFamily: "'Fraunces', serif" }}>User Management</h1>
-      <div className="bg-card border border-border overflow-hidden">
-        <table className="w-full text-xs">
+      <h1 className="text-xl sm:text-2xl mb-6" style={{ fontFamily: "'Fraunces', serif" }}>User Management</h1>
+      <div className="bg-card border border-border overflow-x-auto">
+        <table className="w-full text-xs min-w-[480px]">
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left data-label">Name</th>
@@ -369,8 +371,8 @@ function OrgsPanel() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>Organizations</h1>
+      <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
+        <h1 className="text-xl sm:text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>Organizations</h1>
         <button onClick={() => setCreating(!creating)}
           className="bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors">
           + New Organization
@@ -378,7 +380,7 @@ function OrgsPanel() {
       </div>
 
       {creating && (
-        <form onSubmit={createOrg} className="bg-card border border-border p-6 mb-6 grid grid-cols-3 gap-4">
+        <form onSubmit={createOrg} className="bg-card border border-border p-4 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="data-label block mb-1.5">Organization Name *</label>
             <input required value={newOrg.name} onChange={(e) => setNewOrg((p) => ({ ...p, name: e.target.value }))}
@@ -404,8 +406,8 @@ function OrgsPanel() {
         </form>
       )}
 
-      <div className="bg-card border border-border overflow-hidden">
-        <table className="w-full text-xs">
+      <div className="bg-card border border-border overflow-x-auto">
+        <table className="w-full text-xs min-w-[480px]">
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left data-label">Name</th>
@@ -517,13 +519,13 @@ function RecordsPanel() {
         ))}
       </div>
 
-      <div className="flex items-center justify-between mb-4 gap-3">
-        <h1 className="text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>All Records</h1>
+      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <h1 className="text-xl sm:text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>All Records</h1>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search name…"
-          className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-48"
+          className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-full sm:w-48"
         />
       </div>
 

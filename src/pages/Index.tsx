@@ -23,7 +23,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background" style={{ overflowX: "hidden" }}>
+    <div className="min-h-screen bg-background w-full max-w-full overflow-x-hidden">
       <SiteHeader />
 
       {/* ── Compact Hero Banner ─────────────────────────────────── */}
@@ -65,10 +65,12 @@ const Index = () => {
             className="mb-3"
             style={{
               fontFamily: "'Fraunces', serif",
-              fontSize: "clamp(1.6rem, 5.5vw, 3rem)",
+              fontSize: "clamp(1.3rem, 5vw, 3rem)",
               fontWeight: 700,
               lineHeight: 1.1,
               color: "hsl(var(--foreground))",
+              wordBreak: "break-word",
+              overflowWrap: "break-word",
             }}
           >
             They gave their <em style={{ fontStyle: "italic", color: "hsl(var(--oxblood-bright))" }}>tomorrows</em> for our today.

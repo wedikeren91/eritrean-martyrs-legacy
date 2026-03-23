@@ -141,12 +141,12 @@ const MartyrProfile = () => {
   const remainingParas = bioParas.slice(2);
 
   return (
-    <div className="min-h-screen bg-background grain-overlay">
+    <div className="min-h-screen bg-background grain-overlay w-full max-w-full overflow-x-hidden">
       <SiteHeader />
 
       {/* Breadcrumb */}
       <div className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2 text-xs text-muted-foreground overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-2">
             <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <span>/</span>
@@ -197,7 +197,7 @@ const MartyrProfile = () => {
               {/* Birth–Death overlay on image (mobile only) */}
               <div className="absolute bottom-0 left-0 right-0 md:hidden z-10"
                 style={{ background: "linear-gradient(to top, rgba(15,10,8,0.95) 0%, transparent 100%)", padding: "2rem 1rem 0.75rem" }}>
-                <h1 className="text-2xl font-bold leading-tight text-white mb-0.5" style={{ fontFamily: "'Fraunces', serif" }}>
+              <h1 className="text-xl font-bold leading-tight text-white mb-0.5 break-words" style={{ fontFamily: "'Fraunces', serif", wordBreak: "break-word" }}>
                   {person.first_name} {person.last_name}
                 </h1>
                 {person.known_as && (
@@ -216,10 +216,10 @@ const MartyrProfile = () => {
               {person.known_as && (
                 <div className="data-label text-primary mb-3">{person.known_as}</div>
               )}
-              <h1 className="display-name text-primary mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+              <h1 className="display-name text-primary mb-1 break-words" style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(2rem, 6vw, 5rem)", wordBreak: "break-word" }}>
                 {person.first_name}
               </h1>
-              <h1 className="display-name mb-6" style={{ fontFamily: "'Fraunces', serif" }}>
+              <h1 className="display-name mb-6 break-words" style={{ fontFamily: "'Fraunces', serif", fontSize: "clamp(2rem, 6vw, 5rem)", wordBreak: "break-word" }}>
                 {person.last_name}
               </h1>
               <div className="rule-accent mb-6" />
@@ -261,7 +261,7 @@ const MartyrProfile = () => {
 
       {/* ── TRIBUTE / CANDLE BAR ── */}
       <section className="border-b border-border">
-        <div className="container mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="container mx-auto px-4 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Significance summary */}
           {person.significance && (
             <p className="text-sm italic text-muted-foreground max-w-xl leading-relaxed" style={{ fontFamily: "'Fraunces', serif" }}>

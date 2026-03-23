@@ -110,7 +110,7 @@ export default function ModeratorDashboard() {
   const activeList = tab === "new_records" ? contributions : editSuggestions;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background w-full max-w-full overflow-x-hidden">
       {/* Header */}
       <div className="sticky top-0 z-30 border-b border-border bg-card">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
