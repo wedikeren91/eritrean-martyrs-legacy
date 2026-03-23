@@ -419,6 +419,9 @@ const MartyrProfile = () => {
         </div>
       </section>
 
+      {/* ── SUGGEST CORRECTION ── */}
+      <SuggestCorrectionSection person={person} />
+
       <footer className="border-t border-border">
         <div className="container mx-auto px-4 py-8">
           <p className="text-xs text-muted-foreground text-center">
@@ -430,5 +433,220 @@ const MartyrProfile = () => {
     </div>
   );
 };
+
+// ─── Suggest Correction Section ────────────────────────────────────────────
+function SuggestCorrectionSection({ person }: { person: PersonRow }) {
+  const { user, isContributor } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const [form, setForm] = useState({
+    first_name: person.first_name ?? "",
+    last_name: person.last_name ?? "",
+    known_as: person.known_as ?? "",
+    date_of_birth: person.date_of_birth ?? "",
+    date_of_death: person.date_of_death ?? "",
+    city: person.city ?? "",
+    region: person.region ?? "",
+    category: person.category ?? "",
+    status: person.status ?? "",
+    rank: person.rank ?? "",
+    role: person.role ?? "",
+    battle: person.battle ?? "",
+    place_of_martyrdom: person.place_of_martyrdom ?? "",
+    bio: person.bio ?? "",
+    significance: person.significance ?? "",
+    quote: person.quote ?? "",
+    correction_note: "",
+  });
+
+  const set = (field: keyof typeof form) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => setForm((p) => ({ ...p, [field]: e.target.value }));
+
+  const handleOpen = () => {
+    setOpen(true);
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setSaving(true);
+    setError(null);
+    const { correction_note, ...correctedData } = form;
+    const { error: err } = await supabase.from("contributions").insert({
+      user_id: user.id,
+      source_type: "correction",
+      status: "pending",
+      person_data: {
+        ...correctedData,
+        slug: person.slug,
+        photo_url: person.photo_url,
+        _correction_note: correction_note,
+        _original_person_id: person.id,
+        _original_slug: person.slug,
+      },
+    });
+    if (err) { setError(err.message); }
+    else { setSuccess(true); setOpen(false); }
+    setSaving(false);
+  };
+
+  if (!isContributor) return null;
+
+  return (
+    <section className="border-t border-border bg-card/50">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        {!open && !success && (
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="data-label text-muted-foreground">Know something different?</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Corrections are reviewed before appearing publicly.
+              </p>
+            </div>
+            <button
+              onClick={handleOpen}
+              className="px-5 py-2 text-xs font-semibold tracking-widest uppercase border border-border hover:border-foreground transition-colors bg-background"
+            >
+              ✏️ Suggest Correction
+            </button>
+          </div>
+        )}
+
+        {success && (
+          <div className="text-center py-4">
+            <div className="text-2xl mb-2">✅</div>
+            <p className="text-sm text-muted-foreground">
+              Thank you — your correction has been submitted and is pending admin review.
+            </p>
+          </div>
+        )}
+
+        {open && (
+          <div ref={formRef}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="data-label text-primary">Suggest Correction</div>
+              <button onClick={() => setOpen(false)} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                ✕ Cancel
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mb-6 leading-relaxed border-l-2 border-primary pl-3">
+              Edit only the fields that need correcting. Your suggestion will be reviewed by an admin before any changes go live on the public record.
+            </p>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Identity */}
+              <div className="border border-border p-4 bg-background">
+                <div className="data-label mb-3">Identity</div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <CField label="First Name" value={form.first_name} onChange={set("first_name")} />
+                  <CField label="Last Name" value={form.last_name} onChange={set("last_name")} />
+                  <CField label="Known As" value={form.known_as} onChange={set("known_as")} />
+                  <CField label="Date of Birth" value={form.date_of_birth} onChange={set("date_of_birth")} placeholder="e.g. 1955-03-12" />
+                  <CField label="Date of Death" value={form.date_of_death} onChange={set("date_of_death")} placeholder="e.g. 1988-07-02" />
+                  <CField label="Status" value={form.status} onChange={set("status")} />
+                </div>
+              </div>
+              {/* Location */}
+              <div className="border border-border p-4 bg-background">
+                <div className="data-label mb-3">Location</div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <CField label="City" value={form.city} onChange={set("city")} />
+                  <CField label="Region" value={form.region} onChange={set("region")} />
+                  <CField label="Place of Martyrdom" value={form.place_of_martyrdom} onChange={set("place_of_martyrdom")} />
+                </div>
+              </div>
+              {/* Service */}
+              <div className="border border-border p-4 bg-background">
+                <div className="data-label mb-3">Service Record</div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <CField label="Category / Organisation" value={form.category} onChange={set("category")} />
+                  <CField label="Role" value={form.role} onChange={set("role")} />
+                  <CField label="Rank" value={form.rank} onChange={set("rank")} />
+                  <div className="col-span-2 md:col-span-3">
+                    <label className="data-label block mb-1.5">War / Conflict</label>
+                    <select value={form.battle} onChange={set("battle")} className="w-full bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:border-foreground transition-colors">
+                      {WARS.map((w) => <option key={w.value} value={w.value}>{w.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              {/* Narrative */}
+              <div className="border border-border p-4 bg-background">
+                <div className="data-label mb-3">Narrative</div>
+                <div className="space-y-3">
+                  <CTextArea label="Significance" value={form.significance} onChange={set("significance")} rows={2} />
+                  <CTextArea label="Biography" value={form.bio} onChange={set("bio")} rows={6} />
+                  <CField label="Notable Quote" value={form.quote} onChange={set("quote")} />
+                </div>
+              </div>
+              {/* Correction note */}
+              <div className="border border-primary/30 p-4 bg-primary/5">
+                <CTextArea
+                  label="Note to Reviewer (required)"
+                  value={form.correction_note}
+                  onChange={set("correction_note")}
+                  rows={2}
+                  placeholder="Briefly describe what you changed and why (e.g. 'Corrected date of death — source: family records')"
+                />
+              </div>
+
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/30 text-destructive text-xs px-4 py-3">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex items-center gap-4">
+                <button
+                  type="submit"
+                  disabled={saving || !form.correction_note.trim()}
+                  className="bg-primary text-primary-foreground px-8 py-2.5 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-50"
+                >
+                  {saving ? "Submitting…" : "Submit for Review"}
+                </button>
+                <button type="button" onClick={() => setOpen(false)} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function CField({ label, value, onChange, placeholder }: {
+  label: string; value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="data-label block mb-1">{label}</label>
+      <input value={value} onChange={onChange} placeholder={placeholder}
+        className="w-full bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:border-foreground transition-colors" />
+    </div>
+  );
+}
+
+function CTextArea({ label, value, onChange, rows, placeholder }: {
+  label: string; value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  rows?: number; placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="data-label block mb-1">{label}</label>
+      <textarea value={value} onChange={onChange} rows={rows ?? 4} placeholder={placeholder}
+        className="w-full bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:border-foreground transition-colors resize-y" />
+    </div>
+  );
+}
 
 export default MartyrProfile;
