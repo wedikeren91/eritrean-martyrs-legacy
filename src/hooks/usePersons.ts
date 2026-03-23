@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type PersonRow = {
@@ -34,42 +34,50 @@ export function usePersons(query: string, category: string, war = "All") {
   const [persons, setPersons] = useState<PersonRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetch = useCallback(async () => {
+  const loadPersons = useCallback(async (q: string, cat: string, w: string) => {
     setLoading(true);
-    let q = supabase
+    let req = supabase
       .from("persons")
-      .select("*", { count: "exact" })
+      .select("id,slug,photo_url,first_name,last_name,known_as,date_of_birth,date_of_death,city,region,category,status,rank,role,significance,quote,place_of_martyrdom,battle", { count: "exact" })
       .is("deleted_at", null)
       .order("last_name", { ascending: true })
       .limit(200);
-    // No status filter — show all non-deleted records (RLS already protects)
 
-
-    if (category && category !== "All") {
-      q = q.ilike("category", `%${category}%`);
+    if (cat && cat !== "All") {
+      req = req.ilike("category", `%${cat}%`);
     }
 
-    if (war && war !== "All") {
-      q = q.ilike("battle", `%${war}%`);
+    if (w && w !== "All") {
+      req = req.ilike("battle", `%${w}%`);
     }
 
-    if (query.trim()) {
-      const term = `%${query.trim()}%`;
-      q = q.or(
+    if (q.trim()) {
+      const term = `%${q.trim()}%`;
+      req = req.or(
         `first_name.ilike.${term},last_name.ilike.${term},known_as.ilike.${term},role.ilike.${term},city.ilike.${term},region.ilike.${term},battle.ilike.${term}`
       );
     }
 
-    const { data, count } = await q;
+    const { data, count } = await req;
     setPersons((data as PersonRow[]) ?? []);
     setTotal(count ?? 0);
     setLoading(false);
-  }, [query, category, war]);
+  }, []);
 
   useEffect(() => {
-    fetch();
-  }, [fetch]);
+    // Debounce only the query input; category/war changes fire immediately
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (query.trim()) {
+      debounceRef.current = setTimeout(() => loadPersons(query, category, war), 300);
+    } else {
+      loadPersons(query, category, war);
+    }
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query, category, war, loadPersons]);
 
   return { persons, loading, total };
 }
