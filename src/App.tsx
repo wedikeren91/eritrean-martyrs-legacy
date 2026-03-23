@@ -52,6 +52,10 @@ const App = () => (
               } />
               <Route path="/install" element={<Install />} />
               <Route path="/contribute" element={<Contribute />} />
+              <Route path="/stories" element={<Stories />} />
+              <Route path="/moderator" element={
+                <ProtectedRoute require="admin"><ModeratorDashboard /></ProtectedRoute>
+              } />
               <Route path="/org/start" element={
                 <ProtectedRoute require="contributor"><OrgOnboarding /></ProtectedRoute>
               } />
