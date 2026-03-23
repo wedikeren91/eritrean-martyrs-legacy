@@ -292,9 +292,9 @@ function UsersPanel() {
 
   return (
     <div>
-      <h1 className="text-2xl mb-6" style={{ fontFamily: "'Fraunces', serif" }}>User Management</h1>
-      <div className="bg-card border border-border overflow-hidden">
-        <table className="w-full text-xs">
+      <h1 className="text-xl sm:text-2xl mb-6" style={{ fontFamily: "'Fraunces', serif" }}>User Management</h1>
+      <div className="bg-card border border-border overflow-x-auto">
+        <table className="w-full text-xs min-w-[480px]">
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left data-label">Name</th>
@@ -369,8 +369,8 @@ function OrgsPanel() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>Organizations</h1>
+      <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
+        <h1 className="text-xl sm:text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>Organizations</h1>
         <button onClick={() => setCreating(!creating)}
           className="bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors">
           + New Organization
@@ -378,7 +378,7 @@ function OrgsPanel() {
       </div>
 
       {creating && (
-        <form onSubmit={createOrg} className="bg-card border border-border p-6 mb-6 grid grid-cols-3 gap-4">
+        <form onSubmit={createOrg} className="bg-card border border-border p-4 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="data-label block mb-1.5">Organization Name *</label>
             <input required value={newOrg.name} onChange={(e) => setNewOrg((p) => ({ ...p, name: e.target.value }))}
@@ -404,8 +404,8 @@ function OrgsPanel() {
         </form>
       )}
 
-      <div className="bg-card border border-border overflow-hidden">
-        <table className="w-full text-xs">
+      <div className="bg-card border border-border overflow-x-auto">
+        <table className="w-full text-xs min-w-[480px]">
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left data-label">Name</th>
@@ -517,13 +517,13 @@ function RecordsPanel() {
         ))}
       </div>
 
-      <div className="flex items-center justify-between mb-4 gap-3">
-        <h1 className="text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>All Records</h1>
+      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <h1 className="text-xl sm:text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>All Records</h1>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search name…"
-          className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-48"
+          className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-full sm:w-48"
         />
       </div>
 
