@@ -298,3 +298,7 @@ a.archive-link:hover {
   border-color: hsl(var(--oxblood) / 0.4);
   box-shadow: 0 4px 16px -4px hsl(var(--oxblood) / 0.12);
 }
+
+/* === SCROLLBAR HIDE === */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
