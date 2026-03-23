@@ -124,7 +124,11 @@ type Mode = "new" | "edit";
 const Contribute = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<Mode>("new");
+  const [searchParams] = useSearchParams();
+  // Support ?mode=edit&name=... from profile page "Suggest Correction" link
+  const initialMode = (searchParams.get("mode") as Mode) === "edit" ? "edit" : "new";
+  const prefillName = searchParams.get("name") || "";
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [submitted, setSubmitted] = useState(false);
   const [submittedType, setSubmittedType] = useState<Mode>("new");
 
