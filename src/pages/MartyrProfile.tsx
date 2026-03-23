@@ -68,6 +68,7 @@ function useTributes(personId: string | undefined) {
 const MartyrProfile = () => {
   const { slug } = useParams<{ slug: string }>();
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [person, setPerson] = useState<PersonRow | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [bioExpanded, setBioExpanded] = useState(false);
