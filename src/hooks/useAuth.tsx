@@ -72,23 +72,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (newSession?.user) {
           // Use setTimeout to avoid lock contention — releases the current lock first
-          setTimeout(() => {
+          const uid = newSession.user.id;
+          setTimeout(async () => {
             if (!mountedRef.current) return;
-            supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", newSession.user.id)
-              .single()
-              .then(({ data }) => {
-                if (!mountedRef.current) return;
-                setRole((data?.role as AppRole) ?? "user");
-                setLoading(false);
-              })
-              .catch(() => {
-                if (!mountedRef.current) return;
-                setRole("user");
-                setLoading(false);
-              });
+            try {
+              const { data } = await supabase
+                .from("user_roles")
+                .select("role")
+                .eq("user_id", uid)
+                .single();
+              if (!mountedRef.current) return;
+              setRole((data?.role as AppRole) ?? "user");
+            } catch {
+              if (!mountedRef.current) return;
+              setRole("user");
+            } finally {
+              if (mountedRef.current) setLoading(false);
+            }
           }, 0);
         } else {
           setRole(null);
