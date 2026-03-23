@@ -73,7 +73,11 @@ export default function Admin() {
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "queue", label: "Review Queue" },
-    ...(isFounder ? [{ key: "users" as Tab, label: "Users" }, { key: "orgs" as Tab, label: "Organizations" }] : []),
+    ...(isFounder ? [
+      { key: "records" as Tab, label: "All Records" },
+      { key: "users" as Tab, label: "Users" },
+      { key: "orgs" as Tab, label: "Organizations" },
+    ] : []),
   ];
 
   return (
