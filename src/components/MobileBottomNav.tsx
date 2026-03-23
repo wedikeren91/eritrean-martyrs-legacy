@@ -1,10 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Grid2X2, PlusCircle } from "lucide-react";
+import { Home, BookOpen, PlusCircle, ScrollText } from "lucide-react";
 
 const tabs = [
   {
     to: "/",
-    label: "Home",
+    label: "Directory",
     icon: Home,
     exact: true,
   },
@@ -15,15 +15,15 @@ const tabs = [
     exact: false,
   },
   {
-    to: "/browse",
-    label: "Browse",
-    icon: Grid2X2,
-    exact: false,
-  },
-  {
     to: "/contribute",
     label: "Contribute",
     icon: PlusCircle,
+    exact: false,
+  },
+  {
+    to: "/stories",
+    label: "Stories",
+    icon: ScrollText,
     exact: false,
   },
 ];

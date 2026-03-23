@@ -20,6 +20,8 @@ import OrgOnboarding from "./pages/OrgOnboarding.tsx";
 import EditRecord from "./pages/EditRecord.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Contribute from "./pages/Contribute.tsx";
+import ModeratorDashboard from "./pages/ModeratorDashboard.tsx";
+import Stories from "./pages/Stories.tsx";
 
 const queryClient = new QueryClient();
 
