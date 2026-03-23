@@ -446,3 +446,155 @@ function OrgsPanel() {
     </div>
   );
 }
+
+// ── Records Panel (Founder only) ──────────────────────────────────────────────
+type PersonRow = {
+  id: string; slug: string; first_name: string; last_name: string;
+  category: string | null; status: string | null; date_of_death: string | null;
+  deleted_at: string | null; submitted_by: string | null; approved_by: string | null;
+  created_at: string;
+};
+
+function RecordsPanel() {
+  const { user } = useAuth();
+  const [records, setRecords] = useState<PersonRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [stats, setStats] = useState({ total: 0, active: 0, deleted: 0 });
+
+  const fetchRecords = useCallback(async () => {
+    setLoading(true);
+    let q = supabase
+      .from("persons")
+      .select("id,slug,first_name,last_name,category,status,date_of_death,deleted_at,submitted_by,approved_by,created_at")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (search.trim()) {
+      const t = `%${search.trim()}%`;
+      q = q.or(`first_name.ilike.${t},last_name.ilike.${t},slug.ilike.${t}`);
+    }
+    const { data } = await q;
+    const all = (data as PersonRow[]) ?? [];
+    setRecords(all);
+    setStats({
+      total: all.length,
+      active: all.filter((r) => !r.deleted_at).length,
+      deleted: all.filter((r) => r.deleted_at).length,
+    });
+    setLoading(false);
+  }, [search]);
+
+  useEffect(() => { fetchRecords(); }, [fetchRecords]);
+
+  const softDelete = async (id: string) => {
+    setDeleting(id);
+    await supabase.from("persons").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+    setConfirmDelete(null);
+    await fetchRecords();
+    setDeleting(null);
+  };
+
+  const restore = async (id: string) => {
+    setDeleting(id);
+    await supabase.from("persons").update({ deleted_at: null }).eq("id", id);
+    await fetchRecords();
+    setDeleting(null);
+  };
+
+  return (
+    <div>
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {[
+          { label: "Total Records", value: stats.total },
+          { label: "Active", value: stats.active },
+          { label: "Soft-deleted", value: stats.deleted },
+        ].map((s) => (
+          <div key={s.label} className="bg-card border border-border p-4 text-center">
+            <div className="text-2xl font-mono font-bold text-foreground">{s.value}</div>
+            <div className="data-label text-muted-foreground mt-1">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between mb-4 gap-3">
+        <h1 className="text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>All Records</h1>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search name…"
+          className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-48"
+        />
+      </div>
+
+      {loading && <div className="data-label animate-pulse text-muted-foreground">Loading records…</div>}
+
+      <div className="bg-card border border-border overflow-hidden overflow-x-auto">
+        <table className="w-full text-xs min-w-[640px]">
+          <thead className="bg-muted">
+            <tr>
+              <th className="px-4 py-3 text-left data-label">Name</th>
+              <th className="px-4 py-3 text-left data-label">Category</th>
+              <th className="px-4 py-3 text-left data-label">Death Year</th>
+              <th className="px-4 py-3 text-left data-label">Status</th>
+              <th className="px-4 py-3 text-left data-label">Added</th>
+              <th className="px-4 py-3 text-left data-label">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {records.map((r) => (
+              <tr key={r.id} className={`border-t border-border ${r.deleted_at ? "opacity-40" : ""}`}>
+                <td className="px-4 py-2.5">
+                  <Link to={`/martyr/${r.slug}`} target="_blank"
+                    className="font-medium hover:underline underline-offset-2">
+                    {r.first_name} {r.last_name}
+                  </Link>
+                  {r.deleted_at && <span className="ml-2 text-[9px] text-destructive uppercase font-bold tracking-wider">Deleted</span>}
+                </td>
+                <td className="px-4 py-2.5 font-mono uppercase text-[10px] text-muted-foreground">{r.category ?? "—"}</td>
+                <td className="px-4 py-2.5 text-muted-foreground">{r.date_of_death ? r.date_of_death.slice(0, 4) : "—"}</td>
+                <td className="px-4 py-2.5 text-muted-foreground capitalize">{r.status ?? "—"}</td>
+                <td className="px-4 py-2.5 font-mono text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
+                <td className="px-4 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <Link to={`/admin/edit/${r.slug}`}
+                      className="text-primary hover:underline underline-offset-2 font-medium">
+                      Edit
+                    </Link>
+                    {r.deleted_at ? (
+                      <button onClick={() => restore(r.id)} disabled={deleting === r.id}
+                        className="text-emerald-700 hover:underline underline-offset-2 disabled:opacity-50">
+                        Restore
+                      </button>
+                    ) : confirmDelete === r.id ? (
+                      <div className="flex items-center gap-1.5">
+                        <button onClick={() => softDelete(r.id)} disabled={deleting === r.id}
+                          className="text-destructive font-semibold hover:underline disabled:opacity-50">
+                          {deleting === r.id ? "…" : "Confirm"}
+                        </button>
+                        <button onClick={() => setConfirmDelete(null)}
+                          className="text-muted-foreground hover:text-foreground">
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfirmDelete(r.id)}
+                        className="text-destructive/70 hover:text-destructive hover:underline underline-offset-2">
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {!loading && records.length === 0 && (
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">No records found.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
