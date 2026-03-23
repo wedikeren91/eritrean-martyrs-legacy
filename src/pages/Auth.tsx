@@ -8,19 +8,19 @@ type Mode = "login" | "signup" | "forgot";
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
-
-  // Already signed in → go back to where they came from (or home)
-  if (!loading && user) {
-    const from = (location.state as { from?: Location })?.from?.pathname ?? "/";
-    return <Navigate to={from} replace />;
-  }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
+
+  // Already signed in → go back to where they came from (or home)
+  if (!authLoading && user) {
+    const from = (location.state as { from?: Location })?.from?.pathname ?? "/";
+    return <Navigate to={from} replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
