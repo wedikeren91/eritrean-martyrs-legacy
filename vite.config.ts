@@ -20,6 +20,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "pwa-192.png", "pwa-512.png"],
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         // Never cache OAuth redirects
         navigateFallbackDenylist: [/^\/~oauth/],
         // Cache the archive data pages for offline browsing
