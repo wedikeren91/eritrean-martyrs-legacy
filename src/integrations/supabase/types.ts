@@ -435,7 +435,7 @@ export type Database = {
     }
     Functions: {
       approve_contribution: {
-        Args: { _admin_id: string; _contribution_id: string }
+        Args: { _admin_id?: string; _contribution_id: string }
         Returns: string
       }
       check_badge_awards: { Args: { _user_id: string }; Returns: undefined }
@@ -457,7 +457,7 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_founder: { Args: never; Returns: boolean }
       reject_contribution: {
-        Args: { _admin_id: string; _contribution_id: string; _reason?: string }
+        Args: { _admin_id?: string; _contribution_id: string; _reason?: string }
         Returns: undefined
       }
     }
