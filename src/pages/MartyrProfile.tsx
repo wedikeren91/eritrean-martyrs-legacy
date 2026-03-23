@@ -1,10 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
 import { getMartyrBySlug } from "@/data/martyrs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+
+const WARS = [
+  { value: "", label: "— Select conflict —" },
+  { value: "War of Liberation 1961–1991", label: "War of Liberation (1961–1991)" },
+  { value: "War of 1998–2000", label: "Eritrea–Ethiopia War (1998–2000)" },
+  { value: "Tigray War 2019–2022", label: "Tigray War (2019–2022)" },
+  { value: "Other", label: "Other / Unknown" },
+];
 
 function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "Unknown";
