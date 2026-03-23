@@ -49,6 +49,7 @@ const App = () => (
                 <ProtectedRoute require="admin"><EditRecord /></ProtectedRoute>
               } />
               <Route path="/install" element={<Install />} />
+              <Route path="/contribute" element={<Contribute />} />
               <Route path="/org/start" element={
                 <ProtectedRoute require="contributor"><OrgOnboarding /></ProtectedRoute>
               } />
