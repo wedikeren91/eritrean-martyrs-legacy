@@ -135,25 +135,30 @@ const Contribute = () => {
     );
   }
 
-  // ── Not logged in gate ────────────────────────────────────────────────────
-  if (!user) {
+  // ── Not logged in + trying to submit a NEW record ─────────────────────────
+  if (!user && mode === "new") {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
         <div className="container mx-auto px-4 py-16 max-w-md text-center">
           <div className="text-5xl mb-6">🔒</div>
           <h1 className="text-2xl font-semibold mb-3" style={{ fontFamily: "'Fraunces', serif" }}>
-            Sign in to Contribute
+            Sign in to Submit a Record
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-            You need an account to submit records or suggest edits. It only takes a moment — your contributions
+            You need an account to submit new records. It only takes a moment — your contributions
             will be credited to your profile and help build this living archive.
           </p>
           <div className="flex flex-col gap-3">
-            <Link to="/auth"
+            <Link to="/auth" state={{ from: { pathname: "/contribute" } }}
               className="block w-full bg-primary text-primary-foreground py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors text-center">
               Sign In / Create Account →
             </Link>
+            <button
+              onClick={() => setMode("edit")}
+              className="block w-full border border-border text-foreground py-3 text-xs font-semibold tracking-widest uppercase hover:bg-muted transition-colors text-center">
+              ✏️ Suggest a Correction Instead
+            </button>
             <Link to="/"
               className="block w-full border border-border text-foreground py-3 text-xs font-semibold tracking-widest uppercase hover:bg-muted transition-colors text-center">
               ← Browse the Archive

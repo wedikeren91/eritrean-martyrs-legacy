@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
 import { getMartyrBySlug } from "@/data/martyrs";
