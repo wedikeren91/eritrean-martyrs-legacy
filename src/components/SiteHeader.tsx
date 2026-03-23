@@ -62,6 +62,16 @@ const SiteHeader = () => {
               </Link>
             ))}
             {isAdmin && (
+              <Link to="/moderator"
+                className={`text-xs font-medium tracking-widest uppercase transition-colors duration-200 underline-offset-4 decoration-1
+                  ${pathname.startsWith("/moderator")
+                    ? "text-primary underline"
+                    : "text-muted-foreground hover:text-foreground hover:underline"
+                  }`}>
+                Moderate
+              </Link>
+            )}
+            {isAdmin && (
               <Link to="/admin"
                 className={`text-xs font-medium tracking-widest uppercase transition-colors duration-200 underline-offset-4 decoration-1
                   ${pathname.startsWith("/admin")
