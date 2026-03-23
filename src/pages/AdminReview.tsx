@@ -152,9 +152,11 @@ export default function AdminReview() {
                       <span className={`text-[9px] font-bold tracking-wider px-1.5 py-0.5 uppercase flex-shrink-0 ${
                         c.source_type === "bulk_upload"
                           ? "bg-blue-50 text-blue-700 border border-blue-200"
+                          : c.source_type === "correction"
+                          ? "bg-purple-50 text-purple-700 border border-purple-200"
                           : "bg-amber-50 text-amber-700 border border-amber-200"
                       }`}>
-                        {c.source_type === "bulk_upload" ? "Bulk" : "Form"}
+                        {c.source_type === "bulk_upload" ? "Bulk" : c.source_type === "correction" ? "✏️ Correction" : "New Record"}
                       </span>
                       <span className="text-sm font-semibold truncate" style={{ fontFamily: "'Fraunces', serif" }}>
                         {pd.first_name} {pd.last_name}
@@ -201,6 +203,23 @@ export default function AdminReview() {
                         </div>
                       ))}
                     </div>
+
+                    {pd._correction_note && (
+                      <div className="px-4 pb-3 bg-primary/5 border-b border-primary/20">
+                        <div className="data-label mb-1 text-primary">Reviewer Note</div>
+                        <p className="text-xs leading-relaxed">{pd._correction_note}</p>
+                        {pd._original_slug && (
+                          <a
+                            href={`/martyr/${pd._original_slug}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[10px] text-primary underline mt-1 inline-block"
+                          >
+                            View original record →
+                          </a>
+                        )}
+                      </div>
+                    )}
 
                     {pd.bio && (
                       <div className="px-4 pb-3">
