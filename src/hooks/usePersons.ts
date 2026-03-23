@@ -43,6 +43,8 @@ export function usePersons(query: string, category: string, war = "All") {
       .is("deleted_at", null)
       .order("last_name", { ascending: true })
       .limit(200);
+    // No status filter — show all non-deleted records (RLS already protects)
+
 
     if (category && category !== "All") {
       q = q.ilike("category", `%${category}%`);

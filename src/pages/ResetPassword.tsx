@@ -11,9 +11,35 @@ export default function ResetPassword() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    // Supabase v2 sends recovery tokens as query params or hash fragments
     const hash = window.location.hash;
-    if (hash.includes("type=recovery")) setReady(true);
-    else setMessage({ type: "error", text: "Invalid or expired reset link. Please request a new one." });
+    const search = window.location.search;
+    const isRecovery =
+      hash.includes("type=recovery") ||
+      search.includes("type=recovery") ||
+      hash.includes("access_token");
+
+    if (isRecovery) {
+      setReady(true);
+    } else {
+      // Listen for the auth session to be set by Supabase after redirect
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+        if (event === "PASSWORD_RECOVERY") {
+          setReady(true);
+        }
+      });
+      // Give it a moment to detect
+      setTimeout(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) {
+            setReady(true);
+          } else {
+            setMessage({ type: "error", text: "Invalid or expired reset link. Please request a new one." });
+          }
+        });
+      }, 500);
+      return () => subscription.unsubscribe();
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
