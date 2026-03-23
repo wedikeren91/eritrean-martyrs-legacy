@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./hooks/useAuth";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
 import Archive from "./pages/Archive.tsx";
 import Browse from "./pages/Browse.tsx";
@@ -37,11 +38,19 @@ const App = () => (
               <Route path="/contributors" element={<Contributors />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/review" element={<AdminReview />} />
-              <Route path="/admin/edit/:slug" element={<EditRecord />} />
+              <Route path="/admin" element={
+                <ProtectedRoute require="admin"><Admin /></ProtectedRoute>
+              } />
+              <Route path="/admin/review" element={
+                <ProtectedRoute require="admin"><AdminReview /></ProtectedRoute>
+              } />
+              <Route path="/admin/edit/:slug" element={
+                <ProtectedRoute require="admin"><EditRecord /></ProtectedRoute>
+              } />
               <Route path="/install" element={<Install />} />
-              <Route path="/org/start" element={<OrgOnboarding />} />
+              <Route path="/org/start" element={
+                <ProtectedRoute require="contributor"><OrgOnboarding /></ProtectedRoute>
+              } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
