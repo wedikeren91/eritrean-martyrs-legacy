@@ -6,9 +6,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 // ── Suggest-an-Edit form ──────────────────────────────────────────────────────
-function SuggestEditForm({ onSuccess }: { onSuccess: () => void }) {
+function SuggestEditForm({ onSuccess, prefillName }: { onSuccess: () => void; prefillName?: string }) {
   const { user } = useAuth();
-  const [slugOrName, setSlugOrName] = useState("");
+  const navigate = useNavigate();
+  const [slugOrName, setSlugOrName] = useState(prefillName || "");
   const [field, setField] = useState("");
   const [current, setCurrent] = useState("");
   const [suggested, setSuggested] = useState("");
@@ -21,7 +22,10 @@ function SuggestEditForm({ onSuccess }: { onSuccess: () => void }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      navigate("/auth", { state: { from: { pathname: "/contribute", search: "?mode=edit" } } });
+      return;
+    }
     if (!slugOrName.trim() || !field.trim() || !suggested.trim()) {
       setError("Please fill in the required fields.");
       return;
