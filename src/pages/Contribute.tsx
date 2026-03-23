@@ -112,7 +112,7 @@ function SuggestEditForm({ onSuccess, prefillName }: { onSuccess: () => void; pr
 
       <button type="submit" disabled={submitting}
         className="w-full bg-primary text-primary-foreground py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-50">
-        {submitting ? "Submitting…" : "Submit Edit Suggestion →"}
+        {submitting ? "Submitting…" : user ? "Submit Edit Suggestion →" : "Sign In to Submit →"}
       </button>
     </form>
   );
