@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -35,38 +35,74 @@ function normalizeKey(raw: string): string {
   return raw.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^a-z_]/g, "");
 }
 
-function parseRows(sheet: XLSX.WorkSheet): ParsedRow[] {
-  const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
-  return json.map((raw) => {
+async function parseFile(file: File): Promise<ParsedRow[]> {
+  const buffer = await file.arrayBuffer();
+  const workbook = new ExcelJS.Workbook();
+
+  if (file.name.toLowerCase().endsWith(".csv")) {
+    // For CSV, use a simple text-based parser
+    const text = new TextDecoder().decode(buffer);
+    const lines = text.split(/\r?\n/).filter(Boolean);
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(",").map((h) => normalizeKey(h.replace(/"/g, "")));
+    return lines.slice(1).map((line) => {
+      const values = line.split(",").map((v) => v.replace(/"/g, "").trim());
+      const row: Record<string, string> = {};
+      headers.forEach((h, i) => { row[h] = values[i] ?? ""; });
+      return buildRow(row);
+    });
+  }
+
+  await workbook.xlsx.load(buffer);
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) return [];
+
+  const rows: ParsedRow[] = [];
+  let headers: string[] = [];
+
+  worksheet.eachRow((excelRow, rowNumber) => {
+    const cells = excelRow.values as (string | number | boolean | null | undefined)[];
+    // exceljs row.values is 1-indexed, index 0 is undefined
+    const cellValues = cells.slice(1).map((v) => String(v ?? "").trim());
+
+    if (rowNumber === 1) {
+      headers = cellValues.map(normalizeKey);
+      return;
+    }
+
     const row: Record<string, string> = {};
-    for (const [k, v] of Object.entries(raw)) {
-      row[normalizeKey(k)] = String(v ?? "").trim();
-    }
-    const errors: string[] = [];
-    for (const req of REQUIRED_COLS) {
-      if (!row[req]) errors.push(`Missing required field: ${req}`);
-    }
-    return {
-      first_name: row.first_name ?? "",
-      last_name: row.last_name ?? "",
-      known_as: row.known_as,
-      date_of_birth: row.date_of_birth,
-      date_of_death: row.date_of_death,
-      city: row.city,
-      region: row.region,
-      category: row.category,
-      status: row.status,
-      rank: row.rank,
-      role: row.role,
-      bio: row.bio,
-      significance: row.significance,
-      quote: row.quote,
-      place_of_martyrdom: row.place_of_martyrdom,
-      battle: row.battle,
-      _errors: errors,
-      _valid: errors.length === 0,
-    };
+    headers.forEach((h, i) => { row[h] = cellValues[i] ?? ""; });
+    rows.push(buildRow(row));
   });
+
+  return rows;
+}
+
+function buildRow(row: Record<string, string>): ParsedRow {
+  const errors: string[] = [];
+  for (const req of REQUIRED_COLS) {
+    if (!row[req]) errors.push(`Missing required field: ${req}`);
+  }
+  return {
+    first_name: row.first_name ?? "",
+    last_name: row.last_name ?? "",
+    known_as: row.known_as,
+    date_of_birth: row.date_of_birth,
+    date_of_death: row.date_of_death,
+    city: row.city,
+    region: row.region,
+    category: row.category,
+    status: row.status,
+    rank: row.rank,
+    role: row.role,
+    bio: row.bio,
+    significance: row.significance,
+    quote: row.quote,
+    place_of_martyrdom: row.place_of_martyrdom,
+    battle: row.battle,
+    _errors: errors,
+    _valid: errors.length === 0,
+  };
 }
 
 type Props = { onClose: () => void };
@@ -79,18 +115,12 @@ export default function BulkUpload({ onClose }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ submitted: number; errors: number } | null>(null);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const data = ev.target?.result;
-      const wb = XLSX.read(data, { type: "binary" });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      setRows(parseRows(ws));
-    };
-    reader.readAsBinaryString(file);
+    const parsed = await parseFile(file);
+    setRows(parsed);
   };
 
   const handleSubmit = async () => {
@@ -99,7 +129,6 @@ export default function BulkUpload({ onClose }: Props) {
     const validRows = rows.filter((r) => r._valid);
     const errorRows = rows.filter((r) => !r._valid).length;
 
-    // Create bulk upload record
     const { data: upload } = await supabase
       .from("bulk_uploads")
       .insert({
@@ -113,7 +142,6 @@ export default function BulkUpload({ onClose }: Props) {
       .select()
       .single();
 
-    // Insert contributions
     const contributions = validRows.map((row) => {
       const { _errors, _valid, ...personData } = row;
       return {
@@ -126,7 +154,6 @@ export default function BulkUpload({ onClose }: Props) {
     });
 
     let submitted = 0;
-    // Batch insert in chunks of 50
     for (let i = 0; i < contributions.length; i += 50) {
       const { error } = await supabase.from("contributions").insert(contributions.slice(i, i + 50));
       if (!error) submitted += Math.min(50, contributions.length - i);
@@ -181,7 +208,6 @@ export default function BulkUpload({ onClose }: Props) {
         </div>
 
         <div className="px-8 py-6 space-y-6">
-          {/* Template download hint */}
           <div className="bg-muted/40 border border-border p-4 text-xs text-muted-foreground">
             <p className="font-semibold text-foreground mb-1">Required column headers (case-insensitive):</p>
             <p className="font-mono text-[10px] leading-relaxed">
@@ -192,7 +218,6 @@ export default function BulkUpload({ onClose }: Props) {
             </p>
           </div>
 
-          {/* Drop zone */}
           <div
             onClick={() => fileRef.current?.click()}
             className="border-2 border-dashed border-border hover:border-primary transition-colors p-10 text-center cursor-pointer"
@@ -211,7 +236,6 @@ export default function BulkUpload({ onClose }: Props) {
             />
           </div>
 
-          {/* Preview */}
           {rows && (
             <div>
               <div className="flex items-center gap-4 mb-3">
