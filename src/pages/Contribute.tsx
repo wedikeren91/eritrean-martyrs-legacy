@@ -296,7 +296,10 @@ const Contribute = () => {
           />
         ) : (
           <div className="py-2">
-            <SuggestEditForm onSuccess={() => { setSubmittedType("edit"); setSubmitted(true); }} />
+            <SuggestEditForm
+              prefillName={prefillName}
+              onSuccess={() => { setSubmittedType("edit"); setSubmitted(true); }}
+            />
           </div>
         )}
       </div>
