@@ -235,8 +235,11 @@ export default function Admin() {
           </div>
         )}
 
-        {/* ── Users (Founder only) ── */}
-        {tab === "users" && isFounder && <UsersPanel />}
+        {/* ── Records Panel (Founder) ── */}
+        {tab === "records" && isFounder && <RecordsPanel />}
+
+        {/* ── Review Queue ── */}
+        {tab === "queue" && (
 
         {/* ── Organizations (Founder only) ── */}
         {tab === "orgs" && isFounder && <OrgsPanel />}
