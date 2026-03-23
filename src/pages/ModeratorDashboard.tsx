@@ -76,7 +76,7 @@ export default function ModeratorDashboard() {
   const approve = async (id: string) => {
     setActionLoading(id);
     const { error } = await supabase.rpc("approve_contribution", {
-      _contribution_id: id, _admin_id: user!.id,
+      _contribution_id: id,
     });
     if (!error) {
       setContributions((p) => p.filter((c) => c.id !== id));
@@ -89,7 +89,7 @@ export default function ModeratorDashboard() {
   const reject = async (id: string) => {
     setActionLoading(id);
     const { error } = await supabase.rpc("reject_contribution", {
-      _contribution_id: id, _admin_id: user!.id, _reason: rejectReason[id] || null,
+      _contribution_id: id, _reason: rejectReason[id] || null,
     });
     if (!error) {
       setContributions((p) => p.filter((c) => c.id !== id));

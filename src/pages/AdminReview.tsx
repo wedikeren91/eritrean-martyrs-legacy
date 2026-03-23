@@ -46,7 +46,6 @@ export default function AdminReview() {
     setActionLoading(id);
     const { error } = await supabase.rpc("approve_contribution", {
       _contribution_id: id,
-      _admin_id: user!.id,
     });
     if (!error) {
       setContributions((prev) => prev.filter((c) => c.id !== id));
@@ -59,7 +58,6 @@ export default function AdminReview() {
     setActionLoading(id);
     const { error } = await supabase.rpc("reject_contribution", {
       _contribution_id: id,
-      _admin_id: user!.id,
       _reason: rejectReason[id] || null,
     });
     if (!error) {
