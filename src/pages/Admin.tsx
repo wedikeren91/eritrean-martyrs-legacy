@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,7 @@ type Contribution = {
   profiles?: { display_name: string | null; country: string | null } | null;
 };
 
-type Tab = "queue" | "users" | "orgs";
+type Tab = "queue" | "records" | "users" | "orgs";
 
 export default function Admin() {
   const { user, isAdmin, isFounder, loading } = useAuth();
