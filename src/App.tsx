@@ -19,6 +19,7 @@ import Install from "./pages/Install.tsx";
 import OrgOnboarding from "./pages/OrgOnboarding.tsx";
 import EditRecord from "./pages/EditRecord.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Contribute from "./pages/Contribute.tsx";
 
 const queryClient = new QueryClient();
 
