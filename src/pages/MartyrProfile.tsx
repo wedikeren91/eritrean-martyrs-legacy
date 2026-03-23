@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
 import { getMartyrBySlug } from "@/data/martyrs";
@@ -68,6 +68,7 @@ function useTributes(personId: string | undefined) {
 const MartyrProfile = () => {
   const { slug } = useParams<{ slug: string }>();
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [person, setPerson] = useState<PersonRow | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [bioExpanded, setBioExpanded] = useState(false);
@@ -147,21 +148,31 @@ const MartyrProfile = () => {
       {/* Breadcrumb */}
       <div className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2 text-xs text-muted-foreground overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <span>/</span>
             <Link to="/archive" className="hover:text-foreground transition-colors">Archive</Link>
             <span>/</span>
             <span className="text-foreground truncate max-w-[140px]">{person.first_name} {person.last_name}</span>
           </div>
-          {isAdmin && (
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Suggest Correction — visible to ALL users */}
             <Link
-              to={`/admin/edit/${person.slug}`}
-              className="bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold tracking-wider uppercase hover:bg-primary/90 transition-colors shrink-0"
+              to={`/contribute?mode=edit&name=${encodeURIComponent(`${person.first_name} ${person.last_name}`)}`}
+              className="border border-border text-foreground px-3 py-1.5 text-xs font-semibold tracking-wider uppercase hover:bg-muted transition-colors"
             >
-              ✏️ Edit
+              ✏️ Suggest Correction
             </Link>
-          )}
+            {/* Direct Edit — admins only */}
+            {isAdmin && (
+              <Link
+                to={`/admin/edit/${person.slug}`}
+                className="bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold tracking-wider uppercase hover:bg-primary/90 transition-colors"
+              >
+                🛠 Edit Record
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 
