@@ -105,8 +105,8 @@ const Index = () => {
       {/* ── Sticky Category Filter Bar ──────────────────────────── */}
       <div
         ref={filterBarRef}
-        className="sticky top-0 z-30 border-b border-border"
-        style={{ background: "hsl(var(--background) / 0.97)", backdropFilter: "blur(8px)" }}
+        className="sticky top-14 z-30 border-b border-border"
+        style={{ background: "hsl(var(--background))", backdropFilter: "blur(8px)" }}
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-1.5 overflow-x-auto py-2.5 no-scrollbar">
