@@ -204,6 +204,23 @@ export default function AdminReview() {
                       ))}
                     </div>
 
+                    {pd._correction_note && (
+                      <div className="px-4 pb-3 bg-primary/5 border-b border-primary/20">
+                        <div className="data-label mb-1 text-primary">Reviewer Note</div>
+                        <p className="text-xs leading-relaxed">{pd._correction_note}</p>
+                        {pd._original_slug && (
+                          <a
+                            href={`/martyr/${pd._original_slug}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[10px] text-primary underline mt-1 inline-block"
+                          >
+                            View original record →
+                          </a>
+                        )}
+                      </div>
+                    )}
+
                     {pd.bio && (
                       <div className="px-4 pb-3">
                         <div className="data-label mb-1">Bio</div>
