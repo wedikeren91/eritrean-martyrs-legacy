@@ -238,8 +238,8 @@ export default function Admin() {
         {/* ── Records Panel (Founder) ── */}
         {tab === "records" && isFounder && <RecordsPanel />}
 
-        {/* ── Review Queue ── */}
-        {tab === "queue" && (
+        {/* ── Users (Founder only) ── */}
+        {tab === "users" && isFounder && <UsersPanel />}
 
         {/* ── Organizations (Founder only) ── */}
         {tab === "orgs" && isFounder && <OrgsPanel />}
