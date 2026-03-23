@@ -35,18 +35,28 @@ export function usePersons(query: string, category: string, war = "All") {
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const loadPersons = useCallback(async (q: string, cat: string, w: string) => {
+    // Cancel any in-flight request
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+
     setLoading(true);
+
     let req = supabase
       .from("persons")
-      .select("id,slug,photo_url,first_name,last_name,known_as,date_of_birth,date_of_death,city,region,category,status,rank,role,significance,quote,place_of_martyrdom,battle", { count: "exact" })
+      .select(
+        "id,slug,photo_url,first_name,last_name,known_as,date_of_birth,date_of_death,city,region,category,status,rank,role,significance,quote,place_of_martyrdom,battle",
+        { count: "exact" }
+      )
       .is("deleted_at", null)
       .order("last_name", { ascending: true })
-      .limit(200);
+      .limit(300);
 
-    if (cat && cat !== "All") {
-      req = req.ilike("category", `%${cat}%`);
+    // Use exact match for category to avoid ELF matching EPLF
+    if (cat && cat !== "All" && cat !== "") {
+      req = req.eq("category", cat);
     }
 
     if (w && w !== "All") {
@@ -60,20 +70,29 @@ export function usePersons(query: string, category: string, war = "All") {
       );
     }
 
-    const { data, count } = await req;
+    const { data, count, error } = await req;
+
+    if (error) {
+      console.error("usePersons error:", error.message);
+      setLoading(false);
+      return;
+    }
+
     setPersons((data as PersonRow[]) ?? []);
     setTotal(count ?? 0);
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    // Debounce only the query input; category/war changes fire immediately
     if (debounceRef.current) clearTimeout(debounceRef.current);
+
     if (query.trim()) {
-      debounceRef.current = setTimeout(() => loadPersons(query, category, war), 300);
+      // Debounce text search only
+      debounceRef.current = setTimeout(() => loadPersons(query, category, war), 350);
     } else {
       loadPersons(query, category, war);
     }
+
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
@@ -83,11 +102,15 @@ export function usePersons(query: string, category: string, war = "All") {
 }
 
 export async function getPersonBySlug(slug: string): Promise<PersonRow | null> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("persons")
     .select("*")
     .eq("slug", slug)
     .is("deleted_at", null)
     .single();
+  if (error) {
+    console.error("getPersonBySlug error:", error.message);
+    return null;
+  }
   return (data as PersonRow) ?? null;
 }
