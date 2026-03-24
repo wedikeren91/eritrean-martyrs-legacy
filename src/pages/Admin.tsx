@@ -388,6 +388,9 @@ function MartyrProfilesPanel({
   const [deleteTarget, setDeleteTarget] = useState<MartyrProfile | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Import modal
+  const [showImport, setShowImport] = useState(false);
+
   const fetchProfiles = useCallback(async () => {
     setLoading(true);
     let q = supabase
