@@ -94,7 +94,6 @@ export default function Analytics() {
       totalContributions: totalApproved + pendingQueue + totalRejected,
     });
 
-    // Build category breakdown
     const catMap: Record<string, number> = {};
     (catRes.data ?? []).forEach((p) => {
       const c = p.category ?? "Unknown";
@@ -110,12 +109,10 @@ export default function Analytics() {
     setLoadingData(false);
   };
 
-  // Initial fetch
   useEffect(() => {
     if (isAdmin) fetchAll();
   }, [isAdmin]);
 
-  // Realtime subscriptions on persons + contributions
   useEffect(() => {
     if (!isAdmin) return;
 
@@ -134,9 +131,7 @@ export default function Analytics() {
       .subscribe();
 
     channelRef.current = ch;
-    return () => {
-      ch.unsubscribe();
-    };
+    return () => { ch.unsubscribe(); };
   }, [isAdmin]);
 
   if (loading)
@@ -154,30 +149,10 @@ export default function Analytics() {
       : 0;
 
   const summaryCards = [
-    {
-      label: "Approved Records",
-      value: stats.totalApproved,
-      color: "hsl(var(--oxblood))",
-      pulse: true,
-    },
-    {
-      label: "Pending Review",
-      value: stats.pendingQueue,
-      color: "hsl(38 85% 52%)",
-      pulse: stats.pendingQueue > 0,
-    },
-    {
-      label: "Rejected",
-      value: stats.totalRejected,
-      color: "hsl(var(--muted-foreground))",
-      pulse: false,
-    },
-    {
-      label: "Approval Rate",
-      value: `${approvalRate}%`,
-      color: "hsl(150 50% 40%)",
-      pulse: false,
-    },
+    { label: "Approved Records", value: stats.totalApproved, color: "hsl(4 78% 42%)", pulse: true },
+    { label: "Pending Review", value: stats.pendingQueue, color: "hsl(38 85% 52%)", pulse: stats.pendingQueue > 0 },
+    { label: "Rejected", value: stats.totalRejected, color: "hsl(var(--muted-foreground))", pulse: false },
+    { label: "Approval Rate", value: `${approvalRate}%`, color: "hsl(150 50% 40%)", pulse: false },
   ];
 
   return (
@@ -185,166 +160,127 @@ export default function Analytics() {
       {/* Top bar */}
       <div className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Link
-            to="/admin"
-            className="data-label text-muted-foreground hover:text-foreground transition-colors"
-          >
+          <Link to="/admin" className="data-label text-muted-foreground hover:text-foreground transition-colors">
             ← Admin
           </Link>
           <div className="h-4 w-px bg-border" />
           <div className="data-label text-primary flex items-center gap-2">
             Live Analytics
-            <span
-              className="inline-block w-2 h-2 rounded-full animate-pulse"
-              style={{ background: "hsl(150 50% 40%)" }}
-            />
+            <span className="inline-block w-2 h-2 rounded-full animate-pulse" style={{ background: "hsl(150 50% 40%)" }} />
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8 space-y-10">
-        {/* ── Summary counters ── */}
+        {/* Summary counters */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {summaryCards.map((s) => (
-            <div
-              key={s.label}
-              className="bg-card border border-border p-5 text-center relative overflow-hidden"
-            >
+            <div key={s.label} className="bg-card border border-border p-5 text-center relative overflow-hidden">
               {s.pulse && (
-                <div
-                  className="absolute top-2 right-2 w-2 h-2 rounded-full animate-pulse"
-                  style={{ background: s.color }}
-                />
+                <div className="absolute top-2 right-2 w-2 h-2 rounded-full animate-pulse" style={{ background: s.color }} />
               )}
-              <div
-                className="text-3xl font-bold font-mono mb-1"
-                style={{ color: s.color, fontFamily: "'Fraunces', serif" }}
-              >
-                {loadingData ? "…" : s.value.toLocaleString()}
+              <div className="text-3xl font-bold mb-1" style={{ color: s.color, fontFamily: "'Fraunces', serif" }}>
+                {loadingData ? "…" : typeof s.value === "number" ? s.value.toLocaleString() : s.value}
               </div>
               <div className="data-label text-muted-foreground">{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* ── Category breakdown ── */}
+        {/* Category breakdown charts */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Pie chart */}
           <div className="bg-card border border-border p-6">
             <div className="data-label mb-4 text-foreground">Category Breakdown</div>
-            {categories.length > 0 ? (
-              <ResponsiveContainer width="100%" height={260}>
-                <PieChart>
-                  <Pie
-                    data={categories}
-                    dataKey="count"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={90}
-                    label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
-                    }
-                    labelLine={false}
-                  >
-                    {categories.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(v: number) => [`${v} records`, "Count"]}
-                    contentStyle={{
-                      background: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: 0,
-                      fontSize: 11,
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+            {loadingData ? (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground text-sm animate-pulse">Loading…</div>
+            ) : categories.length === 0 ? (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground text-sm">No data yet</div>
             ) : (
-              <div className="flex items-center justify-center h-[260px] text-muted-foreground text-sm">
-                {loadingData ? "Loading…" : "No data yet"}
+              <div style={{ width: "100%", height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categories}
+                      dataKey="count"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      labelLine={false}
+                    >
+                      {categories.map((_, i) => (
+                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(v: number) => [`${v} records`, "Count"]}
+                      contentStyle={{
+                        background: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 0,
+                        fontSize: 11,
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             )}
           </div>
 
+          {/* Bar chart */}
           <div className="bg-card border border-border p-6">
             <div className="data-label mb-4 text-foreground">Records by Category</div>
-            {categories.length > 0 ? (
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart
-                  data={categories}
-                  margin={{ left: 0, right: 10, top: 5, bottom: 5 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                  />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                  />
-                  <Tooltip
-                    formatter={(v: number) => [`${v} records`, "Count"]}
-                    contentStyle={{
-                      background: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: 0,
-                      fontSize: 11,
-                    }}
-                  />
-                  <Bar dataKey="count" radius={[2, 2, 0, 0]}>
-                    {categories.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            {loadingData ? (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground text-sm animate-pulse">Loading…</div>
+            ) : categories.length === 0 ? (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground text-sm">No data yet</div>
             ) : (
-              <div className="flex items-center justify-center h-[260px] text-muted-foreground text-sm">
-                {loadingData ? "Loading…" : "No data yet"}
+              <div style={{ width: "100%", height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={categories} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                    <Tooltip
+                      formatter={(v: number) => [`${v} records`, "Count"]}
+                      contentStyle={{
+                        background: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 0,
+                        fontSize: 11,
+                      }}
+                    />
+                    <Bar dataKey="count" radius={[2, 2, 0, 0]}>
+                      {categories.map((_, i) => (
+                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             )}
           </div>
         </div>
 
-        {/* ── Recent approvals feed ── */}
+        {/* Recent approvals feed */}
         <div className="bg-card border border-border">
           <div className="border-b border-border px-6 py-4 flex items-center gap-2">
             <div className="data-label text-foreground">Recent Approvals</div>
-            <span
-              className="inline-block w-1.5 h-1.5 rounded-full animate-pulse ml-1"
-              style={{ background: "hsl(150 50% 40%)" }}
-            />
-            <span className="text-[10px] text-muted-foreground font-mono ml-auto">
-              live
-            </span>
+            <span className="inline-block w-1.5 h-1.5 rounded-full animate-pulse ml-1" style={{ background: "hsl(150 50% 40%)" }} />
+            <span className="text-[10px] text-muted-foreground font-mono ml-auto">live</span>
           </div>
           <div className="divide-y divide-border">
             {loadingData ? (
-              <div className="px-6 py-8 text-center data-label animate-pulse text-muted-foreground">
-                Loading…
-              </div>
+              <div className="px-6 py-8 text-center data-label animate-pulse text-muted-foreground">Loading…</div>
             ) : recentApprovals.length === 0 ? (
-              <div className="px-6 py-8 text-center text-sm text-muted-foreground">
-                No approved records yet.
-              </div>
+              <div className="px-6 py-8 text-center text-sm text-muted-foreground">No approved records yet.</div>
             ) : (
               recentApprovals.map((r, i) => (
-                <div
-                  key={r.id}
-                  className="px-6 py-3 flex items-center justify-between gap-4"
-                >
+                <div key={r.id} className="px-6 py-3 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
-                    <span
-                      className="text-[10px] font-mono w-5 shrink-0"
-                      style={{ color: "hsl(var(--muted-foreground))" }}
-                    >
-                      {i + 1}
-                    </span>
+                    <span className="text-[10px] font-mono w-5 shrink-0 text-muted-foreground">{i + 1}</span>
                     <Link
                       to={`/martyr/${r.slug}`}
                       className="text-sm font-semibold hover:underline underline-offset-2 truncate"
@@ -355,10 +291,7 @@ export default function Analytics() {
                     {r.category && (
                       <span
                         className="text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 shrink-0"
-                        style={{
-                          background: "hsl(var(--oxblood))",
-                          color: "hsl(35 25% 97%)",
-                        }}
+                        style={{ background: "hsl(4 78% 42%)", color: "hsl(35 25% 97%)" }}
                       >
                         {r.category}
                       </span>
