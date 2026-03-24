@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
+type DeputyPermission = "approve_profile" | "modify_profile" | "delete_profile";
+
 type Contribution = {
   id: string;
   submitted_at: string;
@@ -13,7 +15,7 @@ type Contribution = {
   profiles?: { display_name: string | null; country: string | null } | null;
 };
 
-type Tab = "queue" | "records" | "martyrs" | "users" | "orgs";
+type Tab = "queue" | "records" | "martyrs" | "orgs";
 
 export default function Admin() {
   const { user, isAdmin, isFounder, loading } = useAuth();
@@ -24,6 +26,7 @@ export default function Admin() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState<Record<string, string>>({});
   const [rejectOpen, setRejectOpen] = useState<string | null>(null);
+  const [deputyPerms, setDeputyPerms] = useState<DeputyPermission[]>([]);
 
   const isDeputy = isAdmin && !isFounder;
 
