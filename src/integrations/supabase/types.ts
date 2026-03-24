@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_action_log: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string
+          id: string
+          note: string | null
+          target_id: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          target_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          target_id?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           created_at: string
@@ -354,6 +381,7 @@ export type Database = {
           id: string
           message: string | null
           person_id: string
+          tribute_type: string
           user_id: string | null
         }
         Insert: {
@@ -362,6 +390,7 @@ export type Database = {
           id?: string
           message?: string | null
           person_id: string
+          tribute_type?: string
           user_id?: string | null
         }
         Update: {
@@ -370,6 +399,7 @@ export type Database = {
           id?: string
           message?: string | null
           person_id?: string
+          tribute_type?: string
           user_id?: string | null
         }
         Relationships: [
@@ -438,10 +468,23 @@ export type Database = {
         Args: { _admin_id?: string; _contribution_id: string }
         Returns: string
       }
+      check_approval_rate_limit: {
+        Args: { _admin_id: string }
+        Returns: undefined
+      }
       check_badge_awards: { Args: { _user_id: string }; Returns: undefined }
       check_contributor_promotion: {
         Args: { _user_id: string }
         Returns: undefined
+      }
+      check_delete_rate_limit: {
+        Args: { _admin_id: string }
+        Returns: undefined
+      }
+      check_edit_rate_limit: { Args: { _admin_id: string }; Returns: undefined }
+      count_admin_actions: {
+        Args: { _action: string; _admin_id: string; _days: number }
+        Returns: number
       }
       get_my_role: {
         Args: never
@@ -456,10 +499,13 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_founder: { Args: never; Returns: boolean }
+      log_edit_action: { Args: { _person_id: string }; Returns: undefined }
       reject_contribution: {
         Args: { _admin_id?: string; _contribution_id: string; _reason?: string }
         Returns: undefined
       }
+      restore_person: { Args: { _person_id: string }; Returns: undefined }
+      soft_delete_person: { Args: { _person_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "user" | "contributor" | "org_admin" | "founder"
