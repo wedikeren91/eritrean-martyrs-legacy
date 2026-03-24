@@ -175,6 +175,60 @@ export type Database = {
           },
         ]
       }
+      martyr_profiles: {
+        Row: {
+          affiliation: string
+          birth_city: string | null
+          birth_date: string | null
+          birth_province: string | null
+          created_at: string
+          death_date: string | null
+          first_name: string
+          id: string
+          last_name: string
+          life_story: string | null
+          profile_picture_url: string | null
+          status: string
+          submitted_by: string | null
+          updated_at: string
+          verification_document_url: string | null
+        }
+        Insert: {
+          affiliation: string
+          birth_city?: string | null
+          birth_date?: string | null
+          birth_province?: string | null
+          created_at?: string
+          death_date?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          life_story?: string | null
+          profile_picture_url?: string | null
+          status?: string
+          submitted_by?: string | null
+          updated_at?: string
+          verification_document_url?: string | null
+        }
+        Update: {
+          affiliation?: string
+          birth_city?: string | null
+          birth_date?: string | null
+          birth_province?: string | null
+          created_at?: string
+          death_date?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          life_story?: string | null
+          profile_picture_url?: string | null
+          status?: string
+          submitted_by?: string | null
+          updated_at?: string
+          verification_document_url?: string | null
+        }
+        Relationships: []
+      }
       organizations: {
         Row: {
           country: string | null
