@@ -93,7 +93,7 @@ const Browse = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="bg-card border border-border animate-pulse" style={{ aspectRatio: "2/3" }} />
             ))}
@@ -108,7 +108,7 @@ const Browse = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
             {persons.map((person, i) => (
               <MartyrCardDB key={person.id} person={person} index={i} />
             ))}
