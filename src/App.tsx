@@ -53,7 +53,7 @@ const App = () => (
                 <ProtectedRoute require="admin"><EditRecord /></ProtectedRoute>
               } />
               <Route path="/admin/analytics" element={
-                <ProtectedRoute require="admin"><Analytics /></ProtectedRoute>
+                <ProtectedRoute require="founder"><Analytics /></ProtectedRoute>
               } />
               <Route path="/admin/users" element={
                 <ProtectedRoute require="founder"><UserManagement /></ProtectedRoute>
