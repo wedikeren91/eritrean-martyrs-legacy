@@ -454,6 +454,14 @@ function MartyrProfilesPanel({
     setSaving(false);
   };
 
+  const approveProfile = async (p: MartyrProfile) => {
+    const { error } = await (supabase.from("martyr_profiles" as never) as any)
+      .update({ status: "Approved" })
+      .eq("id", p.id);
+    if (error) alert("Approve failed: " + error.message);
+    else await fetchProfiles();
+  };
+
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
