@@ -304,10 +304,9 @@ export default function Admin() {
         {tab === "records" && isAdmin && <RecordsPanel isFounder={isFounder} />}
 
         {/* ── Martyr Profiles Panel ── */}
-        {tab === "martyrs" && isAdmin && <MartyrProfilesPanel isFounder={isFounder} />}
-
-        {/* ── Users (Founder only) ── */}
-        {tab === "users" && isFounder && <UsersPanel />}
+        {tab === "martyrs" && isAdmin && (
+          <MartyrProfilesPanel isFounder={isFounder} deputyPerms={deputyPerms} />
+        )}
 
         {/* ── Organizations (Founder only) ── */}
         {tab === "orgs" && isFounder && <OrgsPanel />}
