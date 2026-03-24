@@ -25,6 +25,9 @@ export default function Admin() {
   const [rejectReason, setRejectReason] = useState<Record<string, string>>({});
   const [rejectOpen, setRejectOpen] = useState<string | null>(null);
 
+  // Deputy admin (org_admin) also has access, not just founder
+  const isDeputy = isAdmin && !isFounder;
+
   useEffect(() => {
     if (!loading && !isAdmin) navigate("/");
   }, [loading, isAdmin, navigate]);
