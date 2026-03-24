@@ -34,37 +34,6 @@ function formatYear(dateStr: string | null | undefined): string {
   }
 }
 
-// ─── Tribute (candle) hook ─────────────────────────────────────────────────
-function useTributes(personId: string | undefined) {
-  const [count, setCount] = useState(0);
-  const [hasLit, setHasLit] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!personId) return;
-    supabase
-      .from("tributes")
-      .select("id", { count: "exact", head: true })
-      .eq("person_id", personId)
-      .then(({ count: c }) => setCount(c ?? 0));
-  }, [personId]);
-
-  const light = async () => {
-    if (!personId || hasLit || loading) return;
-    setLoading(true);
-    const { error } = await supabase
-      .from("tributes")
-      .insert({ person_id: personId, flower_count: 1 });
-    if (!error) {
-      setCount((c) => c + 1);
-      setHasLit(true);
-    }
-    setLoading(false);
-  };
-
-  return { count, hasLit, light, loading };
-}
-
 // ─── Main Component ────────────────────────────────────────────────────────
 const MartyrProfile = () => {
   const { slug } = useParams<{ slug: string }>();
