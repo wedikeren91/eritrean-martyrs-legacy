@@ -25,6 +25,9 @@ export default function Admin() {
   const [rejectReason, setRejectReason] = useState<Record<string, string>>({});
   const [rejectOpen, setRejectOpen] = useState<string | null>(null);
 
+  // Deputy admin (org_admin) also has access, not just founder
+  const isDeputy = isAdmin && !isFounder;
+
   useEffect(() => {
     if (!loading && !isAdmin) navigate("/");
   }, [loading, isAdmin, navigate]);
@@ -71,8 +74,9 @@ export default function Admin() {
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "queue", label: "Review Queue" },
+    // Both founder and deputy admin can access Records
+    { key: "records" as Tab, label: "Records" },
     ...(isFounder ? [
-      { key: "records" as Tab, label: "All Records" },
       { key: "users" as Tab, label: "Users" },
       { key: "orgs" as Tab, label: "Organizations" },
     ] : []),
@@ -243,8 +247,8 @@ export default function Admin() {
           </div>
         )}
 
-        {/* ── Records Panel (Founder) ── */}
-        {tab === "records" && isFounder && <RecordsPanel />}
+        {/* ── Records Panel (Admin + Founder) ── */}
+        {tab === "records" && isAdmin && <RecordsPanel isFounder={isFounder} />}
 
         {/* ── Users (Founder only) ── */}
         {tab === "users" && isFounder && <UsersPanel />}
@@ -455,7 +459,7 @@ function OrgsPanel() {
   );
 }
 
-// ── Records Panel (Founder only) ──────────────────────────────────────────────
+// ── Records Panel (Admin + Founder) ───────────────────────────────────────────
 type PersonRow = {
   id: string; slug: string; first_name: string; last_name: string;
   category: string | null; status: string | null; date_of_death: string | null;
@@ -463,7 +467,7 @@ type PersonRow = {
   created_at: string;
 };
 
-function RecordsPanel() {
+function RecordsPanel({ isFounder }: { isFounder: boolean }) {
   const { user } = useAuth();
   const [records, setRecords] = useState<PersonRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -573,15 +577,21 @@ function RecordsPanel() {
                 <td className="px-4 py-2.5 font-mono text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
                 <td className="px-4 py-2.5">
                   <div className="flex items-center gap-2">
-                    <Link to={`/admin/edit/${r.slug}`}
-                      className="text-primary hover:underline underline-offset-2 font-medium">
-                      Edit
-                    </Link>
+                    {/* Edit: founder only */}
+                    {isFounder && (
+                      <Link to={`/admin/edit/${r.slug}`}
+                        className="text-primary hover:underline underline-offset-2 font-medium">
+                        Edit
+                      </Link>
+                    )}
+                    {/* Delete / Restore: both founder and deputy */}
                     {r.deleted_at ? (
-                      <button onClick={() => restore(r.id)} disabled={deleting === r.id}
-                        className="text-emerald-700 hover:underline underline-offset-2 disabled:opacity-50">
-                        Restore
-                      </button>
+                      isFounder && (
+                        <button onClick={() => restore(r.id)} disabled={deleting === r.id}
+                          className="text-emerald-700 hover:underline underline-offset-2 disabled:opacity-50">
+                          Restore
+                        </button>
+                      )
                     ) : confirmDelete === r.id ? (
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => softDelete(r.id)} disabled={deleting === r.id}
@@ -609,6 +619,11 @@ function RecordsPanel() {
           </tbody>
         </table>
       </div>
+      {!isFounder && (
+        <p className="text-[10px] text-muted-foreground mt-3 text-right font-mono">
+          Deputy limits: 5 deletions / week · 15 / month
+        </p>
+      )}
     </div>
   );
 }
