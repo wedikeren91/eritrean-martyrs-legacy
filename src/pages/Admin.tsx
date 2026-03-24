@@ -34,6 +34,21 @@ export default function Admin() {
     if (!loading && !isAdmin) navigate("/");
   }, [loading, isAdmin, navigate]);
 
+  // Load the current deputy admin's permissions from their profile
+  useEffect(() => {
+    if (!user || !isDeputy) return;
+    supabase
+      .from("profiles")
+      .select("permissions")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.permissions) {
+          setDeputyPerms(data.permissions as DeputyPermission[]);
+        }
+      });
+  }, [user, isDeputy]);
+
   const fetchContributions = async () => {
     setLoadingData(true);
     const { data } = await supabase
@@ -81,12 +96,7 @@ export default function Admin() {
     { key: "queue", label: "Review Queue" },
     { key: "records", label: "Records" },
     { key: "martyrs", label: "Martyr Profiles" },
-    ...(isFounder
-      ? [
-          { key: "users" as Tab, label: "Users" },
-          { key: "orgs" as Tab, label: "Organizations" },
-        ]
-      : []),
+    ...(isFounder ? [{ key: "orgs" as Tab, label: "Organizations" }] : []),
   ];
 
   return (
