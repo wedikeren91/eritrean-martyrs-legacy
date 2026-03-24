@@ -118,7 +118,7 @@ export default function Admin() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {isAdmin && (
+            {isFounder && (
               <Link
                 to="/admin/analytics"
                 className="text-xs font-semibold tracking-wider uppercase border border-border px-3 py-1.5 hover:bg-muted transition-colors"
