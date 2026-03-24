@@ -577,15 +577,21 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
                 <td className="px-4 py-2.5 font-mono text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
                 <td className="px-4 py-2.5">
                   <div className="flex items-center gap-2">
-                    <Link to={`/admin/edit/${r.slug}`}
-                      className="text-primary hover:underline underline-offset-2 font-medium">
-                      Edit
-                    </Link>
+                    {/* Edit: founder only */}
+                    {isFounder && (
+                      <Link to={`/admin/edit/${r.slug}`}
+                        className="text-primary hover:underline underline-offset-2 font-medium">
+                        Edit
+                      </Link>
+                    )}
+                    {/* Delete / Restore: both founder and deputy */}
                     {r.deleted_at ? (
-                      <button onClick={() => restore(r.id)} disabled={deleting === r.id}
-                        className="text-emerald-700 hover:underline underline-offset-2 disabled:opacity-50">
-                        Restore
-                      </button>
+                      isFounder && (
+                        <button onClick={() => restore(r.id)} disabled={deleting === r.id}
+                          className="text-emerald-700 hover:underline underline-offset-2 disabled:opacity-50">
+                          Restore
+                        </button>
+                      )
                     ) : confirmDelete === r.id ? (
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => softDelete(r.id)} disabled={deleting === r.id}
@@ -613,6 +619,11 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
           </tbody>
         </table>
       </div>
+      {!isFounder && (
+        <p className="text-[10px] text-muted-foreground mt-3 text-right font-mono">
+          Deputy limits: 5 deletions / week · 15 / month
+        </p>
+      )}
     </div>
   );
 }
