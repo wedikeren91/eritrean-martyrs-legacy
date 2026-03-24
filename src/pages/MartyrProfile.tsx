@@ -42,7 +42,6 @@ const MartyrProfile = () => {
   const [person, setPerson] = useState<PersonRow | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [bioExpanded, setBioExpanded] = useState(false);
-  const { count: tributeCount, hasLit, light, loading: tributeLoading } = useTributes(person?.id);
 
   useEffect(() => {
     if (!slug) { setPageLoading(false); return; }
