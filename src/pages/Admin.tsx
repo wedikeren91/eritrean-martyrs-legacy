@@ -802,6 +802,9 @@ function MartyrProfilesPanel({
           </div>
         </div>
       )}
+    </div>
+  );
+}
 
 // ── Organizations Panel ────────────────────────────────────────────────────────
 function OrgsPanel() {
