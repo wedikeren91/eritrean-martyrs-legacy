@@ -505,8 +505,27 @@ function MartyrProfilesPanel({
         <h1 className="text-xl sm:text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>
           Martyr Profiles
         </h1>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-          {profiles.length} record{profiles.length !== 1 ? "s" : ""} shown
+        <div className="flex items-center gap-3 flex-wrap">
+          {isFounder && (
+            <>
+              <button
+                onClick={() => exportProfiles(profiles)}
+                disabled={profiles.length === 0}
+                className="flex items-center gap-1.5 border border-border bg-background px-4 py-2 text-xs font-semibold tracking-wider uppercase hover:bg-muted transition-colors disabled:opacity-40"
+              >
+                <span>↓</span> Export Data
+              </button>
+              <button
+                onClick={() => setShowImport(true)}
+                className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold tracking-wider uppercase hover:bg-primary/90 transition-colors"
+              >
+                <span>↑</span> Import Data
+              </button>
+            </>
+          )}
+          <div className="text-xs text-muted-foreground font-mono">
+            {profiles.length} record{profiles.length !== 1 ? "s" : ""} shown
+          </div>
         </div>
       </div>
 
