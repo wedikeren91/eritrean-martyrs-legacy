@@ -345,7 +345,16 @@ type EditFields = Pick<
   | "status"
 >;
 
-function MartyrProfilesPanel({ isFounder }: { isFounder: boolean }) {
+function MartyrProfilesPanel({
+  isFounder,
+  deputyPerms,
+}: {
+  isFounder: boolean;
+  deputyPerms: DeputyPermission[];
+}) {
+  const canEdit    = isFounder || deputyPerms.includes("modify_profile");
+  const canDelete  = isFounder || deputyPerms.includes("delete_profile");
+  const canApprove = isFounder || deputyPerms.includes("approve_profile");
   const [profiles, setProfiles] = useState<MartyrProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
