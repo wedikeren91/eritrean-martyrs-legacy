@@ -15,6 +15,7 @@ import Auth from "./pages/Auth.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Admin from "./pages/Admin.tsx";
 import AdminReview from "./pages/AdminReview.tsx";
+import Analytics from "./pages/Analytics.tsx";
 import Install from "./pages/Install.tsx";
 import OrgOnboarding from "./pages/OrgOnboarding.tsx";
 import EditRecord from "./pages/EditRecord.tsx";
@@ -49,6 +50,9 @@ const App = () => (
               } />
               <Route path="/admin/edit/:slug" element={
                 <ProtectedRoute require="admin"><EditRecord /></ProtectedRoute>
+              } />
+              <Route path="/admin/analytics" element={
+                <ProtectedRoute require="admin"><Analytics /></ProtectedRoute>
               } />
               <Route path="/install" element={<Install />} />
               <Route path="/contribute" element={<Contribute />} />

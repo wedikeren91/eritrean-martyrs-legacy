@@ -5,6 +5,7 @@ import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
 import { getMartyrBySlug } from "@/data/martyrs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import TributeBar from "@/components/TributeBar";
 
 const WARS = [
   { value: "", label: "— Select conflict —" },
@@ -33,37 +34,6 @@ function formatYear(dateStr: string | null | undefined): string {
   }
 }
 
-// ─── Tribute (candle) hook ─────────────────────────────────────────────────
-function useTributes(personId: string | undefined) {
-  const [count, setCount] = useState(0);
-  const [hasLit, setHasLit] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!personId) return;
-    supabase
-      .from("tributes")
-      .select("id", { count: "exact", head: true })
-      .eq("person_id", personId)
-      .then(({ count: c }) => setCount(c ?? 0));
-  }, [personId]);
-
-  const light = async () => {
-    if (!personId || hasLit || loading) return;
-    setLoading(true);
-    const { error } = await supabase
-      .from("tributes")
-      .insert({ person_id: personId, flower_count: 1 });
-    if (!error) {
-      setCount((c) => c + 1);
-      setHasLit(true);
-    }
-    setLoading(false);
-  };
-
-  return { count, hasLit, light, loading };
-}
-
 // ─── Main Component ────────────────────────────────────────────────────────
 const MartyrProfile = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -72,7 +42,6 @@ const MartyrProfile = () => {
   const [person, setPerson] = useState<PersonRow | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [bioExpanded, setBioExpanded] = useState(false);
-  const { count: tributeCount, hasLit, light, loading: tributeLoading } = useTributes(person?.id);
 
   useEffect(() => {
     if (!slug) { setPageLoading(false); return; }
@@ -270,7 +239,7 @@ const MartyrProfile = () => {
         </div>
       </section>
 
-      {/* ── TRIBUTE / CANDLE BAR ── */}
+      {/* ── TRIBUTE BAR ── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Significance summary */}
@@ -279,31 +248,7 @@ const MartyrProfile = () => {
               "{person.significance}"
             </p>
           )}
-
-          {/* Candle button + counter */}
-          <div className="flex items-center gap-4 shrink-0">
-            <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "hsl(var(--oxblood))", fontFamily: "'Fraunces', serif" }}>
-                {tributeCount.toLocaleString()}
-              </div>
-              <div className="text-[10px] font-mono tracking-widest uppercase text-muted-foreground">
-                Candles Lit
-              </div>
-            </div>
-
-            <button
-              onClick={light}
-              disabled={hasLit || tributeLoading}
-              className="flex items-center gap-2 px-5 py-3 font-semibold text-sm transition-all duration-200 border-2 disabled:opacity-50"
-              style={hasLit
-                ? { background: "hsl(38 80% 48%)", borderColor: "hsl(38 80% 48%)", color: "#fff" }
-                : { background: "transparent", borderColor: "hsl(var(--oxblood))", color: "hsl(var(--oxblood))" }
-              }
-            >
-              <span className="text-lg">{hasLit ? "🕯️" : "🕯"}</span>
-              {hasLit ? "Candle Lit" : "Light a Candle"}
-            </button>
-          </div>
+          <TributeBar personId={person.id} />
         </div>
       </section>
 
