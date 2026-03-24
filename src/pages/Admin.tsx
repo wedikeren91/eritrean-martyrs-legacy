@@ -683,21 +683,37 @@ function MartyrProfilesPanel({
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      {/* Edit: all admins */}
-                      <button
-                        onClick={() => startEdit(p)}
-                        className="text-primary hover:underline underline-offset-2 font-medium text-[11px]"
-                      >
-                        Edit
-                      </button>
-                      {/* Delete: all admins (founder can permanently delete, others soft) */}
-                      <button
-                        onClick={() => setDeleteTarget(p)}
-                        className="bg-destructive text-destructive-foreground px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider hover:bg-destructive/90 transition-colors"
-                      >
-                        Delete
-                      </button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* Approve: only for Pending profiles */}
+                      {canApprove && p.status === "Pending" && (
+                        <button
+                          onClick={() => approveProfile(p)}
+                          className="bg-emerald-700 text-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider hover:bg-emerald-800 transition-colors"
+                        >
+                          Approve
+                        </button>
+                      )}
+                      {/* Edit */}
+                      {canEdit && (
+                        <button
+                          onClick={() => startEdit(p)}
+                          className="text-primary hover:underline underline-offset-2 font-medium text-[11px]"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {/* Delete */}
+                      {canDelete && (
+                        <button
+                          onClick={() => setDeleteTarget(p)}
+                          className="bg-destructive text-destructive-foreground px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider hover:bg-destructive/90 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      )}
+                      {!canEdit && !canDelete && !canApprove && (
+                        <span className="text-[10px] text-muted-foreground italic">No actions</span>
+                      )}
                     </div>
                   </td>
                 </tr>
