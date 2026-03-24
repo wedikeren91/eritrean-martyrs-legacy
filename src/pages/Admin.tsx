@@ -825,6 +825,15 @@ function MartyrProfilesPanel({
           </div>
         </div>
       )}
+
+      {/* ── Import Modal ── */}
+      {showImport && (
+        <MartyrImportModal
+          profiles={profiles}
+          onClose={() => setShowImport(false)}
+          onDone={fetchProfiles}
+        />
+      )}
     </div>
   );
 }
