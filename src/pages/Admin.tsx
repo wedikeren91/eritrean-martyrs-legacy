@@ -459,7 +459,7 @@ function OrgsPanel() {
   );
 }
 
-// ── Records Panel (Founder only) ──────────────────────────────────────────────
+// ── Records Panel (Admin + Founder) ───────────────────────────────────────────
 type PersonRow = {
   id: string; slug: string; first_name: string; last_name: string;
   category: string | null; status: string | null; date_of_death: string | null;
@@ -467,7 +467,7 @@ type PersonRow = {
   created_at: string;
 };
 
-function RecordsPanel() {
+function RecordsPanel({ isFounder }: { isFounder: boolean }) {
   const { user } = useAuth();
   const [records, setRecords] = useState<PersonRow[]>([]);
   const [loading, setLoading] = useState(true);
