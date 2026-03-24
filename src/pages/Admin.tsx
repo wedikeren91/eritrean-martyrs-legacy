@@ -74,8 +74,9 @@ export default function Admin() {
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "queue", label: "Review Queue" },
+    // Both founder and deputy admin can access Records
+    { key: "records" as Tab, label: "Records" },
     ...(isFounder ? [
-      { key: "records" as Tab, label: "All Records" },
       { key: "users" as Tab, label: "Users" },
       { key: "orgs" as Tab, label: "Organizations" },
     ] : []),
