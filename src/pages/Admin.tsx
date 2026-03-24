@@ -247,8 +247,8 @@ export default function Admin() {
           </div>
         )}
 
-        {/* ── Records Panel (Founder) ── */}
-        {tab === "records" && isFounder && <RecordsPanel />}
+        {/* ── Records Panel (Admin + Founder) ── */}
+        {tab === "records" && isAdmin && <RecordsPanel isFounder={isFounder} />}
 
         {/* ── Users (Founder only) ── */}
         {tab === "users" && isFounder && <UsersPanel />}
