@@ -51,6 +51,9 @@ const App = () => (
               <Route path="/admin/edit/:slug" element={
                 <ProtectedRoute require="admin"><EditRecord /></ProtectedRoute>
               } />
+              <Route path="/admin/analytics" element={
+                <ProtectedRoute require="admin"><Analytics /></ProtectedRoute>
+              } />
               <Route path="/install" element={<Install />} />
               <Route path="/contribute" element={<Contribute />} />
               <Route path="/stories" element={<Stories />} />
