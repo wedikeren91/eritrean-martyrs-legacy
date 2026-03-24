@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
+type DeputyPermission = "approve_profile" | "modify_profile" | "delete_profile";
+
 type Contribution = {
   id: string;
   submitted_at: string;
@@ -13,7 +15,7 @@ type Contribution = {
   profiles?: { display_name: string | null; country: string | null } | null;
 };
 
-type Tab = "queue" | "records" | "martyrs" | "users" | "orgs";
+type Tab = "queue" | "records" | "martyrs" | "orgs";
 
 export default function Admin() {
   const { user, isAdmin, isFounder, loading } = useAuth();
@@ -24,12 +26,28 @@ export default function Admin() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState<Record<string, string>>({});
   const [rejectOpen, setRejectOpen] = useState<string | null>(null);
+  const [deputyPerms, setDeputyPerms] = useState<DeputyPermission[]>([]);
 
   const isDeputy = isAdmin && !isFounder;
 
   useEffect(() => {
     if (!loading && !isAdmin) navigate("/");
   }, [loading, isAdmin, navigate]);
+
+  // Load the current deputy admin's permissions from their profile
+  useEffect(() => {
+    if (!user || !isDeputy) return;
+    supabase
+      .from("profiles")
+      .select("permissions")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.permissions) {
+          setDeputyPerms(data.permissions as DeputyPermission[]);
+        }
+      });
+  }, [user, isDeputy]);
 
   const fetchContributions = async () => {
     setLoadingData(true);
@@ -78,12 +96,7 @@ export default function Admin() {
     { key: "queue", label: "Review Queue" },
     { key: "records", label: "Records" },
     { key: "martyrs", label: "Martyr Profiles" },
-    ...(isFounder
-      ? [
-          { key: "users" as Tab, label: "Users" },
-          { key: "orgs" as Tab, label: "Organizations" },
-        ]
-      : []),
+    ...(isFounder ? [{ key: "orgs" as Tab, label: "Organizations" }] : []),
   ];
 
   return (
@@ -110,6 +123,14 @@ export default function Admin() {
                 className="text-xs font-semibold tracking-wider uppercase border border-border px-3 py-1.5 hover:bg-muted transition-colors"
               >
                 📊 Analytics
+              </Link>
+            )}
+            {isFounder && (
+              <Link
+                to="/admin/users"
+                className="text-xs font-semibold tracking-wider uppercase border border-border px-3 py-1.5 hover:bg-muted transition-colors"
+              >
+                👥 Users
               </Link>
             )}
             <div className="text-xs text-muted-foreground truncate max-w-[140px] hidden sm:block">
@@ -291,10 +312,9 @@ export default function Admin() {
         {tab === "records" && isAdmin && <RecordsPanel isFounder={isFounder} />}
 
         {/* ── Martyr Profiles Panel ── */}
-        {tab === "martyrs" && isAdmin && <MartyrProfilesPanel isFounder={isFounder} />}
-
-        {/* ── Users (Founder only) ── */}
-        {tab === "users" && isFounder && <UsersPanel />}
+        {tab === "martyrs" && isAdmin && (
+          <MartyrProfilesPanel isFounder={isFounder} deputyPerms={deputyPerms} />
+        )}
 
         {/* ── Organizations (Founder only) ── */}
         {tab === "orgs" && isFounder && <OrgsPanel />}
@@ -333,7 +353,16 @@ type EditFields = Pick<
   | "status"
 >;
 
-function MartyrProfilesPanel({ isFounder }: { isFounder: boolean }) {
+function MartyrProfilesPanel({
+  isFounder,
+  deputyPerms,
+}: {
+  isFounder: boolean;
+  deputyPerms: DeputyPermission[];
+}) {
+  const canEdit    = isFounder || deputyPerms.includes("modify_profile");
+  const canDelete  = isFounder || deputyPerms.includes("delete_profile");
+  const canApprove = isFounder || deputyPerms.includes("approve_profile");
   const [profiles, setProfiles] = useState<MartyrProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -431,6 +460,14 @@ function MartyrProfilesPanel({ isFounder }: { isFounder: boolean }) {
       await fetchProfiles();
     }
     setSaving(false);
+  };
+
+  const approveProfile = async (p: MartyrProfile) => {
+    const { error } = await (supabase.from("martyr_profiles" as never) as any)
+      .update({ status: "Approved" })
+      .eq("id", p.id);
+    if (error) alert("Approve failed: " + error.message);
+    else await fetchProfiles();
   };
 
   const confirmDelete = async () => {
@@ -654,21 +691,37 @@ function MartyrProfilesPanel({ isFounder }: { isFounder: boolean }) {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      {/* Edit: all admins */}
-                      <button
-                        onClick={() => startEdit(p)}
-                        className="text-primary hover:underline underline-offset-2 font-medium text-[11px]"
-                      >
-                        Edit
-                      </button>
-                      {/* Delete: all admins (founder can permanently delete, others soft) */}
-                      <button
-                        onClick={() => setDeleteTarget(p)}
-                        className="bg-destructive text-destructive-foreground px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider hover:bg-destructive/90 transition-colors"
-                      >
-                        Delete
-                      </button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* Approve: only for Pending profiles */}
+                      {canApprove && p.status === "Pending" && (
+                        <button
+                          onClick={() => approveProfile(p)}
+                          className="bg-emerald-700 text-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider hover:bg-emerald-800 transition-colors"
+                        >
+                          Approve
+                        </button>
+                      )}
+                      {/* Edit */}
+                      {canEdit && (
+                        <button
+                          onClick={() => startEdit(p)}
+                          className="text-primary hover:underline underline-offset-2 font-medium text-[11px]"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {/* Delete */}
+                      {canDelete && (
+                        <button
+                          onClick={() => setDeleteTarget(p)}
+                          className="bg-destructive text-destructive-foreground px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider hover:bg-destructive/90 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      )}
+                      {!canEdit && !canDelete && !canApprove && (
+                        <span className="text-[10px] text-muted-foreground italic">No actions</span>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -749,105 +802,6 @@ function MartyrProfilesPanel({ isFounder }: { isFounder: boolean }) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-// ── Users Panel ────────────────────────────────────────────────────────────────
-function UsersPanel() {
-  const [users, setUsers] = useState<{
-    id: string;
-    display_name: string | null;
-    country: string | null;
-    user_roles: { role: string }[];
-  }[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [roleUpdating, setRoleUpdating] = useState<string | null>(null);
-
-  const fetchUsers = async () => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("id, display_name, country")
-      .order("created_at", { ascending: false })
-      .limit(100);
-
-    const profileIds = (data ?? []).map((p) => p.id);
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("user_id, role")
-      .in("user_id", profileIds);
-
-    const roleMap = Object.fromEntries((roleData ?? []).map((r) => [r.user_id, r.role]));
-    setUsers(
-      (data ?? []).map((p) => ({
-        ...p,
-        user_roles: [{ role: roleMap[p.id] ?? "user" }],
-      }))
-    );
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const updateRole = async (userId: string, newRole: string) => {
-    setRoleUpdating(userId);
-    await supabase
-      .from("user_roles")
-      .update({ role: newRole as "user" | "contributor" | "org_admin" | "founder" })
-      .eq("user_id", userId);
-    await fetchUsers();
-    setRoleUpdating(null);
-  };
-
-  if (loading)
-    return <div className="data-label animate-pulse text-muted-foreground">Loading users…</div>;
-
-  return (
-    <div>
-      <h1 className="text-xl sm:text-2xl mb-6" style={{ fontFamily: "'Fraunces', serif" }}>
-        User Management
-      </h1>
-      <div className="bg-card border border-border overflow-x-auto">
-        <table className="w-full text-xs min-w-[480px]">
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-4 py-3 text-left data-label">Name</th>
-              <th className="px-4 py-3 text-left data-label">Country</th>
-              <th className="px-4 py-3 text-left data-label">Role</th>
-              <th className="px-4 py-3 text-left data-label">Change Role</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => {
-              const role = u.user_roles?.[0]?.role ?? "user";
-              return (
-                <tr key={u.id} className="border-t border-border">
-                  <td className="px-4 py-3 font-medium">{u.display_name ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{u.country ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <span className="font-mono uppercase text-[10px] tracking-wider">{role}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={role}
-                      disabled={roleUpdating === u.id}
-                      onChange={(e) => updateRole(u.id, e.target.value)}
-                      className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground"
-                    >
-                      <option value="user">User</option>
-                      <option value="contributor">Contributor</option>
-                      <option value="org_admin">Org Admin</option>
-                      <option value="founder">Founder</option>
-                    </select>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }

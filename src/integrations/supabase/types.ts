@@ -373,6 +373,7 @@ export type Database = {
           display_name: string | null
           id: string
           organization_id: string | null
+          permissions: Json
           phone: string | null
           public_email: boolean | null
           public_location: boolean | null
@@ -391,6 +392,7 @@ export type Database = {
           display_name?: string | null
           id: string
           organization_id?: string | null
+          permissions?: Json
           phone?: string | null
           public_email?: boolean | null
           public_location?: boolean | null
@@ -409,6 +411,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           organization_id?: string | null
+          permissions?: Json
           phone?: string | null
           public_email?: boolean | null
           public_location?: boolean | null
