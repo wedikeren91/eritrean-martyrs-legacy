@@ -15,6 +15,7 @@ import Auth from "./pages/Auth.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Admin from "./pages/Admin.tsx";
 import AdminReview from "./pages/AdminReview.tsx";
+import Analytics from "./pages/Analytics.tsx";
 import Install from "./pages/Install.tsx";
 import OrgOnboarding from "./pages/OrgOnboarding.tsx";
 import EditRecord from "./pages/EditRecord.tsx";

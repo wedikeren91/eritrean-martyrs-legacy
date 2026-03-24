@@ -5,6 +5,7 @@ import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
 import { getMartyrBySlug } from "@/data/martyrs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import TributeBar from "@/components/TributeBar";
 
 const WARS = [
   { value: "", label: "— Select conflict —" },
