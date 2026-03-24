@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound.tsx";
 import Contribute from "./pages/Contribute.tsx";
 import ModeratorDashboard from "./pages/ModeratorDashboard.tsx";
 import Stories from "./pages/Stories.tsx";
+import UserManagement from "./pages/UserManagement.tsx";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,9 @@ const App = () => (
               } />
               <Route path="/admin/analytics" element={
                 <ProtectedRoute require="admin"><Analytics /></ProtectedRoute>
+              } />
+              <Route path="/admin/users" element={
+                <ProtectedRoute require="founder"><UserManagement /></ProtectedRoute>
               } />
               <Route path="/install" element={<Install />} />
               <Route path="/contribute" element={<Contribute />} />
