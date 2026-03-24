@@ -125,6 +125,14 @@ export default function Admin() {
                 📊 Analytics
               </Link>
             )}
+            {isFounder && (
+              <Link
+                to="/admin/users"
+                className="text-xs font-semibold tracking-wider uppercase border border-border px-3 py-1.5 hover:bg-muted transition-colors"
+              >
+                👥 Users
+              </Link>
+            )}
             <div className="text-xs text-muted-foreground truncate max-w-[140px] hidden sm:block">
               {user?.email}
             </div>
