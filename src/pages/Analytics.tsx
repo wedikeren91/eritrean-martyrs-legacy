@@ -244,6 +244,7 @@ export default function Analytics() {
   const regionData      = buildRegionData(rows);
   const deathYearData   = buildDeathYearData(rows);
   const ageData         = buildAgeData(rows);
+  const genderData      = buildGenderData(rows);
 
   const totalELF      = affiliationData.find((d) => d.name === "ELF")?.count      ?? 0;
   const totalEPLF     = affiliationData.find((d) => d.name === "EPLF")?.count     ?? 0;
