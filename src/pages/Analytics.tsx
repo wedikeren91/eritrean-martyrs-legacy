@@ -103,6 +103,21 @@ function buildAgeData(rows: MartyrRow[]): ChartDatum[] {
   return AGE_RANGES.map((r) => ({ name: r.label, count: buckets[r.label] }));
 }
 
+function buildGenderData(rows: MartyrRow[]): (ChartDatum & { pct: string })[] {
+  const map: Record<string, number> = { Male: 0, Female: 0, Unknown: 0 };
+  rows.forEach((r) => {
+    const g = r.gender || "Unknown";
+    if (g in map) map[g]++;
+    else map["Unknown"]++;
+  });
+  const total = rows.length || 1;
+  return Object.entries(map).map(([name, count]) => ({
+    name,
+    count,
+    pct: ((count / total) * 100).toFixed(1),
+  }));
+}
+
 // ── Custom Pie label ──────────────────────────────────────────────────────────
 const renderPieLabel = ({
   cx, cy, midAngle, outerRadius, name, count, pct,
