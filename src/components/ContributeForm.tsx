@@ -9,6 +9,7 @@ interface FormState {
   first_name: string;
   last_name: string;
   known_as: string;
+  gender: string;
   date_of_birth: string;
   date_of_death: string;
   // Location
@@ -29,7 +30,7 @@ interface FormState {
 }
 
 const EMPTY: FormState = {
-  first_name: "", last_name: "", known_as: "",
+  first_name: "", last_name: "", known_as: "", gender: "",
   date_of_birth: "", date_of_death: "",
   city: "", region: "", place_of_martyrdom: "",
   category: "Martyr", rank: "", role: "", battle: "",
@@ -112,15 +113,44 @@ export default function ContributeForm({ onSuccess, onCancel }: ContributeFormPr
   const set = useCallback(<K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((f) => ({ ...f, [k]: v })), []);
 
-  // ── Photo handling ──────────────────────────────────────────────────────
-  const handlePhotoSelected = (file: File) => {
+  // ── Photo handling with compression ─────────────────────────────────────
+  const compressImage = async (file: File, maxWidth = 1200, quality = 0.7): Promise<File> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const scale = Math.min(1, maxWidth / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob && blob.size < file.size) {
+              resolve(new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" }));
+            } else {
+              resolve(file);
+            }
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handlePhotoSelected = async (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
       setError("Photo must be under 10 MB.");
       return;
     }
-    setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
     setError(null);
+    // Compress before preview
+    const compressed = await compressImage(file);
+    setPhotoFile(compressed);
+    setPhotoPreview(URL.createObjectURL(compressed));
   };
 
   const removePhoto = () => {
@@ -150,7 +180,7 @@ export default function ContributeForm({ onSuccess, onCancel }: ContributeFormPr
   const isLast = step === "review";
 
   const canAdvance = () => {
-    if (step === "identity") return form.first_name.trim().length > 0 && form.last_name.trim().length > 0;
+    if (step === "identity") return form.first_name.trim().length > 0 && form.last_name.trim().length > 0 && form.gender.length > 0;
     if (step === "relation") return form.relation.length > 0;
     return true;
   };
@@ -212,6 +242,15 @@ export default function ContributeForm({ onSuccess, onCancel }: ContributeFormPr
             <Field label="Known As" hint="Nickname or nom de guerre, if any">
               <input value={form.known_as} onChange={(e) => set("known_as", e.target.value)}
                 className={inputCls} placeholder="Optional alias" />
+            </Field>
+            <Field label="Gender" required>
+              <select value={form.gender} onChange={(e) => set("gender", e.target.value)}
+                className={inputCls}>
+                <option value="">Select…</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Unknown">Unknown</option>
+              </select>
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Date of Birth" hint="Approximate year is fine">

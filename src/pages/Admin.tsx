@@ -330,6 +330,7 @@ type MartyrProfile = {
   first_name: string;
   last_name: string;
   affiliation: string;
+  gender: string;
   birth_date: string | null;
   death_date: string | null;
   birth_city: string | null;
@@ -347,6 +348,7 @@ type EditFields = Pick<
   | "first_name"
   | "last_name"
   | "affiliation"
+  | "gender"
   | "birth_date"
   | "death_date"
   | "birth_city"
@@ -376,6 +378,7 @@ function MartyrProfilesPanel({
     first_name: "",
     last_name: "",
     affiliation: "ELF",
+    gender: "Unknown",
     birth_date: null,
     death_date: null,
     birth_city: null,
@@ -432,6 +435,7 @@ function MartyrProfilesPanel({
       first_name: p.first_name,
       last_name: p.last_name,
       affiliation: p.affiliation,
+      gender: p.gender || "Unknown",
       birth_date: p.birth_date,
       death_date: p.death_date,
       birth_city: p.birth_city,
@@ -450,6 +454,7 @@ function MartyrProfilesPanel({
       first_name: editFields.first_name,
       last_name: editFields.last_name,
       affiliation: editFields.affiliation,
+      gender: editFields.gender,
       birth_date: editFields.birth_date || null,
       death_date: editFields.death_date || null,
       birth_city: editFields.birth_city || null,
@@ -570,6 +575,7 @@ function MartyrProfilesPanel({
             <tr>
               <th className="px-4 py-3 text-left data-label">Full Name</th>
               <th className="px-4 py-3 text-left data-label">Affiliation</th>
+              <th className="px-4 py-3 text-left data-label">Gender</th>
               <th className="px-4 py-3 text-left data-label">Birth Date</th>
               <th className="px-4 py-3 text-left data-label">Death Date</th>
               <th className="px-4 py-3 text-left data-label">Birth City</th>
@@ -614,6 +620,19 @@ function MartyrProfilesPanel({
                       <option>ELF</option>
                       <option>EPLF</option>
                       <option>Civilian</option>
+                    </select>
+                  </td>
+                  <td className="px-2 py-2">
+                    <select
+                      value={editFields.gender}
+                      onChange={(e) =>
+                        setEditFields((f) => ({ ...f, gender: e.target.value }))
+                      }
+                      className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
+                    >
+                      <option>Male</option>
+                      <option>Female</option>
+                      <option>Unknown</option>
                     </select>
                   </td>
                   <td className="px-2 py-2">
@@ -696,6 +715,13 @@ function MartyrProfilesPanel({
                   <td className="px-4 py-3">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                       {p.affiliation}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 ${
+                      p.gender === "Male" ? "text-blue-600" : p.gender === "Female" ? "text-pink-500" : "text-muted-foreground"
+                    }`}>
+                      {p.gender || "—"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono">

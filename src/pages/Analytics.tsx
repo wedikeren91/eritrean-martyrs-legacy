@@ -35,6 +35,7 @@ type MartyrRow = {
   birth_province: string | null;
   birth_date: string | null;
   death_date: string | null;
+  gender: string | null;
   status: string;
 };
 
@@ -100,6 +101,21 @@ function buildAgeData(rows: MartyrRow[]): ChartDatum[] {
   });
 
   return AGE_RANGES.map((r) => ({ name: r.label, count: buckets[r.label] }));
+}
+
+function buildGenderData(rows: MartyrRow[]): (ChartDatum & { pct: string })[] {
+  const map: Record<string, number> = { Male: 0, Female: 0, Unknown: 0 };
+  rows.forEach((r) => {
+    const g = r.gender || "Unknown";
+    if (g in map) map[g]++;
+    else map["Unknown"]++;
+  });
+  const total = rows.length || 1;
+  return Object.entries(map).map(([name, count]) => ({
+    name,
+    count,
+    pct: ((count / total) * 100).toFixed(1),
+  }));
 }
 
 // ── Custom Pie label ──────────────────────────────────────────────────────────
@@ -202,7 +218,7 @@ export default function Analytics() {
       setLoadingData(true);
       const [rowsRes, pendingRes] = await Promise.all([
         (supabase.from("martyr_profiles" as never) as any)
-          .select("affiliation,birth_province,birth_date,death_date,status")
+          .select("affiliation,birth_province,birth_date,death_date,gender,status")
           .limit(5000),
         (supabase.from("martyr_profiles" as never) as any)
           .select("id", { count: "exact", head: true })
@@ -228,6 +244,7 @@ export default function Analytics() {
   const regionData      = buildRegionData(rows);
   const deathYearData   = buildDeathYearData(rows);
   const ageData         = buildAgeData(rows);
+  const genderData      = buildGenderData(rows);
 
   const totalELF      = affiliationData.find((d) => d.name === "ELF")?.count      ?? 0;
   const totalEPLF     = affiliationData.find((d) => d.name === "EPLF")?.count     ?? 0;
@@ -435,6 +452,49 @@ export default function Analytics() {
                       ))}
                     </Bar>
                   </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </ChartCard>
+        </div>
+
+        {/* ── Row 3: Gender Breakdown ─────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartCard
+            title="Gender Breakdown"
+            subtitle="Male · Female · Unknown — with count and percentage"
+          >
+            {loadingData ? LOADING_CHART : genderData.every((d) => d.count === 0) ? EMPTY_CHART : (
+              <div style={{ width: "100%", height: 280 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={genderData}
+                      dataKey="count"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={90}
+                      labelLine
+                      label={renderPieLabel as any}
+                    >
+                      {genderData.map((d) => (
+                        <Cell
+                          key={d.name}
+                          fill={d.name === "Male" ? "#3B82F6" : d.name === "Female" ? "#EC4899" : "#9CA3AF"}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(v: number, name: string) => [`${v} profiles`, name]}
+                      contentStyle={TOOLTIP_STYLE}
+                    />
+                    <Legend
+                      formatter={(value) => (
+                        <span style={{ fontSize: 11 }}>{value}</span>
+                      )}
+                    />
+                  </PieChart>
                 </ResponsiveContainer>
               </div>
             )}
