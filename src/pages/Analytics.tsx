@@ -35,6 +35,7 @@ type MartyrRow = {
   birth_province: string | null;
   birth_date: string | null;
   death_date: string | null;
+  gender: string | null;
   status: string;
 };
 
