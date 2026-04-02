@@ -180,7 +180,7 @@ export default function ContributeForm({ onSuccess, onCancel }: ContributeFormPr
   const isLast = step === "review";
 
   const canAdvance = () => {
-    if (step === "identity") return form.first_name.trim().length > 0 && form.last_name.trim().length > 0;
+    if (step === "identity") return form.first_name.trim().length > 0 && form.last_name.trim().length > 0 && form.gender.length > 0;
     if (step === "relation") return form.relation.length > 0;
     return true;
   };
