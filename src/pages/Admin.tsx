@@ -330,6 +330,7 @@ type MartyrProfile = {
   first_name: string;
   last_name: string;
   affiliation: string;
+  gender: string;
   birth_date: string | null;
   death_date: string | null;
   birth_city: string | null;
@@ -347,6 +348,7 @@ type EditFields = Pick<
   | "first_name"
   | "last_name"
   | "affiliation"
+  | "gender"
   | "birth_date"
   | "death_date"
   | "birth_city"
