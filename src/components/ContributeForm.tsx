@@ -113,15 +113,44 @@ export default function ContributeForm({ onSuccess, onCancel }: ContributeFormPr
   const set = useCallback(<K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((f) => ({ ...f, [k]: v })), []);
 
-  // ── Photo handling ──────────────────────────────────────────────────────
-  const handlePhotoSelected = (file: File) => {
+  // ── Photo handling with compression ─────────────────────────────────────
+  const compressImage = async (file: File, maxWidth = 1200, quality = 0.7): Promise<File> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const scale = Math.min(1, maxWidth / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob && blob.size < file.size) {
+              resolve(new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" }));
+            } else {
+              resolve(file);
+            }
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handlePhotoSelected = async (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
       setError("Photo must be under 10 MB.");
       return;
     }
-    setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
     setError(null);
+    // Compress before preview
+    const compressed = await compressImage(file);
+    setPhotoFile(compressed);
+    setPhotoPreview(URL.createObjectURL(compressed));
   };
 
   const removePhoto = () => {
