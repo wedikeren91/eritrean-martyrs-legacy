@@ -30,7 +30,7 @@ interface FormState {
 }
 
 const EMPTY: FormState = {
-  first_name: "", last_name: "", known_as: "",
+  first_name: "", last_name: "", known_as: "", gender: "",
   date_of_birth: "", date_of_death: "",
   city: "", region: "", place_of_martyrdom: "",
   category: "Martyr", rank: "", role: "", battle: "",
