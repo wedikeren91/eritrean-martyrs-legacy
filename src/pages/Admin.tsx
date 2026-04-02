@@ -575,6 +575,7 @@ function MartyrProfilesPanel({
             <tr>
               <th className="px-4 py-3 text-left data-label">Full Name</th>
               <th className="px-4 py-3 text-left data-label">Affiliation</th>
+              <th className="px-4 py-3 text-left data-label">Gender</th>
               <th className="px-4 py-3 text-left data-label">Birth Date</th>
               <th className="px-4 py-3 text-left data-label">Death Date</th>
               <th className="px-4 py-3 text-left data-label">Birth City</th>
