@@ -27,6 +27,18 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
         className="relative overflow-hidden cursor-pointer rounded-sm"
         style={{ aspectRatio: "2/3" }}
       >
+        {/* Gender-colored frame */}
+        <div
+          className="absolute inset-0 z-20 pointer-events-none"
+          style={{
+            border: `3px solid ${
+              (person as any).gender === "Female" ? "#EC4899" :
+              (person as any).gender === "Male" ? "#3B82F6" :
+              "transparent"
+            }`,
+            borderRadius: "inherit",
+          }}
+        />
         {/* Portrait */}
         {person.photo_url ? (
           <img

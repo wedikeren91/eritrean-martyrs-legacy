@@ -214,6 +214,15 @@ export default function ContributeForm({ onSuccess, onCancel }: ContributeFormPr
               <input value={form.known_as} onChange={(e) => set("known_as", e.target.value)}
                 className={inputCls} placeholder="Optional alias" />
             </Field>
+            <Field label="Gender" required>
+              <select value={form.gender} onChange={(e) => set("gender", e.target.value)}
+                className={inputCls}>
+                <option value="">Select…</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Unknown">Unknown</option>
+              </select>
+            </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Date of Birth" hint="Approximate year is fine">
                 <input type="text" value={form.date_of_birth}
