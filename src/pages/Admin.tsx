@@ -435,6 +435,7 @@ function MartyrProfilesPanel({
       first_name: p.first_name,
       last_name: p.last_name,
       affiliation: p.affiliation,
+      gender: p.gender || "Unknown",
       birth_date: p.birth_date,
       death_date: p.death_date,
       birth_city: p.birth_city,
