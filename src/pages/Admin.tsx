@@ -623,6 +623,19 @@ function MartyrProfilesPanel({
                     </select>
                   </td>
                   <td className="px-2 py-2">
+                    <select
+                      value={editFields.gender}
+                      onChange={(e) =>
+                        setEditFields((f) => ({ ...f, gender: e.target.value }))
+                      }
+                      className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
+                    >
+                      <option>Male</option>
+                      <option>Female</option>
+                      <option>Unknown</option>
+                    </select>
+                  </td>
+                  <td className="px-2 py-2">
                     <input
                       type="date"
                       value={editFields.birth_date ?? ""}
