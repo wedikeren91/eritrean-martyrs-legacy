@@ -184,6 +184,7 @@ export type Database = {
           created_at: string
           death_date: string | null
           first_name: string
+          gender: string
           id: string
           last_name: string
           life_story: string | null
@@ -201,6 +202,7 @@ export type Database = {
           created_at?: string
           death_date?: string | null
           first_name: string
+          gender?: string
           id?: string
           last_name: string
           life_story?: string | null
@@ -218,6 +220,7 @@ export type Database = {
           created_at?: string
           death_date?: string | null
           first_name?: string
+          gender?: string
           id?: string
           last_name?: string
           life_story?: string | null
