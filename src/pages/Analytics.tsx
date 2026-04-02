@@ -458,6 +458,49 @@ export default function Analytics() {
           </ChartCard>
         </div>
 
+        {/* ── Row 3: Gender Breakdown ─────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartCard
+            title="Gender Breakdown"
+            subtitle="Male · Female · Unknown — with count and percentage"
+          >
+            {loadingData ? LOADING_CHART : genderData.every((d) => d.count === 0) ? EMPTY_CHART : (
+              <div style={{ width: "100%", height: 280 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={genderData}
+                      dataKey="count"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={90}
+                      labelLine
+                      label={renderPieLabel as any}
+                    >
+                      {genderData.map((d) => (
+                        <Cell
+                          key={d.name}
+                          fill={d.name === "Male" ? "#3B82F6" : d.name === "Female" ? "#EC4899" : "#9CA3AF"}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(v: number, name: string) => [`${v} profiles`, name]}
+                      contentStyle={TOOLTIP_STYLE}
+                    />
+                    <Legend
+                      formatter={(value) => (
+                        <span style={{ fontSize: 11 }}>{value}</span>
+                      )}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </ChartCard>
+        </div>
+
         {/* ── Footer note ──────────────────────────────────────────────────────── */}
         <p className="text-[10px] font-mono text-muted-foreground text-center pb-4">
           Data sourced from <em>martyr_profiles</em> table · {rows.length} total records ·{" "}
