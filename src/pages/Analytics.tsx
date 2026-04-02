@@ -218,7 +218,7 @@ export default function Analytics() {
       setLoadingData(true);
       const [rowsRes, pendingRes] = await Promise.all([
         (supabase.from("martyr_profiles" as never) as any)
-          .select("affiliation,birth_province,birth_date,death_date,status")
+          .select("affiliation,birth_province,birth_date,death_date,gender,status")
           .limit(5000),
         (supabase.from("martyr_profiles" as never) as any)
           .select("id", { count: "exact", head: true })
