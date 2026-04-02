@@ -704,6 +704,13 @@ function MartyrProfilesPanel({
                       {p.affiliation}
                     </span>
                   </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 ${
+                      p.gender === "Male" ? "text-blue-600" : p.gender === "Female" ? "text-pink-500" : "text-muted-foreground"
+                    }`}>
+                      {p.gender || "—"}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono">
                     {p.birth_date ?? "—"}
                   </td>
