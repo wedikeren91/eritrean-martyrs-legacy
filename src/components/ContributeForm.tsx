@@ -9,6 +9,7 @@ interface FormState {
   first_name: string;
   last_name: string;
   known_as: string;
+  gender: string;
   date_of_birth: string;
   date_of_death: string;
   // Location
