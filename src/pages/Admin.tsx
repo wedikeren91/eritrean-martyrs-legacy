@@ -454,6 +454,7 @@ function MartyrProfilesPanel({
       first_name: editFields.first_name,
       last_name: editFields.last_name,
       affiliation: editFields.affiliation,
+      gender: editFields.gender,
       birth_date: editFields.birth_date || null,
       death_date: editFields.death_date || null,
       birth_city: editFields.birth_city || null,
