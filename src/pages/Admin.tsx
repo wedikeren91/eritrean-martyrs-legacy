@@ -378,6 +378,7 @@ function MartyrProfilesPanel({
     first_name: "",
     last_name: "",
     affiliation: "ELF",
+    gender: "Unknown",
     birth_date: null,
     death_date: null,
     birth_city: null,
