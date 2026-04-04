@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { type PersonRow } from "@/hooks/usePersons";
+import { useState, useRef, useEffect } from "react";
 
 interface MartyrCardDBProps {
   person: PersonRow;
@@ -17,6 +18,20 @@ function formatYear(dateStr: string | null): string {
 
 const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
   const staggerClass = index < 8 ? `stagger-${(index % 8) + 1}` : "";
+  const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Handle already-cached images (complete before onLoad fires)
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setLoaded(true);
+    }
+  }, []);
+
+  const genderColor =
+    (person as any).gender === "Female" ? "#EC4899" :
+    (person as any).gender === "Male" ? "#3B82F6" :
+    "transparent";
 
   return (
     <Link
@@ -31,22 +46,31 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
         <div
           className="absolute inset-0 z-20 pointer-events-none"
           style={{
-            border: `3px solid ${
-              (person as any).gender === "Female" ? "#EC4899" :
-              (person as any).gender === "Male" ? "#3B82F6" :
-              "transparent"
-            }`,
+            border: `3px solid ${genderColor}`,
             borderRadius: "inherit",
           }}
         />
+
         {/* Portrait */}
         {person.photo_url ? (
-          <img
-            src={person.photo_url}
-            alt={`${person.first_name} ${person.last_name}`}
-            className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-          />
+          <>
+            {/* Low-quality placeholder shimmer */}
+            {!loaded && (
+              <div className="absolute inset-0 bg-muted animate-pulse" />
+            )}
+            <img
+              ref={imgRef}
+              src={person.photo_url}
+              alt={`${person.first_name} ${person.last_name}`}
+              className={`absolute inset-0 w-full h-full object-cover object-top transition-all duration-500 group-hover:scale-105 ${
+                loaded ? "opacity-100" : "opacity-0"
+              }`}
+              loading="lazy"
+              decoding="async"
+              fetchPriority={index < 6 ? "high" : "low"}
+              onLoad={() => setLoaded(true)}
+            />
+          </>
         ) : (
           <div
             className="absolute inset-0 w-full h-full flex items-center justify-center"
@@ -69,7 +93,7 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           </span>
         </div>
 
-        {/* Bottom gradient overlay — guaranteed legibility */}
+        {/* Bottom gradient overlay */}
         <div
           className="absolute inset-x-0 bottom-0 z-10"
           style={{
@@ -78,15 +102,12 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
             padding: "1.5rem 0.5rem 0.45rem",
           }}
         >
-          {/* Name */}
           <p
             className="text-[11px] font-semibold leading-tight mb-0.5 truncate"
             style={{ fontFamily: "'Fraunces', serif", color: "#fff" }}
           >
             {person.first_name} {person.last_name}
           </p>
-
-          {/* Years row */}
           <div className="flex items-center gap-1 text-[10px] font-mono font-bold">
             <span style={{ color: "hsl(38 85% 72%)" }}>
               {formatYear(person.date_of_birth)}
