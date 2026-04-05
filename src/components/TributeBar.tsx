@@ -96,7 +96,9 @@ const TributeBar = ({ personId }: TributeBarProps) => {
           }
         >
           <span className="text-3xl drop-shadow-[0_0_8px_rgba(244,114,182,0.9)]">🌹</span>
-          <span className="text-xl font-bold font-mono">{flowerCount.toLocaleString()}</span>
+          <span className="text-xl font-bold font-mono" style={{ color: "hsl(0 0% 100%)" }}>
+            {flowerCount.toLocaleString()}
+          </span>
         </button>
       </div>
 
@@ -123,7 +125,9 @@ const TributeBar = ({ personId }: TributeBarProps) => {
           }
         >
           <span className="text-3xl drop-shadow-[0_0_10px_rgba(251,191,36,1)]">🕯️</span>
-          <span className="text-xl font-bold font-mono">{candleCount.toLocaleString()}</span>
+          <span className="text-xl font-bold font-mono" style={{ color: "hsl(0 0% 100%)" }}>
+            {candleCount.toLocaleString()}
+          </span>
         </button>
       </div>
     </div>

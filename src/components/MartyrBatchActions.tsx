@@ -286,7 +286,12 @@ async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
 }
 
 // ── Import Modal ──────────────────────────────────────────────────────────────
-type ImportResult = { added: number; updated: number; errors: number };
+type ImportResult = {
+  added: number;
+  updated: number;
+  errors: number;
+  errorMessages?: string[];
+};
 
 type Props = { profiles: MartyrProfile[]; onClose: () => void; onDone: () => void };
 
@@ -317,58 +322,22 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
     if (!parsedRows || !user) return;
     setImporting(true);
 
-    let added = 0;
-    let updated = 0;
-    let errors = 0;
+    const { data, error } = await supabase.functions.invoke("import-martyr-profiles", {
+      body: { rows: parsedRows },
+    });
 
-    for (const row of parsedRows) {
-      const existingId = row.id?.trim();
-      const isUuid = /^[0-9a-f-]{36}$/i.test(existingId ?? "");
-
-      const basePayload = {
-        first_name: row.first_name?.trim() || "",
-        last_name: row.last_name?.trim() || "",
-        affiliation: normalizeAffiliationValue(row.affiliation),
-        birth_date: row.birth_date?.trim() || null,
-        death_date: row.death_date?.trim() || null,
-        birth_city: row.birth_city?.trim() || null,
-        birth_province: row.birth_province?.trim() || null,
-        status: normalizeReviewStatus(row.status),
-        life_story: row.life_story?.trim() || null,
-      };
-
-      if (!basePayload.first_name || !basePayload.last_name) {
-        errors++;
-        continue;
-      }
-
-      if (isUuid) {
-        const { data: existing } = await (supabase.from("martyr_profiles" as never) as any)
-          .select("id")
-          .eq("id", existingId)
-          .maybeSingle();
-
-        if (existing) {
-          const { error } = await (supabase.from("martyr_profiles" as never) as any)
-            .update(basePayload)
-            .eq("id", existingId);
-          if (error) errors++;
-          else updated++;
-          continue;
-        }
-      }
-
-      const insertPayload = {
-        ...basePayload,
-        submitted_by: user.id,
-      };
-
-      const { error } = await (supabase.from("martyr_profiles" as never) as any).insert(insertPayload);
-      if (error) errors++;
-      else added++;
+    if (error) {
+      alert(`Import failed: ${error.message}`);
+      setImporting(false);
+      return;
     }
 
-    setResult({ added, updated, errors });
+    setResult({
+      added: data?.added ?? 0,
+      updated: data?.updated ?? 0,
+      errors: data?.errors ?? 0,
+      errorMessages: data?.errorMessages ?? [],
+    });
     setImporting(false);
   };
 
@@ -393,6 +362,16 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
               </p>
             )}
           </div>
+          {result.errorMessages && result.errorMessages.length > 0 && (
+            <div className="mb-6 border border-border bg-muted/40 p-3 text-left text-xs text-muted-foreground">
+              <p className="mb-2 font-semibold text-foreground">Top import issues</p>
+              <ul className="space-y-1">
+                {result.errorMessages.map((message, index) => (
+                  <li key={`${message}-${index}`}>{message}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <button
             onClick={() => { onDone(); onClose(); }}
             className="bg-primary text-primary-foreground px-8 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors"
@@ -450,11 +429,11 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
             <p className="text-sm font-semibold text-foreground mb-1">
               {fileName || "Click to select file"}
             </p>
-            <p className="text-xs text-muted-foreground">Accepts .xlsx, .csv</p>
+            <p className="text-xs text-muted-foreground">Accepts Google Sheets exports (.xlsx/.csv) and Excel (.xlsx)</p>
             <input
               ref={fileRef}
               type="file"
-              accept=".xlsx,.xls,.csv"
+              accept=".xlsx,.csv"
               onChange={handleFile}
               className="hidden"
             />
