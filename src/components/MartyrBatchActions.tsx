@@ -311,9 +311,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
     const cleaned = rows.filter(
       (r) =>
         r.first_name &&
-        r.first_name !== "Haile" &&
-        r.last_name &&
-        r.last_name !== "Woldense"
+        !(r.first_name === "Haile" && r.last_name === "Woldense")
     );
     setParsedRows(cleaned);
   };

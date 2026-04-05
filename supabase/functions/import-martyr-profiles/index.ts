@@ -149,11 +149,11 @@ Deno.serve(async (req) => {
 
     for (const [index, rawRow] of rows.entries()) {
       const firstName = normalizeString(rawRow.first_name);
-      const lastName = normalizeString(rawRow.last_name);
+      const lastName = normalizeString(rawRow.last_name) || "Unknown";
 
-      if (!firstName || !lastName) {
+      if (!firstName) {
         errors += 1;
-        errorMessages.push(`Row ${index + 1}: missing first_name or last_name.`);
+        errorMessages.push(`Row ${index + 1}: missing first_name.`);
         continue;
       }
 
