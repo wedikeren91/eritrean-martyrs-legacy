@@ -339,7 +339,19 @@ export default function EditRecord() {
           <div className="bg-card border border-border p-6 mb-4">
             <div className="data-label mb-4">Service Record</div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <Field label="Category / Organisation" value={form.category} onChange={set("category")} placeholder="e.g. EPLF" />
+              <div>
+                <label className="data-label block mb-1.5">Category / Organisation</label>
+                <select
+                  value={form.category}
+                  onChange={set("category")}
+                  className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                >
+                  <option value="">— Select —</option>
+                  {["ELF", "EPLF", "PLF", "Civilian", "Unknown", "Other"].map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
               <Field label="Role" value={form.role} onChange={set("role")} />
               <Field label="Rank" value={form.rank} onChange={set("rank")} />
               <div className="col-span-2 md:col-span-3">
