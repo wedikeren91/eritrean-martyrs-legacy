@@ -150,14 +150,14 @@ const TributeBar = ({ personId }: TributeBarProps) => {
             style={
               givenCandles >= 2
                 ? {
-                    background: "hsl(38 85% 48%)",
-                    borderColor: "hsl(38 85% 48%)",
+                    background: "#f59e0b",
+                    borderColor: "#f59e0b",
                     color: "#fff",
                   }
                 : {
                     background: "transparent",
-                    borderColor: "hsl(38 85% 48%)",
-                    color: "hsl(38 85% 48%)",
+                    borderColor: "#f59e0b",
+                    color: "#f59e0b",
                   }
             }
           >
