@@ -114,21 +114,53 @@ export default function EditRecord() {
     if (!file || !person) return;
     setUploadingPhoto(true);
     setError(null);
-    const ext = file.name.split(".").pop();
+
+    // Convert any image to JPEG for consistency & smaller size
+    let uploadFile: File | Blob = file;
+    let ext = "jpg";
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement("canvas");
+      const MAX = 1600;
+      let w = bitmap.width, h = bitmap.height;
+      if (w > MAX || h > MAX) {
+        const scale = MAX / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+      }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/jpeg", 0.85));
+      if (blob) uploadFile = blob;
+    } catch {
+      // If conversion fails, upload original file as-is
+      ext = file.name.split(".").pop() || "jpg";
+    }
+
     const path = `${person.id}/portrait.${ext}`;
+
+    // Remove old file first (upsert can sometimes fail on storage)
+    await supabase.storage.from("person-photos").remove([path]);
+
     const { error: upErr } = await supabase.storage
       .from("person-photos")
-      .upload(path, file, { upsert: true });
+      .upload(path, uploadFile, { upsert: true, contentType: "image/jpeg" });
     if (upErr) { setError("Photo upload failed: " + upErr.message); setUploadingPhoto(false); return; }
+
     const { data: { publicUrl } } = supabase.storage.from("person-photos").getPublicUrl(path);
+    // Append cache-buster so browser shows the new photo immediately
+    const freshUrl = publicUrl + "?t=" + Date.now();
+
     const { error: dbErr } = await supabase
       .from("persons")
-      .update({ photo_url: publicUrl })
+      .update({ photo_url: freshUrl })
       .eq("id", person.id);
     if (dbErr) { setError("Failed to save photo URL: " + dbErr.message); }
     else {
-      setPerson((p) => p ? { ...p, photo_url: publicUrl } : p);
-      setPhotoPreview(publicUrl);
+      setPerson((p) => p ? { ...p, photo_url: freshUrl } : p);
+      setPhotoPreview(freshUrl);
     }
     setUploadingPhoto(false);
   };
