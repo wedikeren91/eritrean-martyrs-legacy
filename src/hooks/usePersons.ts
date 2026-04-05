@@ -57,6 +57,12 @@ export function usePersons(query: string, category: string, war = "All", sort: S
 
     setLoading(true);
 
+    // Determine sort column and direction
+    const sortCol = s === "dod_asc" || s === "dod_desc" ? "date_of_death"
+      : s === "status" ? "status"
+      : "last_name";
+    const ascending = s === "name_asc" || s === "dod_asc" || s === "status";
+
     let req = supabase
       .from("persons")
       .select(
@@ -64,7 +70,7 @@ export function usePersons(query: string, category: string, war = "All", sort: S
         { count: "exact" }
       )
       .is("deleted_at", null)
-      .order("last_name", { ascending: true })
+      .order(sortCol, { ascending })
       .limit(300);
 
     // Use exact match for category to avoid ELF matching EPLF
@@ -74,6 +80,11 @@ export function usePersons(query: string, category: string, war = "All", sort: S
 
     if (w && w !== "All") {
       req = req.ilike("battle", `%${w}%`);
+    }
+
+    // Status filter
+    if (sf && sf !== "All") {
+      req = req.ilike("status", `%${sf}%`);
     }
 
     if (q.trim()) {
