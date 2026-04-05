@@ -261,7 +261,7 @@ export default function EditRecord() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Field label="First Name *" value={form.first_name} onChange={set("first_name")} required />
               <Field label="Last Name *" value={form.last_name} onChange={set("last_name")} required />
-              <Field label="<Field label="Known As / Nickname" value={form.known_as} onChange={set("known_as")} />" value={form.known_as} onChange={set("known_as")} />
+              <Field label="Known As / Nickname" value={form.known_as} onChange={set("known_as")} />
               <Field label="Date of Birth" value={form.date_of_birth} onChange={set("date_of_birth")} placeholder="e.g. 1955-03-12" />
               <Field label="Date of Death" value={form.date_of_death} onChange={set("date_of_death")} placeholder="e.g. 1988-07-02" />
               <Field label="Status" value={form.status} onChange={set("status")} placeholder="e.g. Martyred" />
