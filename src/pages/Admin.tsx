@@ -1131,6 +1131,16 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
               </option>
             ))}
           </select>
+          <select
+            value={filterGender}
+            onChange={(e) => setFilterGender(e.target.value)}
+            className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-full sm:w-auto"
+          >
+            <option value="All">All Genders</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Unknown">Unknown</option>
+          </select>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
