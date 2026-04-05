@@ -385,7 +385,7 @@ export default function EditRecord() {
                 </Link>
               )}
               <Link
-                to="/admin"
+                to="/admin?tab=records"
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
               >
                 ← Back to Records

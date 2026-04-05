@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import MartyrImportModal, { exportProfiles } from "@/components/MartyrBatchActions";
@@ -22,7 +22,14 @@ type Tab = "queue" | "records" | "martyrs" | "orgs";
 export default function Admin() {
   const { user, isAdmin, isFounder, loading } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("queue");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = (searchParams.get("tab") as Tab) || "queue";
+  const [tab, setTab] = useState<Tab>(initialTab);
+
+  const changeTab = (t: Tab) => {
+    setTab(t);
+    setSearchParams({ tab: t }, { replace: true });
+  };
   const [contributions, setContributions] = useState<Contribution[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -162,7 +169,7 @@ export default function Admin() {
           {tabs.map((t) => (
             <button
               key={t.key}
-              onClick={() => setTab(t.key)}
+              onClick={() => changeTab(t.key)}
               className={`px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors border-b-2 -mb-px whitespace-nowrap ${
                 tab === t.key
                   ? "border-primary text-foreground"
@@ -1034,24 +1041,45 @@ type PersonRow = {
   created_at: string;
 };
 
+type RecordSort = "name_asc" | "name_desc" | "dod_asc" | "dod_desc" | "status_asc" | "status_desc" | "newest" | "oldest";
+
+const RECORD_SORT_OPTIONS: { value: RecordSort; label: string }[] = [
+  { value: "name_asc", label: "Name A → Z" },
+  { value: "name_desc", label: "Name Z → A" },
+  { value: "dod_asc", label: "Death Year ↑" },
+  { value: "dod_desc", label: "Death Year ↓" },
+  { value: "status_asc", label: "Status A → Z" },
+  { value: "status_desc", label: "Status Z → A" },
+  { value: "newest", label: "Newest First" },
+  { value: "oldest", label: "Oldest First" },
+];
+
 function RecordsPanel({ isFounder }: { isFounder: boolean }) {
   const [records, setRecords] = useState<PersonRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterGender, setFilterGender] = useState("All");
+  const [sortBy, setSortBy] = useState<RecordSort>("name_asc");
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [stats, setStats] = useState({ total: 0, active: 0, deleted: 0 });
 
   const fetchRecords = useCallback(async () => {
     setLoading(true);
+
+    const sortCol = sortBy.startsWith("name") ? "last_name"
+      : sortBy.startsWith("dod") ? "date_of_death"
+      : sortBy.startsWith("status") ? "status"
+      : "created_at";
+    const ascending = sortBy === "name_asc" || sortBy === "dod_asc" || sortBy === "status_asc" || sortBy === "oldest";
+
     let q = supabase
       .from("persons")
       .select(
         "id,slug,first_name,last_name,category,gender,status,date_of_death,deleted_at,submitted_by,approved_by,created_at"
       )
-      .order("created_at", { ascending: false })
+      .order(sortCol, { ascending })
       .limit(200);
     if (filterCategory !== "All") {
       q = q.eq("category", filterCategory);
@@ -1072,7 +1100,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
       deleted: all.filter((r) => r.deleted_at).length,
     });
     setLoading(false);
-  }, [search, filterCategory, filterGender]);
+  }, [search, filterCategory, filterGender, sortBy]);
 
   useEffect(() => {
     fetchRecords();
@@ -1140,6 +1168,15 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Unknown">Unknown</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as RecordSort)}
+            className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-full sm:w-auto"
+          >
+            {RECORD_SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
           </select>
           <input
             value={search}
