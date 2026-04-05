@@ -31,8 +31,31 @@ const ALL_COLS = [
   "bio","significance","quote","place_of_martyrdom","battle",
 ];
 
+const COLUMN_ALIASES: Record<string, string> = {
+  "known_as__nickname": "known_as",
+  "known_as_nickname": "known_as",
+  "nickname": "known_as",
+  "organization": "category",
+  "affiliation": "category",
+  "organisation": "category",
+  "role__context": "role",
+  "role_context": "role",
+  "date_of_sacrifice": "date_of_death",
+  "death_date": "date_of_death",
+  "birth_date": "date_of_birth",
+  "military_rank": "rank",
+  "life_story": "bio",
+  "notable_quote": "quote",
+  "place": "place_of_martyrdom",
+  "conflict__war": "battle",
+  "conflict_war": "battle",
+  "conflict": "battle",
+  "war": "battle",
+};
+
 function normalizeKey(raw: string): string {
-  return raw.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^a-z_]/g, "");
+  const key = raw.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^a-z_]/g, "");
+  return COLUMN_ALIASES[key] ?? key;
 }
 
 async function parseFile(file: File): Promise<ParsedRow[]> {
