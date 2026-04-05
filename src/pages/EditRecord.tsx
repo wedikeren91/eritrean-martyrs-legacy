@@ -318,7 +318,19 @@ export default function EditRecord() {
             <div className="data-label mb-4">Location</div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Field label="City of Origin" value={form.city} onChange={set("city")} />
-              <Field label="Region" value={form.region} onChange={set("region")} />
+              <div>
+                <label className="data-label block mb-1.5">Region</label>
+                <select
+                  value={form.region}
+                  onChange={set("region")}
+                  className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                >
+                  <option value="">— Select —</option>
+                  {["Anseba", "Debub", "Gash-Barka", "Maekel", "Northern Red Sea", "Southern Red Sea", "Unknown", "Other"].map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
               <Field label="Place of Martyrdom" value={form.place_of_martyrdom} onChange={set("place_of_martyrdom")} />
             </div>
           </div>
@@ -327,7 +339,19 @@ export default function EditRecord() {
           <div className="bg-card border border-border p-6 mb-4">
             <div className="data-label mb-4">Service Record</div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <Field label="Category / Organisation" value={form.category} onChange={set("category")} placeholder="e.g. EPLF" />
+              <div>
+                <label className="data-label block mb-1.5">Category / Organisation</label>
+                <select
+                  value={form.category}
+                  onChange={set("category")}
+                  className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                >
+                  <option value="">— Select —</option>
+                  {["ELF", "EPLF", "PLF", "Civilian", "Unknown", "Other"].map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
               <Field label="Role" value={form.role} onChange={set("role")} />
               <Field label="Rank" value={form.rank} onChange={set("rank")} />
               <div className="col-span-2 md:col-span-3">

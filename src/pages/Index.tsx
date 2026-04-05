@@ -4,7 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import MartyrCardDB from "@/components/MartyrCardDB";
 import { usePersons } from "@/hooks/usePersons";
 
-const CATEGORIES = ["All", "ELF", "EPLF", "Civilian", "Other"] as const;
+const CATEGORIES = ["All", "ELF", "EPLF", "PLF", "Civilian", "Unknown", "Other"] as const;
 type Category = (typeof CATEGORIES)[number];
 
 const Index = () => {
