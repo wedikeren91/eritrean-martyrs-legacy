@@ -1256,7 +1256,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
             ))}
             {!loading && records.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                   No records found.
                 </td>
               </tr>
