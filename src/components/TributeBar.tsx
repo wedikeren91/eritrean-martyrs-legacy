@@ -114,7 +114,7 @@ const TributeBar = ({ personId }: TributeBarProps) => {
                 }
           }
         >
-          <span className="text-base">🌹</span>
+          <span className="text-2xl drop-shadow-[0_0_6px_rgba(244,114,182,0.8)]">🌹</span>
           {givenFlower ? "Given" : "Give Flower"}
         </button>
       </div>
