@@ -29,6 +29,7 @@ type FormData = {
   bio: string;
   significance: string;
   quote: string;
+  gender: string;
 };
 
 export default function EditRecord() {
