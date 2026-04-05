@@ -1169,6 +1169,15 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
             <option value="Female">Female</option>
             <option value="Unknown">Unknown</option>
           </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as RecordSort)}
+            className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-full sm:w-auto"
+          >
+            {RECORD_SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
