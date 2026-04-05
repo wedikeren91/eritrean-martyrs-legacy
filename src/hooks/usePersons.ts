@@ -111,16 +111,15 @@ export function usePersons(query: string, category: string, war = "All", sort: S
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (query.trim()) {
-      // Debounce text search only
-      debounceRef.current = setTimeout(() => loadPersons(query, category, war), 350);
+      debounceRef.current = setTimeout(() => loadPersons(query, category, war, sort, statusFilter), 350);
     } else {
-      loadPersons(query, category, war);
+      loadPersons(query, category, war, sort, statusFilter);
     }
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query, category, war, loadPersons]);
+  }, [query, category, war, sort, statusFilter, loadPersons]);
 
   return { persons, loading, total };
 }
