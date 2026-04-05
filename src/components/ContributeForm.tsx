@@ -39,7 +39,7 @@ const EMPTY: FormState = {
 };
 
 const ERITREAN_REGIONS = [
-  "Anseba", "Debub", "Gash-Barka", "Maekel", "Northern Red Sea", "Southern Red Sea",
+  "Anseba", "Debub", "Gash-Barka", "Maekel", "Northern Red Sea", "Southern Red Sea", "Unknown",
 ];
 
 const CATEGORIES = ["Martyr", "ELF", "EPLF", "PLF", "Civilian", "Unknown", "Other"];
