@@ -11,11 +11,10 @@ const TributeBar = ({ personId }: TributeBarProps) => {
   const [flowerCount, setFlowerCount] = useState(0);
   const [candleCount, setCandleCount] = useState(0);
   const [givenFlower, setGivenFlower] = useState(false);
-  const [givenCandles, setGivenCandles] = useState(0); // 0, 1, or 2
+  const [givenCandles, setGivenCandles] = useState(0);
   const [loading, setLoading] = useState<"flower" | "candle" | null>(null);
   const [justGiven, setJustGiven] = useState<"flower" | "candle" | null>(null);
 
-  // Restore session-local tribute state
   useEffect(() => {
     const f = sessionStorage.getItem(SESSION_KEY(personId, "flower")) === "1";
     const c = parseInt(sessionStorage.getItem(SESSION_KEY(personId, "candle")) || "0", 10);
@@ -23,7 +22,6 @@ const TributeBar = ({ personId }: TributeBarProps) => {
     setGivenCandles(c);
   }, [personId]);
 
-  // Fetch live counts from DB (both tribute types)
   useEffect(() => {
     if (!personId) return;
     supabase
@@ -78,115 +76,55 @@ const TributeBar = ({ personId }: TributeBarProps) => {
     setLoading(null);
   };
 
+  const tributeBoxStyle = "flex items-center gap-3 min-w-[160px]";
+
   return (
-    <div className="flex items-center gap-6 flex-wrap">
-      {/* ── Flower tribute ── */}
-      <div className="flex items-center gap-3">
-        <div className="text-center min-w-[2.5rem]">
-          <div
-            className="text-xl font-bold font-mono"
-            style={{ color: "hsl(var(--oxblood-bright))" }}
-          >
-            {flowerCount.toLocaleString()}
-          </div>
-          <div className="text-[9px] font-mono tracking-widest uppercase text-muted-foreground leading-tight">
-            Flowers
-          </div>
-        </div>
+    <div className="flex items-center gap-8 flex-wrap">
+      {/* ── Flower ── */}
+      <div className={tributeBoxStyle}>
         <button
           onClick={giveFlower}
           disabled={givenFlower || loading === "flower"}
           title={givenFlower ? "You already left a flower" : "Leave a flower"}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold tracking-wider uppercase border-2 transition-all duration-200 disabled:opacity-60 ${
+          className={`flex items-center gap-3 px-5 py-3 text-sm font-bold tracking-wider uppercase border-2 rounded transition-all duration-200 disabled:opacity-60 ${
             justGiven === "flower" ? "scale-110" : ""
           }`}
           style={
             givenFlower
-              ? {
-                  background: "#ec4899",
-                  borderColor: "#ec4899",
-                  color: "#fff",
-                }
-              : {
-                  background: "transparent",
-                  borderColor: "#ec4899",
-                  color: "#ec4899",
-                }
+              ? { background: "#ec4899", borderColor: "#ec4899", color: "#fff" }
+              : { background: "transparent", borderColor: "#ec4899", color: "#ec4899" }
           }
         >
-          <span className="text-2xl drop-shadow-[0_0_6px_rgba(244,114,182,0.8)]">🌹</span>
-          {givenFlower ? "Given" : "Give Flower"}
+          <span className="text-3xl drop-shadow-[0_0_8px_rgba(244,114,182,0.9)]">🌹</span>
+          <span className="text-xl font-bold font-mono">{flowerCount.toLocaleString()}</span>
         </button>
       </div>
 
       {/* Divider */}
-      <div className="h-10 w-px" style={{ background: "hsl(var(--border))" }} />
+      <div className="h-12 w-px" style={{ background: "hsl(var(--border))" }} />
 
-      {/* ── Candle tribute (up to 2) ── */}
-      <div className="flex items-center gap-3">
-        <div className="text-center min-w-[2.5rem]">
-          <div
-            className="text-xl font-bold font-mono"
-            style={{ color: "hsl(38 85% 56%)" }}
-          >
-            {candleCount.toLocaleString()}
-          </div>
-          <div className="text-[9px] font-mono tracking-widest uppercase text-muted-foreground leading-tight">
-            Candles
-          </div>
-        </div>
-        <div className="flex flex-col items-start gap-1">
-          <button
-            onClick={giveCandle}
-            disabled={givenCandles >= 2 || loading === "candle"}
-            title={
-              givenCandles >= 2
-                ? "You lit 2 candles (max)"
-                : `Light a candle (${2 - givenCandles} remaining)`
-            }
-            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold tracking-wider uppercase border-2 transition-all duration-200 disabled:opacity-60 ${
-              justGiven === "candle" ? "scale-110" : ""
-            }`}
-            style={
-              givenCandles >= 2
-                ? {
-                    background: "#f59e0b",
-                    borderColor: "#f59e0b",
-                    color: "#fff",
-                  }
-                : {
-                    background: "transparent",
-                    borderColor: "#f59e0b",
-                    color: "#f59e0b",
-                  }
-            }
-          >
-            <span className="text-2xl drop-shadow-[0_0_8px_rgba(251,191,36,0.9)]">{givenCandles >= 2 ? "🕯️" : "🕯"}</span>
-            {givenCandles === 0
-              ? "Light Candle"
-              : givenCandles === 1
-              ? "1 Lit · Light Another"
-              : "Both Candles Lit"}
-          </button>
-          {/* Pip indicators */}
-          <div className="flex gap-1 pl-1">
-            {[1, 2].map((n) => (
-              <div
-                key={n}
-                className="w-1.5 h-1.5 rounded-full transition-colors"
-                style={{
-                  background:
-                    givenCandles >= n
-                      ? "hsl(38 85% 48%)"
-                      : "hsl(var(--muted-foreground) / 0.3)",
-                }}
-              />
-            ))}
-            <span className="text-[9px] font-mono text-muted-foreground ml-1">
-              {givenCandles}/2
-            </span>
-          </div>
-        </div>
+      {/* ── Candle ── */}
+      <div className={tributeBoxStyle}>
+        <button
+          onClick={giveCandle}
+          disabled={givenCandles >= 2 || loading === "candle"}
+          title={
+            givenCandles >= 2
+              ? "You lit 2 candles (max)"
+              : `Light a candle (${2 - givenCandles} remaining)`
+          }
+          className={`flex items-center gap-3 px-5 py-3 text-sm font-bold tracking-wider uppercase border-2 rounded transition-all duration-200 disabled:opacity-60 ${
+            justGiven === "candle" ? "scale-110" : ""
+          }`}
+          style={
+            givenCandles >= 2
+              ? { background: "#f59e0b", borderColor: "#f59e0b", color: "#fff" }
+              : { background: "transparent", borderColor: "#f59e0b", color: "#f59e0b" }
+          }
+        >
+          <span className="text-3xl drop-shadow-[0_0_10px_rgba(251,191,36,1)]">🕯️</span>
+          <span className="text-xl font-bold font-mono">{candleCount.toLocaleString()}</span>
+        </button>
       </div>
     </div>
   );
