@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import ExcelJS from "exceljs";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 type MartyrProfile = {
   id: string;
@@ -112,8 +113,34 @@ export async function downloadTemplate() {
 // ── Parse uploaded file ───────────────────────────────────────────────────────
 type ParsedImportRow = Record<string, string>;
 
+const IMPORT_ALIASES: Record<string, string> = {
+  "known_as__nickname": "known_as",
+  "known_as_nickname": "known_as",
+  "nickname": "known_as",
+  "organization": "affiliation",
+  "category": "affiliation",
+  "organisation": "affiliation",
+  "role__context": "role_context",
+  "date_of_sacrifice": "death_date",
+  "date_of_death": "death_date",
+  "date_of_birth": "birth_date",
+  "military_rank": "rank",
+  "life_story": "life_story",
+  "bio": "life_story",
+  "notable_quote": "quote",
+  "city": "birth_city",
+  "region": "birth_province",
+  "place": "place_of_martyrdom",
+  "place_of_martyrdom": "place_of_martyrdom",
+  "conflict__war": "battle",
+  "conflict_war": "battle",
+  "battle": "battle",
+  "status": "status",
+};
+
 function normalizeKey(raw: string) {
-  return raw.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^a-z_]/g, "");
+  const key = raw.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^a-z_]/g, "");
+  return IMPORT_ALIASES[key] ?? key;
 }
 
 async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
@@ -161,6 +188,7 @@ type ImportResult = { added: number; updated: number; errors: number };
 type Props = { profiles: MartyrProfile[]; onClose: () => void; onDone: () => void };
 
 export default function MartyrImportModal({ profiles, onClose, onDone }: Props) {
+  const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [parsedRows, setParsedRows] = useState<ParsedImportRow[] | null>(null);
@@ -205,6 +233,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
         birth_province: row.birth_province?.trim() || null,
         status: row.status?.trim() || "Pending",
         life_story: row.life_story?.trim() || null,
+        submitted_by: user?.id ?? null,
       };
 
       if (!payload.first_name || !payload.last_name) {
