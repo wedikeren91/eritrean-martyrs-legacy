@@ -161,7 +161,7 @@ const TributeBar = ({ personId }: TributeBarProps) => {
                   }
             }
           >
-            <span className="text-base">{givenCandles >= 2 ? "🕯️" : "🕯"}</span>
+            <span className="text-2xl drop-shadow-[0_0_8px_rgba(251,191,36,0.9)]">{givenCandles >= 2 ? "🕯️" : "🕯"}</span>
             {givenCandles === 0
               ? "Light Candle"
               : givenCandles === 1
