@@ -1067,12 +1067,19 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
 
   const fetchRecords = useCallback(async () => {
     setLoading(true);
+
+    const sortCol = sortBy.startsWith("name") ? "last_name"
+      : sortBy.startsWith("dod") ? "date_of_death"
+      : sortBy.startsWith("status") ? "status"
+      : "created_at";
+    const ascending = sortBy === "name_asc" || sortBy === "dod_asc" || sortBy === "status_asc" || sortBy === "oldest";
+
     let q = supabase
       .from("persons")
       .select(
         "id,slug,first_name,last_name,category,gender,status,date_of_death,deleted_at,submitted_by,approved_by,created_at"
       )
-      .order("created_at", { ascending: false })
+      .order(sortCol, { ascending })
       .limit(200);
     if (filterCategory !== "All") {
       q = q.eq("category", filterCategory);
