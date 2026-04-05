@@ -48,7 +48,7 @@ export function usePersons(query: string, category: string, war = "All") {
     let req = supabase
       .from("persons")
       .select(
-        "id,slug,photo_url,first_name,last_name,known_as,date_of_birth,date_of_death,city,region,category,status,rank,role,significance,quote,place_of_martyrdom,battle",
+        "id,slug,photo_url,first_name,last_name,known_as,date_of_birth,date_of_death,city,region,category,status,rank,role,significance,quote,place_of_martyrdom,battle,gender",
         { count: "exact" }
       )
       .is("deleted_at", null)
