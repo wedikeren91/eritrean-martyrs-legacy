@@ -114,6 +114,9 @@ export async function downloadTemplate() {
 type ParsedImportValue = string | number | boolean | Date | null | undefined;
 type ParsedImportRow = Record<string, string>;
 
+const ALLOWED_AFFILIATIONS = ["ELF", "EPLF", "Civilian"] as const;
+const ALLOWED_REVIEW_STATUSES = ["Pending", "Approved", "Rejected"] as const;
+
 const IMPORT_ALIASES: Record<string, string> = {
   "known_as__nickname": "known_as",
   "known_as_nickname": "known_as",
@@ -144,6 +147,10 @@ function normalizeKey(raw: string) {
   return IMPORT_ALIASES[key] ?? key;
 }
 
+function excelSerialToDate(value: number) {
+  return new Date(Math.round((value - 25569) * 86400 * 1000));
+}
+
 function formatDateOnly(date: Date) {
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
@@ -157,10 +164,13 @@ function normalizeDateValue(value: ParsedImportValue): string {
   }
 
   if (typeof value === "number") {
+    if (value > 20000 && value < 60000) {
+      return formatDateOnly(excelSerialToDate(value));
+    }
     if (value >= 1000 && value <= 9999) {
       return "";
     }
-    return String(value).trim();
+    return "";
   }
 
   if (typeof value !== "string") {
@@ -190,6 +200,56 @@ function normalizeCellValue(value: ParsedImportValue, header: string): string {
   return String(value ?? "").trim();
 }
 
+function mergeRowValues(headers: string[], values: ParsedImportValue[]) {
+  const row: ParsedImportRow = {};
+
+  headers.forEach((header, index) => {
+    const nextValue = normalizeCellValue(values[index], header);
+    if (!header) return;
+
+    if (!(header in row) || !row[header]) {
+      row[header] = nextValue;
+      return;
+    }
+
+    if (nextValue) {
+      row[header] = nextValue;
+    }
+  });
+
+  return row;
+}
+
+function normalizeAffiliationValue(value?: string | null) {
+  const trimmed = value?.trim();
+  if (!trimmed) return "Civilian";
+
+  if (ALLOWED_AFFILIATIONS.includes(trimmed as (typeof ALLOWED_AFFILIATIONS)[number])) {
+    return trimmed;
+  }
+
+  const upper = trimmed.toUpperCase();
+  const elfIndex = upper.indexOf("ELF");
+  const eplfIndex = upper.indexOf("EPLF");
+
+  if (elfIndex === -1 && eplfIndex === -1) return "Civilian";
+  if (elfIndex === -1) return "EPLF";
+  if (eplfIndex === -1) return "ELF";
+
+  return elfIndex < eplfIndex ? "ELF" : "EPLF";
+}
+
+function normalizeReviewStatus(value?: string | null) {
+  const trimmed = value?.trim();
+  if (!trimmed) return "Pending";
+
+  const matched = ALLOWED_REVIEW_STATUSES.find(
+    (allowed) => allowed.toLowerCase() === trimmed.toLowerCase()
+  );
+
+  return matched ?? "Pending";
+}
+
 async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
   const buffer = await file.arrayBuffer();
 
@@ -200,11 +260,7 @@ async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
     const headers = lines[0].split(",").map((h) => normalizeKey(h.replace(/"/g, "")));
     return lines.slice(1).map((line) => {
       const values = line.split(",").map((v) => v.replace(/"/g, "").trim());
-      const row: ParsedImportRow = {};
-      headers.forEach((h, i) => {
-        row[h] = normalizeCellValue(values[i] ?? "", h);
-      });
-      return row;
+      return mergeRowValues(headers, values);
     });
   }
 
@@ -223,11 +279,7 @@ async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
       return;
     }
 
-    const row: ParsedImportRow = {};
-    headers.forEach((h, i) => {
-      row[h] = normalizeCellValue(cells[i], h);
-    });
-    rows.push(row);
+    rows.push(mergeRowValues(headers, cells));
   });
 
   return rows;
@@ -276,12 +328,12 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
       const basePayload = {
         first_name: row.first_name?.trim() || "",
         last_name: row.last_name?.trim() || "",
-        affiliation: row.affiliation?.trim() || "Civilian",
+        affiliation: normalizeAffiliationValue(row.affiliation),
         birth_date: row.birth_date?.trim() || null,
         death_date: row.death_date?.trim() || null,
         birth_city: row.birth_city?.trim() || null,
         birth_province: row.birth_province?.trim() || null,
-        status: row.status?.trim() || "Pending",
+        status: normalizeReviewStatus(row.status),
         life_story: row.life_story?.trim() || null,
       };
 
