@@ -61,7 +61,7 @@ export default function EditRecord() {
 
   useEffect(() => {
     if (!slug) return;
-    getPersonBySlug(slug).then((data) => {
+    getPersonBySlug(slug).then(async (data) => {
       if (!data) { navigate("/admin"); return; }
       setPerson(data);
       setForm({
@@ -83,7 +83,25 @@ export default function EditRecord() {
         quote: data.quote ?? "",
         gender: data.gender ?? "Unknown",
       });
+      setPhotoPreview(null);
+      setSaveSuccess(false);
+      setError(null);
       setLoading(false);
+
+      // Fetch adjacent slugs for prev/next navigation
+      const { data: allSlugs } = await supabase
+        .from("persons")
+        .select("slug")
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false })
+        .limit(500);
+      if (allSlugs) {
+        const idx = allSlugs.findIndex((r) => r.slug === slug);
+        setAdjacentSlugs({
+          prev: idx > 0 ? allSlugs[idx - 1].slug : null,
+          next: idx < allSlugs.length - 1 ? allSlugs[idx + 1].slug : null,
+        });
+      }
     });
   }, [slug, navigate]);
 
