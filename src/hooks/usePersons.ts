@@ -31,19 +31,37 @@ export const WARS = [
   { value: "Tigray War 2019–2022", label: "Tigray War (2019–2022)" },
 ];
 
-export function usePersons(query: string, category: string, war = "All") {
+export type SortOption = "name_asc" | "name_desc" | "dod_asc" | "dod_desc" | "status";
+
+export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: "name_asc", label: "Name A → Z" },
+  { value: "name_desc", label: "Name Z → A" },
+  { value: "dod_asc", label: "Death Year ↑" },
+  { value: "dod_desc", label: "Death Year ↓" },
+  { value: "status", label: "Status" },
+];
+
+export const STATUS_FILTERS = ["All", "Deceased", "Disappeared", "Imprisoned", "Alive", "Unknown"];
+
+export function usePersons(query: string, category: string, war = "All", sort: SortOption = "name_asc", statusFilter = "All") {
   const [persons, setPersons] = useState<PersonRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const loadPersons = useCallback(async (q: string, cat: string, w: string) => {
+  const loadPersons = useCallback(async (q: string, cat: string, w: string, s: SortOption, sf: string) => {
     // Cancel any in-flight request
     if (abortRef.current) abortRef.current.abort();
     abortRef.current = new AbortController();
 
     setLoading(true);
+
+    // Determine sort column and direction
+    const sortCol = s === "dod_asc" || s === "dod_desc" ? "date_of_death"
+      : s === "status" ? "status"
+      : "last_name";
+    const ascending = s === "name_asc" || s === "dod_asc" || s === "status";
 
     let req = supabase
       .from("persons")
@@ -52,7 +70,7 @@ export function usePersons(query: string, category: string, war = "All") {
         { count: "exact" }
       )
       .is("deleted_at", null)
-      .order("last_name", { ascending: true })
+      .order(sortCol, { ascending })
       .limit(300);
 
     // Use exact match for category to avoid ELF matching EPLF
@@ -62,6 +80,11 @@ export function usePersons(query: string, category: string, war = "All") {
 
     if (w && w !== "All") {
       req = req.ilike("battle", `%${w}%`);
+    }
+
+    // Status filter
+    if (sf && sf !== "All") {
+      req = req.ilike("status", `%${sf}%`);
     }
 
     if (q.trim()) {
@@ -88,16 +111,15 @@ export function usePersons(query: string, category: string, war = "All") {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (query.trim()) {
-      // Debounce text search only
-      debounceRef.current = setTimeout(() => loadPersons(query, category, war), 350);
+      debounceRef.current = setTimeout(() => loadPersons(query, category, war, sort, statusFilter), 350);
     } else {
-      loadPersons(query, category, war);
+      loadPersons(query, category, war, sort, statusFilter);
     }
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query, category, war, loadPersons]);
+  }, [query, category, war, sort, statusFilter, loadPersons]);
 
   return { persons, loading, total };
 }

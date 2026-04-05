@@ -3,14 +3,16 @@ import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import SearchBar from "@/components/SearchBar";
 import { CATEGORIES } from "@/data/martyrs";
-import { usePersons, WARS } from "@/hooks/usePersons";
+import { usePersons, WARS, SORT_OPTIONS, STATUS_FILTERS, type SortOption } from "@/hooks/usePersons";
 import MartyrCardDB from "@/components/MartyrCardDB";
 
 const Browse = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeWar, setActiveWar] = useState("All");
-  const { persons, loading } = usePersons(query, activeCategory, activeWar);
+  const [sort, setSort] = useState<SortOption>("name_asc");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const { persons, loading } = usePersons(query, activeCategory, activeWar, sort, statusFilter);
 
   const timelineEras = [
     { period: "1961–1970", label: "The Ignition", desc: "First shots fired at Mount Adal. Early organisation of liberation forces." },
@@ -89,6 +91,38 @@ const Browse = () => {
                 {w.label}
               </button>
             ))}
+          </div>
+
+          {/* Sort & Status filters */}
+          <div className="mt-3 flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="data-label opacity-60 shrink-0">Sort:</span>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortOption)}
+                className="px-2 py-1.5 text-xs font-mono uppercase tracking-wider border border-border bg-background text-foreground"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="data-label opacity-60 shrink-0">Status:</span>
+              {STATUS_FILTERS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={`px-2.5 py-1 text-xs font-mono tracking-wider uppercase transition-all duration-200 border ${
+                    statusFilter === s
+                      ? "border-primary text-primary bg-primary/10"
+                      : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
