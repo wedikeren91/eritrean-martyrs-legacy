@@ -22,7 +22,14 @@ type Tab = "queue" | "records" | "martyrs" | "orgs";
 export default function Admin() {
   const { user, isAdmin, isFounder, loading } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("queue");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = (searchParams.get("tab") as Tab) || "queue";
+  const [tab, setTab] = useState<Tab>(initialTab);
+
+  const changeTab = (t: Tab) => {
+    setTab(t);
+    setSearchParams({ tab: t }, { replace: true });
+  };
   const [contributions, setContributions] = useState<Contribution[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
