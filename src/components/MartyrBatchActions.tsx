@@ -111,6 +111,7 @@ export async function downloadTemplate() {
 }
 
 // ── Parse uploaded file ───────────────────────────────────────────────────────
+type ParsedImportValue = string | number | boolean | Date | null | undefined;
 type ParsedImportRow = Record<string, string>;
 
 const IMPORT_ALIASES: Record<string, string> = {
@@ -143,6 +144,52 @@ function normalizeKey(raw: string) {
   return IMPORT_ALIASES[key] ?? key;
 }
 
+function formatDateOnly(date: Date) {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function normalizeDateValue(value: ParsedImportValue): string {
+  if (value instanceof Date) {
+    return formatDateOnly(value);
+  }
+
+  if (typeof value === "number") {
+    if (value >= 1000 && value <= 9999) {
+      return "";
+    }
+    return String(value).trim();
+  }
+
+  if (typeof value !== "string") {
+    return String(value ?? "").trim();
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (/^\d{4}$/.test(trimmed)) return "";
+  if (/^\d{4}s$/i.test(trimmed)) return "";
+  if (/^\d{4}\s*[–-]\s*\d{4}$/.test(trimmed)) return "";
+
+  const normalizedMonth = trimmed.replace(/^Sept\b/i, "Sep");
+  const parsed = new Date(normalizedMonth);
+  return Number.isNaN(parsed.getTime()) ? "" : formatDateOnly(parsed);
+}
+
+function normalizeCellValue(value: ParsedImportValue, header: string): string {
+  if (header === "birth_date" || header === "death_date") {
+    return normalizeDateValue(value);
+  }
+
+  if (value instanceof Date) {
+    return formatDateOnly(value);
+  }
+
+  return String(value ?? "").trim();
+}
+
 async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
   const buffer = await file.arrayBuffer();
 
@@ -154,7 +201,9 @@ async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
     return lines.slice(1).map((line) => {
       const values = line.split(",").map((v) => v.replace(/"/g, "").trim());
       const row: ParsedImportRow = {};
-      headers.forEach((h, i) => { row[h] = values[i] ?? ""; });
+      headers.forEach((h, i) => {
+        row[h] = normalizeCellValue(values[i] ?? "", h);
+      });
       return row;
     });
   }
@@ -168,14 +217,16 @@ async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
   let headers: string[] = [];
 
   ws.eachRow((excelRow, rowNumber) => {
-    const cells = (excelRow.values as (string | number | boolean | null | undefined)[]).slice(1);
-    const vals = cells.map((v) => String(v ?? "").trim());
+    const cells = (excelRow.values as ParsedImportValue[]).slice(1);
     if (rowNumber === 1) {
-      headers = vals.map(normalizeKey);
+      headers = cells.map((v) => normalizeKey(String(v ?? "").trim()));
       return;
     }
+
     const row: ParsedImportRow = {};
-    headers.forEach((h, i) => { row[h] = vals[i] ?? ""; });
+    headers.forEach((h, i) => {
+      row[h] = normalizeCellValue(cells[i], h);
+    });
     rows.push(row);
   });
 
@@ -200,7 +251,6 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
     if (!file) return;
     setFileName(file.name);
     const rows = await parseUploadedFile(file);
-    // Filter out template example rows and empty rows
     const cleaned = rows.filter(
       (r) =>
         r.first_name &&
@@ -212,7 +262,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
   };
 
   const runImport = async () => {
-    if (!parsedRows) return;
+    if (!parsedRows || !user) return;
     setImporting(true);
 
     let added = 0;
@@ -223,7 +273,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
       const existingId = row.id?.trim();
       const isUuid = /^[0-9a-f-]{36}$/i.test(existingId ?? "");
 
-      const payload = {
+      const basePayload = {
         first_name: row.first_name?.trim() || "",
         last_name: row.last_name?.trim() || "",
         affiliation: row.affiliation?.trim() || "Civilian",
@@ -233,16 +283,14 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
         birth_province: row.birth_province?.trim() || null,
         status: row.status?.trim() || "Pending",
         life_story: row.life_story?.trim() || null,
-        submitted_by: user?.id ?? null,
       };
 
-      if (!payload.first_name || !payload.last_name) {
+      if (!basePayload.first_name || !basePayload.last_name) {
         errors++;
         continue;
       }
 
       if (isUuid) {
-        // Check if this ID exists
         const { data: existing } = await (supabase.from("martyr_profiles" as never) as any)
           .select("id")
           .eq("id", existingId)
@@ -250,7 +298,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
 
         if (existing) {
           const { error } = await (supabase.from("martyr_profiles" as never) as any)
-            .update(payload)
+            .update(basePayload)
             .eq("id", existingId);
           if (error) errors++;
           else updated++;
@@ -258,8 +306,12 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
         }
       }
 
-      // Insert new
-      const { error } = await (supabase.from("martyr_profiles" as never) as any).insert(payload);
+      const insertPayload = {
+        ...basePayload,
+        submitted_by: user.id,
+      };
+
+      const { error } = await (supabase.from("martyr_profiles" as never) as any).insert(insertPayload);
       if (error) errors++;
       else added++;
     }
