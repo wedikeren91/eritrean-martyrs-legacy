@@ -1160,6 +1160,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
             <tr>
               <th className="px-4 py-3 text-left data-label">Name</th>
               <th className="px-4 py-3 text-left data-label">Category</th>
+              <th className="px-4 py-3 text-left data-label">Gender</th>
               <th className="px-4 py-3 text-left data-label">Death Year</th>
               <th className="px-4 py-3 text-left data-label">Status</th>
               <th className="px-4 py-3 text-left data-label">Added</th>
