@@ -192,7 +192,19 @@ export default function EditRecord() {
               </Link>
             )}
           </div>
-          <div className="data-label text-primary">Edit Record</div>
+          <div className="flex items-center gap-3">
+            {adjacentSlugs.prev && (
+              <Link to={`/admin/edit/${adjacentSlugs.prev}`} className="data-label text-muted-foreground hover:text-foreground transition-colors">
+                ← Prev
+              </Link>
+            )}
+            <div className="data-label text-primary">Edit Record</div>
+            {adjacentSlugs.next && (
+              <Link to={`/admin/edit/${adjacentSlugs.next}`} className="data-label text-muted-foreground hover:text-foreground transition-colors">
+                Next →
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 
