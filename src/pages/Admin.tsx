@@ -1190,6 +1190,13 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
                 <td className="px-4 py-2.5 font-mono uppercase text-[10px] text-muted-foreground">
                   {r.category ?? "—"}
                 </td>
+                <td className="px-4 py-2.5">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                    r.gender === "Male" ? "text-blue-600" : r.gender === "Female" ? "text-pink-500" : "text-muted-foreground"
+                  }`}>
+                    {r.gender || "—"}
+                  </span>
+                </td>
                 <td className="px-4 py-2.5 text-muted-foreground">
                   {r.date_of_death ? r.date_of_death.slice(0, 4) : "—"}
                 </td>
