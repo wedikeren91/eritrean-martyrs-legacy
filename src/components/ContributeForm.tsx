@@ -286,7 +286,7 @@ export default function ContributeForm({ onSuccess, onCancel }: ContributeFormPr
                   className={inputCls}>
                   <option value="">Select…</option>
                   {ERITREAN_REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
-                  <option value="Other">Other / Unknown</option>
+                  <option value="Other">Other</option>
                 </select>
               </Field>
             </div>
