@@ -21,6 +21,7 @@ export type PersonRow = {
   quote: string | null;
   place_of_martyrdom: string | null;
   battle: string | null;
+  gender: string | null;
 };
 
 export const WARS = [
