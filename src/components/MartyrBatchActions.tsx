@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import ExcelJS from "exceljs";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 type MartyrProfile = {
   id: string;
@@ -187,6 +188,7 @@ type ImportResult = { added: number; updated: number; errors: number };
 type Props = { profiles: MartyrProfile[]; onClose: () => void; onDone: () => void };
 
 export default function MartyrImportModal({ profiles, onClose, onDone }: Props) {
+  const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [parsedRows, setParsedRows] = useState<ParsedImportRow[] | null>(null);
@@ -231,6 +233,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
         birth_province: row.birth_province?.trim() || null,
         status: row.status?.trim() || "Pending",
         life_story: row.life_story?.trim() || null,
+        submitted_by: user?.id ?? null,
       };
 
       if (!payload.first_name || !payload.last_name) {
