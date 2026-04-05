@@ -51,7 +51,7 @@ export default function EditRecord() {
     date_of_birth: "", date_of_death: "",
     city: "", region: "", category: "", status: "",
     rank: "", role: "", battle: "", place_of_martyrdom: "",
-    bio: "", significance: "", quote: "",
+    bio: "", significance: "", quote: "", gender: "Unknown",
   });
 
   useEffect(() => {
