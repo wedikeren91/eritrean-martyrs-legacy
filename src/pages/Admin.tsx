@@ -1049,12 +1049,15 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
     let q = supabase
       .from("persons")
       .select(
-        "id,slug,first_name,last_name,category,status,date_of_death,deleted_at,submitted_by,approved_by,created_at"
+        "id,slug,first_name,last_name,category,gender,status,date_of_death,deleted_at,submitted_by,approved_by,created_at"
       )
       .order("created_at", { ascending: false })
       .limit(200);
     if (filterCategory !== "All") {
       q = q.eq("category", filterCategory);
+    }
+    if (filterGender !== "All") {
+      q = q.eq("gender", filterGender);
     }
     if (search.trim()) {
       const t = `%${search.trim()}%`;
