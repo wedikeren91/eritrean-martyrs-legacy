@@ -151,8 +151,15 @@ const MartyrProfile = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
 
-            {/* Portrait — full bleed, tall on mobile */}
-            <div className="relative overflow-hidden" style={{ minHeight: "360px", maxHeight: "520px" }}>
+            {/* Portrait — full bleed, tall on mobile, gender frame */}
+            <div
+              className="relative overflow-hidden"
+              style={{
+                minHeight: "360px",
+                maxHeight: "520px",
+                border: `4px solid ${person.gender === "Female" ? "#EC4899" : person.gender === "Male" ? "#3B82F6" : "transparent"}`,
+              }}
+            >
               {person.photo_url ? (
                 <img
                   src={person.photo_url}

@@ -182,27 +182,29 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
             </span>
           </div>
 
-          {/* Mini tribute buttons */}
-          <div className="flex items-center gap-3 relative z-30">
+          {/* Mini tribute buttons — flower left, candle right, equal size */}
+          <div className="flex items-center justify-between w-full relative z-30">
             <button
               onClick={giveFlower}
               disabled={givenFlower || loading === "flower"}
-              className="flex items-center gap-1.5 text-[11px] font-mono font-bold transition-all duration-200 disabled:opacity-60"
-              style={{ color: givenFlower ? "#f472b6" : "#ffffff" }}
+              className="flex items-center gap-2 transition-all duration-200 disabled:opacity-60"
               title={givenFlower ? "Flower given" : "Give a flower"}
             >
-              <span className="text-lg drop-shadow-[0_0_4px_rgba(244,114,182,0.8)]">🌹</span>
-              <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">{flowerCount}</span>
+              <span className="text-2xl drop-shadow-[0_0_8px_rgba(244,114,182,0.9)]">🌹</span>
+              <span className="text-lg font-bold font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]" style={{ color: givenFlower ? "#f472b6" : "#ffffff" }}>
+                {flowerCount.toLocaleString()}
+              </span>
             </button>
             <button
               onClick={giveCandle}
               disabled={givenCandle || loading === "candle"}
-              className="flex items-center gap-1.5 text-[11px] font-mono font-bold transition-all duration-200 disabled:opacity-60"
-              style={{ color: givenCandle ? "#fbbf24" : "#ffffff" }}
+              className="flex items-center gap-2 transition-all duration-200 disabled:opacity-60"
               title={givenCandle ? "Candle lit" : "Light a candle"}
             >
-              <span className="text-lg drop-shadow-[0_0_6px_rgba(251,191,36,0.9)]">🕯️</span>
-              <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">{candleCount}</span>
+              <span className="text-2xl drop-shadow-[0_0_10px_rgba(251,191,36,1)]">🕯️</span>
+              <span className="text-lg font-bold font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]" style={{ color: givenCandle ? "#fbbf24" : "#ffffff" }}>
+                {candleCount.toLocaleString()}
+              </span>
             </button>
           </div>
         </div>
