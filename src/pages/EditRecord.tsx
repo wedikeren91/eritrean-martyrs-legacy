@@ -137,6 +137,7 @@ export default function EditRecord() {
       bio: form.bio || null,
       significance: form.significance || null,
       quote: form.quote || null,
+      gender: form.gender || "Unknown",
     }).eq("id", person.id);
     if (err) setError(err.message);
     else setSaveSuccess(true);
