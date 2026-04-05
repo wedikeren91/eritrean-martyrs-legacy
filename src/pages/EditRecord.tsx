@@ -335,22 +335,48 @@ export default function EditRecord() {
             </div>
           )}
 
-          <div className="flex items-center gap-4">
-            <button
-              type="submit"
-              disabled={saving}
-              className="bg-primary text-primary-foreground px-8 py-2.5 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              {saving ? "Saving…" : "Save Changes"}
-            </button>
-            {person && (
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-primary text-primary-foreground px-8 py-2.5 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {saving ? "Saving…" : "Save Changes"}
+              </button>
+              {person && (
+                <Link
+                  to={`/martyr/${person.slug}`}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+                >
+                  Cancel & view profile
+                </Link>
+              )}
               <Link
-                to={`/martyr/${person.slug}`}
+                to="/admin"
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
               >
-                Cancel & view profile
+                ← Back to Records
               </Link>
-            )}
+            </div>
+            <div className="flex items-center gap-3">
+              {adjacentSlugs.prev && (
+                <Link
+                  to={`/admin/edit/${adjacentSlugs.prev}`}
+                  className="border border-border px-4 py-2 text-xs font-semibold tracking-wider uppercase hover:bg-muted transition-colors"
+                >
+                  ← Previous
+                </Link>
+              )}
+              {adjacentSlugs.next && (
+                <Link
+                  to={`/admin/edit/${adjacentSlugs.next}`}
+                  className="border border-border px-4 py-2 text-xs font-semibold tracking-wider uppercase hover:bg-muted transition-colors"
+                >
+                  Next →
+                </Link>
+              )}
+            </div>
           </div>
         </form>
       </div>
