@@ -27,14 +27,7 @@ const SiteHeader = () => {
 
   return (
     <>
-      {/* Invisible spacer that fills the safe-area notch so content never hides behind it */}
-      <div
-        className="sticky top-0 z-50 bg-background"
-        style={{ height: "env(safe-area-inset-top, 0px)" }}
-        aria-hidden="true"
-      />
-
-      <header className="sticky z-50 border-b border-border bg-background" style={{ top: "env(safe-area-inset-top, 0px)" }}>
+      <header className="sticky top-0 z-50 border-b border-border bg-background" style={{ paddingTop: "var(--safe-area-top)" }}>
         <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group" onClick={() => setMenuOpen(false)}>
@@ -127,7 +120,7 @@ const SiteHeader = () => {
         <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMenuOpen(false)}>
           <div
             className="absolute left-0 right-0 bg-background border-b border-border shadow-xl"
-            style={{ top: "calc(env(safe-area-inset-top, 0px) + 3.5rem)" }}
+            style={{ top: "calc(var(--safe-area-top) + var(--site-header-height))" }}
             onClick={(e) => e.stopPropagation()}
           >
             <nav className="container mx-auto px-4 py-2 divide-y divide-border">

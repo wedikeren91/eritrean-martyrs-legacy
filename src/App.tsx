@@ -34,7 +34,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <div className="pb-16 md:pb-0">
+          <div className="mobile-nav-offset">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/archive" element={<Archive />} />
