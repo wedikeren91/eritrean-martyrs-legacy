@@ -1039,6 +1039,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
+  const [filterGender, setFilterGender] = useState("All");
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [stats, setStats] = useState({ total: 0, active: 0, deleted: 0 });
