@@ -15,10 +15,11 @@ const FLAG_BLUE  = "#418FDE";
 const FLAG_GOLD  = "#FFC72C";
 const FLAG_DARK  = "#1A1A2E";
 
-const AFFIL_COLORS: Record<string, string> = {
+const CAT_COLORS: Record<string, string> = {
   ELF:      FLAG_BLUE,
   EPLF:     FLAG_RED,
   Civilian: FLAG_GREEN,
+  Other:    FLAG_GOLD,
 };
 
 const TOOLTIP_STYLE = {
@@ -30,33 +31,38 @@ const TOOLTIP_STYLE = {
 };
 
 // ── Types ──────────────────────────────────────────────────────────────────────
-type MartyrRow = {
-  affiliation: string;
-  birth_province: string | null;
-  birth_date: string | null;
-  death_date: string | null;
+type PersonRow = {
+  category: string | null;
+  region: string | null;
+  date_of_birth: string | null;
+  date_of_death: string | null;
   gender: string | null;
-  status: string;
+  deleted_at: string | null;
 };
 
 type ChartDatum = { name: string; count: number };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function buildAffiliationData(rows: MartyrRow[]): (ChartDatum & { pct: string })[] {
-  const map: Record<string, number> = { ELF: 0, EPLF: 0, Civilian: 0 };
-  rows.forEach((r) => { if (r.affiliation in map) map[r.affiliation]++; });
-  const total = rows.length || 1;
-  return Object.entries(map).map(([name, count]) => ({
-    name,
-    count,
-    pct: ((count / total) * 100).toFixed(1),
-  }));
-}
-
-function buildRegionData(rows: MartyrRow[]): ChartDatum[] {
+function buildCategoryData(rows: PersonRow[]): (ChartDatum & { pct: string })[] {
   const map: Record<string, number> = {};
   rows.forEach((r) => {
-    const p = r.birth_province?.trim() || "Unknown";
+    const cat = r.category || "Unknown";
+    map[cat] = (map[cat] ?? 0) + 1;
+  });
+  const total = rows.length || 1;
+  return Object.entries(map)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => ({
+      name,
+      count,
+      pct: ((count / total) * 100).toFixed(1),
+    }));
+}
+
+function buildRegionData(rows: PersonRow[]): ChartDatum[] {
+  const map: Record<string, number> = {};
+  rows.forEach((r) => {
+    const p = r.region?.trim() || "Unknown";
     map[p] = (map[p] ?? 0) + 1;
   });
   return Object.entries(map)
@@ -65,15 +71,17 @@ function buildRegionData(rows: MartyrRow[]): ChartDatum[] {
     .slice(0, 15);
 }
 
-function buildDeathYearData(rows: MartyrRow[]): ChartDatum[] {
+function buildDeathYearData(rows: PersonRow[]): ChartDatum[] {
   const map: Record<number, number> = {};
   rows.forEach((r) => {
-    if (!r.death_date) return;
-    const yr = parseInt(r.death_date.slice(0, 4), 10);
-    if (yr >= 1961 && yr <= 1991) map[yr] = (map[yr] ?? 0) + 1;
+    if (!r.date_of_death) return;
+    const yr = parseInt(r.date_of_death.slice(0, 4), 10);
+    if (yr >= 1961 && yr <= 2022) map[yr] = (map[yr] ?? 0) + 1;
   });
+  const years = Object.keys(map).map(Number).sort((a, b) => a - b);
+  if (years.length === 0) return [];
   const result: ChartDatum[] = [];
-  for (let y = 1961; y <= 1991; y++) {
+  for (let y = years[0]; y <= years[years.length - 1]; y++) {
     result.push({ name: String(y), count: map[y] ?? 0 });
   }
   return result;
@@ -87,14 +95,14 @@ const AGE_RANGES = [
   { label: "46+",      min: 46, max: 999 },
 ];
 
-function buildAgeData(rows: MartyrRow[]): ChartDatum[] {
+function buildAgeData(rows: PersonRow[]): ChartDatum[] {
   const buckets: Record<string, number> = {};
   AGE_RANGES.forEach((r) => { buckets[r.label] = 0; });
 
   rows.forEach((row) => {
-    if (!row.birth_date || !row.death_date) return;
-    const born  = new Date(row.birth_date).getFullYear();
-    const died  = new Date(row.death_date).getFullYear();
+    if (!row.date_of_birth || !row.date_of_death) return;
+    const born  = new Date(row.date_of_birth).getFullYear();
+    const died  = new Date(row.date_of_death).getFullYear();
     const age   = died - born;
     const range = AGE_RANGES.find((r) => age >= r.min && age <= r.max);
     if (range) buckets[range.label]++;
@@ -103,7 +111,7 @@ function buildAgeData(rows: MartyrRow[]): ChartDatum[] {
   return AGE_RANGES.map((r) => ({ name: r.label, count: buckets[r.label] }));
 }
 
-function buildGenderData(rows: MartyrRow[]): (ChartDatum & { pct: string })[] {
+function buildGenderData(rows: PersonRow[]): (ChartDatum & { pct: string })[] {
   const map: Record<string, number> = { Male: 0, Female: 0, Unknown: 0 };
   rows.forEach((r) => {
     const g = r.gender || "Unknown";
@@ -204,9 +212,8 @@ export default function Analytics() {
   const { isFounder, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  const [rows,        setRows]        = useState<MartyrRow[]>([]);
+  const [rows,        setRows]        = useState<PersonRow[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [totalPending, setTotalPending] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !isFounder) navigate("/");
@@ -216,16 +223,12 @@ export default function Analytics() {
     if (!isFounder) return;
     (async () => {
       setLoadingData(true);
-      const [rowsRes, pendingRes] = await Promise.all([
-        (supabase.from("martyr_profiles" as never) as any)
-          .select("affiliation,birth_province,birth_date,death_date,gender,status")
-          .limit(5000),
-        (supabase.from("martyr_profiles" as never) as any)
-          .select("id", { count: "exact", head: true })
-          .eq("status", "Pending"),
-      ]);
-      setRows((rowsRes.data as MartyrRow[]) ?? []);
-      setTotalPending(pendingRes.count ?? 0);
+      const { data } = await supabase
+        .from("persons")
+        .select("category,region,date_of_birth,date_of_death,gender,deleted_at")
+        .is("deleted_at", null)
+        .limit(5000);
+      setRows((data as PersonRow[]) ?? []);
       setLoadingData(false);
     })();
   }, [isFounder]);
@@ -240,22 +243,21 @@ export default function Analytics() {
   if (!isFounder) return null;
 
   // ── Derived data ──────────────────────────────────────────────────────────
-  const affiliationData = buildAffiliationData(rows);
-  const regionData      = buildRegionData(rows);
-  const deathYearData   = buildDeathYearData(rows);
-  const ageData         = buildAgeData(rows);
-  const genderData      = buildGenderData(rows);
+  const categoryData   = buildCategoryData(rows);
+  const regionData     = buildRegionData(rows);
+  const deathYearData  = buildDeathYearData(rows);
+  const ageData        = buildAgeData(rows);
+  const genderData     = buildGenderData(rows);
 
-  const totalELF      = affiliationData.find((d) => d.name === "ELF")?.count      ?? 0;
-  const totalEPLF     = affiliationData.find((d) => d.name === "EPLF")?.count     ?? 0;
-  const totalCivilian = affiliationData.find((d) => d.name === "Civilian")?.count ?? 0;
+  const totalELF      = categoryData.find((d) => d.name === "ELF")?.count      ?? 0;
+  const totalEPLF     = categoryData.find((d) => d.name === "EPLF")?.count     ?? 0;
+  const totalCivilian = categoryData.find((d) => d.name === "Civilian")?.count ?? 0;
 
   const summaryCards = [
-    { label: "Total Profiles",       value: loadingData ? "…" : rows.length,        accent: FLAG_DARK  },
+    { label: "Total Records",        value: loadingData ? "…" : rows.length,        accent: FLAG_DARK  },
     { label: "ELF",                  value: loadingData ? "…" : totalELF,            accent: FLAG_BLUE  },
     { label: "EPLF",                 value: loadingData ? "…" : totalEPLF,           accent: FLAG_RED   },
     { label: "Civilian",             value: loadingData ? "…" : totalCivilian,       accent: FLAG_GREEN },
-    { label: "Pending Approval",     value: loadingData ? "…" : totalPending,        accent: FLAG_GOLD, pulse: true },
   ];
 
   return (
@@ -270,7 +272,7 @@ export default function Analytics() {
             ← Admin
           </Link>
           <div className="h-4 w-px bg-border" />
-          <div className="data-label text-primary">Martyr Profiles Analytics</div>
+          <div className="data-label text-primary">Analytics</div>
           <div className="ml-auto flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground">
             <span
               className="w-2 h-2 rounded-full"
@@ -284,32 +286,31 @@ export default function Analytics() {
       <div className="container mx-auto px-4 py-8 space-y-8">
 
         {/* ── Summary stat cards ─────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {summaryCards.map((s) => (
             <StatCard
               key={s.label}
               label={s.label}
               value={typeof s.value === "number" ? s.value.toLocaleString() : s.value}
               accent={s.accent}
-              pulse={s.pulse}
             />
           ))}
         </div>
 
-        {/* ── Row 1: Pie + Region Bar ─────────────────────────────────────────── */}
+        {/* ── Row 1: Category Pie + Region Bar ────────────────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          {/* 1. Affiliation Pie */}
+          {/* 1. Category Pie */}
           <ChartCard
-            title="Affiliation Breakdown"
-            subtitle="ELF · EPLF · Civilian — with count and percentage"
+            title="Category Breakdown"
+            subtitle="ELF · EPLF · Civilian · Other — with count and percentage"
           >
-            {loadingData ? LOADING_CHART : affiliationData.every((d) => d.count === 0) ? EMPTY_CHART : (
+            {loadingData ? LOADING_CHART : categoryData.every((d) => d.count === 0) ? EMPTY_CHART : (
               <div style={{ width: "100%", height: 280 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={affiliationData}
+                      data={categoryData}
                       dataKey="count"
                       nameKey="name"
                       cx="50%"
@@ -318,12 +319,12 @@ export default function Analytics() {
                       labelLine
                       label={renderPieLabel as any}
                     >
-                      {affiliationData.map((d) => (
-                        <Cell key={d.name} fill={AFFIL_COLORS[d.name] ?? FLAG_DARK} />
+                      {categoryData.map((d) => (
+                        <Cell key={d.name} fill={CAT_COLORS[d.name] ?? FLAG_DARK} />
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(v: number, name: string) => [`${v} martyrs`, name]}
+                      formatter={(v: number, name: string) => [`${v} records`, name]}
                       contentStyle={TOOLTIP_STYLE}
                     />
                     <Legend
@@ -339,7 +340,7 @@ export default function Analytics() {
 
           {/* 2. Region Bar */}
           <ChartCard
-            title="Martyrs by Birth Province"
+            title="Records by Region"
             subtitle="Sorted highest to lowest · top 15 regions shown"
           >
             {loadingData ? LOADING_CHART : regionData.length === 0 ? EMPTY_CHART : (
@@ -363,7 +364,7 @@ export default function Analytics() {
                       allowDecimals={false}
                     />
                     <Tooltip
-                      formatter={(v: number) => [`${v} martyrs`, "Count"]}
+                      formatter={(v: number) => [`${v} records`, "Count"]}
                       contentStyle={TOOLTIP_STYLE}
                     />
                     <Bar dataKey="count" fill={FLAG_BLUE} radius={[2, 2, 0, 0]} />
@@ -380,7 +381,7 @@ export default function Analytics() {
           {/* 3. Death Year Line Chart */}
           <ChartCard
             title="Casualties by Year of Death"
-            subtitle="1961–1991 · Eritrean War of Independence timeline"
+            subtitle="Based on recorded death dates"
           >
             {loadingData ? LOADING_CHART : deathYearData.every((d) => d.count === 0) ? EMPTY_CHART : (
               <div style={{ width: "100%", height: 280 }}>
@@ -393,14 +394,14 @@ export default function Analytics() {
                     <XAxis
                       dataKey="name"
                       tick={{ fontSize: 9, fill: "hsl(220 12% 42%)" }}
-                      interval={4}
+                      interval={Math.max(0, Math.floor(deathYearData.length / 8))}
                     />
                     <YAxis
                       tick={{ fontSize: 10, fill: "hsl(220 12% 42%)" }}
                       allowDecimals={false}
                     />
                     <Tooltip
-                      formatter={(v: number) => [`${v} martyrs`, "Deaths"]}
+                      formatter={(v: number) => [`${v} records`, "Deaths"]}
                       contentStyle={TOOLTIP_STYLE}
                     />
                     <Line
@@ -420,7 +421,7 @@ export default function Analytics() {
           {/* 4. Age Distribution Bar */}
           <ChartCard
             title="Age at Time of Death"
-            subtitle="Calculated from birth_date and death_date · grouped by range"
+            subtitle="Calculated from birth and death dates · grouped by range"
           >
             {loadingData ? LOADING_CHART : ageData.every((d) => d.count === 0) ? EMPTY_CHART : (
               <div style={{ width: "100%", height: 280 }}>
@@ -440,7 +441,7 @@ export default function Analytics() {
                       allowDecimals={false}
                     />
                     <Tooltip
-                      formatter={(v: number) => [`${v} martyrs`, "Count"]}
+                      formatter={(v: number) => [`${v} records`, "Count"]}
                       contentStyle={TOOLTIP_STYLE}
                     />
                     <Bar dataKey="count" radius={[2, 2, 0, 0]}>
@@ -486,7 +487,7 @@ export default function Analytics() {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(v: number, name: string) => [`${v} profiles`, name]}
+                      formatter={(v: number, name: string) => [`${v} records`, name]}
                       contentStyle={TOOLTIP_STYLE}
                     />
                     <Legend
@@ -503,7 +504,7 @@ export default function Analytics() {
 
         {/* ── Footer note ──────────────────────────────────────────────────────── */}
         <p className="text-[10px] font-mono text-muted-foreground text-center pb-4">
-          Data sourced from <em>martyr_profiles</em> table · {rows.length} total records ·{" "}
+          Data sourced from persons table · {rows.length} total records ·{" "}
           {new Date().toLocaleDateString()}
         </p>
       </div>

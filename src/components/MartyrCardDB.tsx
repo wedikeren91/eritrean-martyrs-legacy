@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { type PersonRow } from "@/hooks/usePersons";
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MartyrCardDBProps {
   person: PersonRow;
@@ -16,21 +17,85 @@ function formatYear(dateStr: string | null): string {
   }
 }
 
+const SESSION_KEY = (id: string, type: string) => `tribute_${type}_${id}`;
+
 const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
   const staggerClass = index < 8 ? `stagger-${(index % 8) + 1}` : "";
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Handle already-cached images (complete before onLoad fires)
+  // Tribute state
+  const [flowerCount, setFlowerCount] = useState(0);
+  const [candleCount, setCandleCount] = useState(0);
+  const [givenFlower, setGivenFlower] = useState(false);
+  const [givenCandle, setGivenCandle] = useState(false);
+  const [loading, setLoading] = useState<string | null>(null);
+
   useEffect(() => {
     if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
       setLoaded(true);
     }
   }, []);
 
+  // Load tribute counts
+  useEffect(() => {
+    if (!person.id) return;
+    supabase
+      .from("tributes")
+      .select("tribute_type", { count: "exact" })
+      .eq("person_id", person.id)
+      .eq("tribute_type", "flower")
+      .then(({ count }) => setFlowerCount(count ?? 0));
+    supabase
+      .from("tributes")
+      .select("tribute_type", { count: "exact" })
+      .eq("person_id", person.id)
+      .eq("tribute_type", "candle")
+      .then(({ count }) => setCandleCount(count ?? 0));
+
+    setGivenFlower(sessionStorage.getItem(SESSION_KEY(person.id, "flower")) === "1");
+    setGivenCandle(sessionStorage.getItem(SESSION_KEY(person.id, "candle")) === "1");
+  }, [person.id]);
+
+  const giveFlower = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (givenFlower || loading) return;
+    setLoading("flower");
+    const { error } = await supabase.from("tributes").insert({
+      person_id: person.id,
+      tribute_type: "flower",
+      flower_count: 1,
+    });
+    if (!error) {
+      setFlowerCount((c) => c + 1);
+      setGivenFlower(true);
+      sessionStorage.setItem(SESSION_KEY(person.id, "flower"), "1");
+    }
+    setLoading(null);
+  };
+
+  const giveCandle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (givenCandle || loading) return;
+    setLoading("candle");
+    const { error } = await supabase.from("tributes").insert({
+      person_id: person.id,
+      tribute_type: "candle",
+      flower_count: 1,
+    });
+    if (!error) {
+      setCandleCount((c) => c + 1);
+      setGivenCandle(true);
+      sessionStorage.setItem(SESSION_KEY(person.id, "candle"), "1");
+    }
+    setLoading(null);
+  };
+
   const genderColor =
-    (person as any).gender === "Female" ? "#EC4899" :
-    (person as any).gender === "Male" ? "#3B82F6" :
+    person.gender === "Female" ? "#EC4899" :
+    person.gender === "Male" ? "#3B82F6" :
     "transparent";
 
   return (
@@ -54,7 +119,6 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
         {/* Portrait */}
         {person.photo_url ? (
           <>
-            {/* Low-quality placeholder shimmer */}
             {!loaded && (
               <div className="absolute inset-0 bg-muted animate-pulse" />
             )}
@@ -99,7 +163,7 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           style={{
             background:
               "linear-gradient(to top, rgba(15,10,8,0.97) 0%, rgba(15,10,8,0.85) 45%, rgba(15,10,8,0.0) 100%)",
-            padding: "1.5rem 0.5rem 0.45rem",
+            padding: "1.5rem 0.5rem 0.4rem",
           }}
         >
           <p
@@ -108,7 +172,7 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           >
             {person.first_name} {person.last_name}
           </p>
-          <div className="flex items-center gap-1 text-[10px] font-mono font-bold">
+          <div className="flex items-center gap-1 text-[10px] font-mono font-bold mb-1.5">
             <span style={{ color: "hsl(38 85% 72%)" }}>
               {formatYear(person.date_of_birth)}
             </span>
@@ -116,6 +180,28 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
             <span style={{ color: "hsl(4 90% 70%)" }}>
               {formatYear(person.date_of_death)}
             </span>
+          </div>
+
+          {/* Mini tribute buttons */}
+          <div className="flex items-center gap-2 relative z-30">
+            <button
+              onClick={giveFlower}
+              disabled={givenFlower || loading === "flower"}
+              className="flex items-center gap-1 text-[9px] font-mono text-white/80 hover:text-white transition-colors disabled:opacity-50"
+              title={givenFlower ? "Flower given" : "Give a flower"}
+            >
+              <span className="text-xs">🌹</span>
+              <span>{flowerCount}</span>
+            </button>
+            <button
+              onClick={giveCandle}
+              disabled={givenCandle || loading === "candle"}
+              className="flex items-center gap-1 text-[9px] font-mono text-white/80 hover:text-white transition-colors disabled:opacity-50"
+              title={givenCandle ? "Candle lit" : "Light a candle"}
+            >
+              <span className="text-xs">🕯</span>
+              <span>{candleCount}</span>
+            </button>
           </div>
         </div>
       </article>
