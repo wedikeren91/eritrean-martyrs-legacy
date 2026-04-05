@@ -191,7 +191,7 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
               title={givenFlower ? "Flower given" : "Give a flower"}
             >
               <span className="text-2xl drop-shadow-[0_0_8px_rgba(244,114,182,0.9)]">🌹</span>
-              <span className="text-lg font-bold font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]" style={{ color: givenFlower ? "#f472b6" : "#ffffff" }}>
+              <span className="text-lg font-bold font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]" style={{ color: "hsl(0 0% 100%)" }}>
                 {flowerCount.toLocaleString()}
               </span>
             </button>
@@ -202,7 +202,7 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
               title={givenCandle ? "Candle lit" : "Light a candle"}
             >
               <span className="text-2xl drop-shadow-[0_0_10px_rgba(251,191,36,1)]">🕯️</span>
-              <span className="text-lg font-bold font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]" style={{ color: givenCandle ? "#fbbf24" : "#ffffff" }}>
+              <span className="text-lg font-bold font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]" style={{ color: "hsl(0 0% 100%)" }}>
                 {candleCount.toLocaleString()}
               </span>
             </button>
