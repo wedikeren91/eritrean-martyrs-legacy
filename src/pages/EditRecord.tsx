@@ -45,6 +45,7 @@ export default function EditRecord() {
   const [error, setError] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [adjacentSlugs, setAdjacentSlugs] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
 
   const [form, setForm] = useState<FormData>({
     first_name: "", last_name: "", known_as: "",
@@ -60,7 +61,7 @@ export default function EditRecord() {
 
   useEffect(() => {
     if (!slug) return;
-    getPersonBySlug(slug).then((data) => {
+    getPersonBySlug(slug).then(async (data) => {
       if (!data) { navigate("/admin"); return; }
       setPerson(data);
       setForm({
@@ -82,7 +83,25 @@ export default function EditRecord() {
         quote: data.quote ?? "",
         gender: data.gender ?? "Unknown",
       });
+      setPhotoPreview(null);
+      setSaveSuccess(false);
+      setError(null);
       setLoading(false);
+
+      // Fetch adjacent slugs for prev/next navigation
+      const { data: allSlugs } = await supabase
+        .from("persons")
+        .select("slug")
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false })
+        .limit(500);
+      if (allSlugs) {
+        const idx = allSlugs.findIndex((r) => r.slug === slug);
+        setAdjacentSlugs({
+          prev: idx > 0 ? allSlugs[idx - 1].slug : null,
+          next: idx < allSlugs.length - 1 ? allSlugs[idx + 1].slug : null,
+        });
+      }
     });
   }, [slug, navigate]);
 
@@ -173,7 +192,19 @@ export default function EditRecord() {
               </Link>
             )}
           </div>
-          <div className="data-label text-primary">Edit Record</div>
+          <div className="flex items-center gap-3">
+            {adjacentSlugs.prev && (
+              <Link to={`/admin/edit/${adjacentSlugs.prev}`} className="data-label text-muted-foreground hover:text-foreground transition-colors">
+                ← Prev
+              </Link>
+            )}
+            <div className="data-label text-primary">Edit Record</div>
+            {adjacentSlugs.next && (
+              <Link to={`/admin/edit/${adjacentSlugs.next}`} className="data-label text-muted-foreground hover:text-foreground transition-colors">
+                Next →
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 
@@ -304,22 +335,48 @@ export default function EditRecord() {
             </div>
           )}
 
-          <div className="flex items-center gap-4">
-            <button
-              type="submit"
-              disabled={saving}
-              className="bg-primary text-primary-foreground px-8 py-2.5 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              {saving ? "Saving…" : "Save Changes"}
-            </button>
-            {person && (
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-primary text-primary-foreground px-8 py-2.5 text-xs font-semibold tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {saving ? "Saving…" : "Save Changes"}
+              </button>
+              {person && (
+                <Link
+                  to={`/martyr/${person.slug}`}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+                >
+                  Cancel & view profile
+                </Link>
+              )}
               <Link
-                to={`/martyr/${person.slug}`}
+                to="/admin"
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
               >
-                Cancel & view profile
+                ← Back to Records
               </Link>
-            )}
+            </div>
+            <div className="flex items-center gap-3">
+              {adjacentSlugs.prev && (
+                <Link
+                  to={`/admin/edit/${adjacentSlugs.prev}`}
+                  className="border border-border px-4 py-2 text-xs font-semibold tracking-wider uppercase hover:bg-muted transition-colors"
+                >
+                  ← Previous
+                </Link>
+              )}
+              {adjacentSlugs.next && (
+                <Link
+                  to={`/admin/edit/${adjacentSlugs.next}`}
+                  className="border border-border px-4 py-2 text-xs font-semibold tracking-wider uppercase hover:bg-muted transition-colors"
+                >
+                  Next →
+                </Link>
+              )}
+            </div>
           </div>
         </form>
       </div>

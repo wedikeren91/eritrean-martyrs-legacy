@@ -167,7 +167,7 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           }}
         >
           <p
-            className="text-[13px] font-semibold leading-tight mb-0.5 truncate"
+            className="text-[15px] font-semibold leading-tight mb-0.5 truncate"
             style={{ fontFamily: "'Fraunces', serif", color: "#fff" }}
           >
             {person.first_name} {person.last_name}

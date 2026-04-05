@@ -1025,6 +1025,7 @@ type PersonRow = {
   first_name: string;
   last_name: string;
   category: string | null;
+  gender: string;
   status: string | null;
   date_of_death: string | null;
   deleted_at: string | null;
@@ -1038,6 +1039,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
+  const [filterGender, setFilterGender] = useState("All");
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [stats, setStats] = useState({ total: 0, active: 0, deleted: 0 });
@@ -1047,12 +1049,15 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
     let q = supabase
       .from("persons")
       .select(
-        "id,slug,first_name,last_name,category,status,date_of_death,deleted_at,submitted_by,approved_by,created_at"
+        "id,slug,first_name,last_name,category,gender,status,date_of_death,deleted_at,submitted_by,approved_by,created_at"
       )
       .order("created_at", { ascending: false })
       .limit(200);
     if (filterCategory !== "All") {
       q = q.eq("category", filterCategory);
+    }
+    if (filterGender !== "All") {
+      q = q.eq("gender", filterGender);
     }
     if (search.trim()) {
       const t = `%${search.trim()}%`;
@@ -1067,7 +1072,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
       deleted: all.filter((r) => r.deleted_at).length,
     });
     setLoading(false);
-  }, [search, filterCategory]);
+  }, [search, filterCategory, filterGender]);
 
   useEffect(() => {
     fetchRecords();
@@ -1126,6 +1131,16 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
               </option>
             ))}
           </select>
+          <select
+            value={filterGender}
+            onChange={(e) => setFilterGender(e.target.value)}
+            className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-full sm:w-auto"
+          >
+            <option value="All">All Genders</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Unknown">Unknown</option>
+          </select>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -1145,6 +1160,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
             <tr>
               <th className="px-4 py-3 text-left data-label">Name</th>
               <th className="px-4 py-3 text-left data-label">Category</th>
+              <th className="px-4 py-3 text-left data-label">Gender</th>
               <th className="px-4 py-3 text-left data-label">Death Year</th>
               <th className="px-4 py-3 text-left data-label">Status</th>
               <th className="px-4 py-3 text-left data-label">Added</th>
@@ -1173,6 +1189,13 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
                 </td>
                 <td className="px-4 py-2.5 font-mono uppercase text-[10px] text-muted-foreground">
                   {r.category ?? "—"}
+                </td>
+                <td className="px-4 py-2.5">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                    r.gender === "Male" ? "text-blue-600" : r.gender === "Female" ? "text-pink-500" : "text-muted-foreground"
+                  }`}>
+                    {r.gender || "—"}
+                  </span>
                 </td>
                 <td className="px-4 py-2.5 text-muted-foreground">
                   {r.date_of_death ? r.date_of_death.slice(0, 4) : "—"}
@@ -1233,7 +1256,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
             ))}
             {!loading && records.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                   No records found.
                 </td>
               </tr>
