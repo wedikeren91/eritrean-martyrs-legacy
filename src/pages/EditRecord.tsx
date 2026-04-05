@@ -45,6 +45,7 @@ export default function EditRecord() {
   const [error, setError] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [adjacentSlugs, setAdjacentSlugs] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
 
   const [form, setForm] = useState<FormData>({
     first_name: "", last_name: "", known_as: "",
