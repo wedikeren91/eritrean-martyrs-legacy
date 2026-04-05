@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import MartyrImportModal, { exportProfiles } from "@/components/MartyrBatchActions";
+import { CATEGORIES } from "@/data/martyrs";
 
 type DeputyPermission = "approve_profile" | "modify_profile" | "delete_profile";
 
@@ -103,7 +104,7 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-background grain-overlay w-full max-w-full overflow-x-hidden">
       {/* Top bar */}
-      <div className="border-b border-border bg-card">
+      <div className="border-b border-border bg-card" style={{ paddingTop: "var(--safe-area-top)" }}>
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-2 min-w-0">
           <div className="flex items-center gap-4">
             <Link
@@ -1036,6 +1037,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
   const [records, setRecords] = useState<PersonRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState("All");
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [stats, setStats] = useState({ total: 0, active: 0, deleted: 0 });
@@ -1049,6 +1051,9 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
       )
       .order("created_at", { ascending: false })
       .limit(200);
+    if (filterCategory !== "All") {
+      q = q.eq("category", filterCategory);
+    }
     if (search.trim()) {
       const t = `%${search.trim()}%`;
       q = q.or(`first_name.ilike.${t},last_name.ilike.${t},slug.ilike.${t}`);
@@ -1062,7 +1067,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
       deleted: all.filter((r) => r.deleted_at).length,
     });
     setLoading(false);
-  }, [search]);
+  }, [search, filterCategory]);
 
   useEffect(() => {
     fetchRecords();
@@ -1108,12 +1113,26 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
         <h1 className="text-xl sm:text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>
           All Records
         </h1>
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search name…"
-          className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-full sm:w-48"
-        />
+        <div className="flex items-center gap-3 flex-wrap w-full sm:w-auto">
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-full sm:w-auto"
+          >
+            <option value="All">All Categories</option>
+            {CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search name…"
+            className="bg-background border border-border px-3 py-1.5 text-xs focus:outline-none focus:border-foreground transition-colors w-full sm:w-48"
+          />
+        </div>
       </div>
 
       {loading && (
