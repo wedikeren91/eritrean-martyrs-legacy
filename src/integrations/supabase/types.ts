@@ -286,6 +286,7 @@ export type Database = {
           date_of_death: string | null
           deleted_at: string | null
           first_name: string
+          gender: string
           id: string
           known_as: string | null
           last_name: string
@@ -313,6 +314,7 @@ export type Database = {
           date_of_death?: string | null
           deleted_at?: string | null
           first_name: string
+          gender?: string
           id?: string
           known_as?: string | null
           last_name: string
@@ -340,6 +342,7 @@ export type Database = {
           date_of_death?: string | null
           deleted_at?: string | null
           first_name?: string
+          gender?: string
           id?: string
           known_as?: string | null
           last_name?: string
