@@ -1041,12 +1041,26 @@ type PersonRow = {
   created_at: string;
 };
 
+type RecordSort = "name_asc" | "name_desc" | "dod_asc" | "dod_desc" | "status_asc" | "status_desc" | "newest" | "oldest";
+
+const RECORD_SORT_OPTIONS: { value: RecordSort; label: string }[] = [
+  { value: "name_asc", label: "Name A → Z" },
+  { value: "name_desc", label: "Name Z → A" },
+  { value: "dod_asc", label: "Death Year ↑" },
+  { value: "dod_desc", label: "Death Year ↓" },
+  { value: "status_asc", label: "Status A → Z" },
+  { value: "status_desc", label: "Status Z → A" },
+  { value: "newest", label: "Newest First" },
+  { value: "oldest", label: "Oldest First" },
+];
+
 function RecordsPanel({ isFounder }: { isFounder: boolean }) {
   const [records, setRecords] = useState<PersonRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterGender, setFilterGender] = useState("All");
+  const [sortBy, setSortBy] = useState<RecordSort>("name_asc");
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [stats, setStats] = useState({ total: 0, active: 0, deleted: 0 });
