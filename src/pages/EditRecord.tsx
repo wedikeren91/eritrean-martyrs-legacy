@@ -80,6 +80,7 @@ export default function EditRecord() {
         bio: data.bio ?? "",
         significance: data.significance ?? "",
         quote: data.quote ?? "",
+        gender: data.gender ?? "Unknown",
       });
       setLoading(false);
     });
