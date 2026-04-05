@@ -3,14 +3,16 @@ import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import SearchBar from "@/components/SearchBar";
 import { CATEGORIES } from "@/data/martyrs";
-import { usePersons, WARS } from "@/hooks/usePersons";
+import { usePersons, WARS, SORT_OPTIONS, STATUS_FILTERS, type SortOption } from "@/hooks/usePersons";
 import MartyrCardDB from "@/components/MartyrCardDB";
 
 const Browse = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeWar, setActiveWar] = useState("All");
-  const { persons, loading } = usePersons(query, activeCategory, activeWar);
+  const [sort, setSort] = useState<SortOption>("name_asc");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const { persons, loading } = usePersons(query, activeCategory, activeWar, sort, statusFilter);
 
   const timelineEras = [
     { period: "1961–1970", label: "The Ignition", desc: "First shots fired at Mount Adal. Early organisation of liberation forces." },
