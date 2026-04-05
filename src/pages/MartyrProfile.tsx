@@ -71,6 +71,7 @@ const MartyrProfile = () => {
             quote: staticMartyr.quote || null,
             place_of_martyrdom: staticMartyr.place_of_martyrdom || null,
             battle: staticMartyr.battle || null,
+            gender: null,
           });
         }
       }
