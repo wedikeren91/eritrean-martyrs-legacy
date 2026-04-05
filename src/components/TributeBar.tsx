@@ -103,18 +103,18 @@ const TributeBar = ({ personId }: TributeBarProps) => {
           style={
             givenFlower
               ? {
-                  background: "hsl(340 70% 42%)",
-                  borderColor: "hsl(340 70% 42%)",
+                  background: "#ec4899",
+                  borderColor: "#ec4899",
                   color: "#fff",
                 }
               : {
                   background: "transparent",
-                  borderColor: "hsl(340 70% 42%)",
-                  color: "hsl(340 70% 42%)",
+                  borderColor: "#ec4899",
+                  color: "#ec4899",
                 }
           }
         >
-          <span className="text-base">🌹</span>
+          <span className="text-2xl drop-shadow-[0_0_6px_rgba(244,114,182,0.8)]">🌹</span>
           {givenFlower ? "Given" : "Give Flower"}
         </button>
       </div>
@@ -150,18 +150,18 @@ const TributeBar = ({ personId }: TributeBarProps) => {
             style={
               givenCandles >= 2
                 ? {
-                    background: "hsl(38 85% 48%)",
-                    borderColor: "hsl(38 85% 48%)",
+                    background: "#f59e0b",
+                    borderColor: "#f59e0b",
                     color: "#fff",
                   }
                 : {
                     background: "transparent",
-                    borderColor: "hsl(38 85% 48%)",
-                    color: "hsl(38 85% 48%)",
+                    borderColor: "#f59e0b",
+                    color: "#f59e0b",
                   }
             }
           >
-            <span className="text-base">{givenCandles >= 2 ? "🕯️" : "🕯"}</span>
+            <span className="text-2xl drop-shadow-[0_0_8px_rgba(251,191,36,0.9)]">{givenCandles >= 2 ? "🕯️" : "🕯"}</span>
             {givenCandles === 0
               ? "Light Candle"
               : givenCandles === 1
