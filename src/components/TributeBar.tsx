@@ -103,14 +103,14 @@ const TributeBar = ({ personId }: TributeBarProps) => {
           style={
             givenFlower
               ? {
-                  background: "hsl(340 70% 42%)",
-                  borderColor: "hsl(340 70% 42%)",
+                  background: "#ec4899",
+                  borderColor: "#ec4899",
                   color: "#fff",
                 }
               : {
                   background: "transparent",
-                  borderColor: "hsl(340 70% 42%)",
-                  color: "hsl(340 70% 42%)",
+                  borderColor: "#ec4899",
+                  color: "#ec4899",
                 }
           }
         >
