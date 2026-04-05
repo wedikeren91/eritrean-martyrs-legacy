@@ -1025,6 +1025,7 @@ type PersonRow = {
   first_name: string;
   last_name: string;
   category: string | null;
+  gender: string;
   status: string | null;
   date_of_death: string | null;
   deleted_at: string | null;
