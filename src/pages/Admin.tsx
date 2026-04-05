@@ -1100,7 +1100,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
       deleted: all.filter((r) => r.deleted_at).length,
     });
     setLoading(false);
-  }, [search, filterCategory, filterGender]);
+  }, [search, filterCategory, filterGender, sortBy]);
 
   useEffect(() => {
     fetchRecords();
