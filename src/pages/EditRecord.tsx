@@ -234,6 +234,19 @@ export default function EditRecord() {
               <Field label="Date of Birth" value={form.date_of_birth} onChange={set("date_of_birth")} placeholder="e.g. 1955-03-12" />
               <Field label="Date of Death" value={form.date_of_death} onChange={set("date_of_death")} placeholder="e.g. 1988-07-02" />
               <Field label="Status" value={form.status} onChange={set("status")} placeholder="e.g. Martyred" />
+              <div>
+                <label className="data-label block mb-1.5">Gender *</label>
+                <select
+                  value={form.gender}
+                  onChange={set("gender")}
+                  required
+                  className="w-full bg-background border border-border px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                >
+                  <option value="Unknown">— Select —</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
             </div>
           </div>
 

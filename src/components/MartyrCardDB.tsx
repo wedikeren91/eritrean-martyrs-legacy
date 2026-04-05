@@ -150,7 +150,7 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           style={{ background: "hsl(var(--oxblood))" }}
         >
           <span
-            className="text-[7px] font-mono font-bold tracking-widest uppercase"
+            className="text-[8px] font-mono font-bold tracking-widest uppercase"
             style={{ color: "hsl(35 25% 97%)" }}
           >
             {person.category || "—"}
