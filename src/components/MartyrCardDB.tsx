@@ -150,7 +150,7 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           style={{ background: "hsl(var(--oxblood))" }}
         >
           <span
-            className="text-[7px] font-mono font-bold tracking-widest uppercase"
+            className="text-[8px] font-mono font-bold tracking-widest uppercase"
             style={{ color: "hsl(35 25% 97%)" }}
           >
             {person.category || "—"}
@@ -167,17 +167,17 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           }}
         >
           <p
-            className="text-[11px] font-semibold leading-tight mb-0.5 truncate"
+            className="text-[13px] font-semibold leading-tight mb-0.5 truncate"
             style={{ fontFamily: "'Fraunces', serif", color: "#fff" }}
           >
             {person.first_name} {person.last_name}
           </p>
-          <div className="flex items-center gap-1 text-[10px] font-mono font-bold mb-1.5">
-            <span style={{ color: "hsl(38 85% 72%)" }}>
+          <div className="flex items-center gap-1 text-[12px] font-mono font-bold mb-1.5">
+            <span style={{ color: "hsl(45 90% 65%)" }}>
               {formatYear(person.date_of_birth)}
             </span>
             <span style={{ color: "rgba(255,255,255,0.35)" }}>–</span>
-            <span style={{ color: "hsl(4 90% 70%)" }}>
+            <span style={{ color: "hsl(45 90% 65%)" }}>
               {formatYear(person.date_of_death)}
             </span>
           </div>
