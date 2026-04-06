@@ -116,6 +116,7 @@ type ParsedImportRow = Record<string, string>;
 
 const ALLOWED_AFFILIATIONS = ["ELF", "EPLF", "Civilian"] as const;
 const ALLOWED_REVIEW_STATUSES = ["Pending", "Approved", "Rejected"] as const;
+const IMPORT_CHUNK_SIZE = 50;
 
 const IMPORT_ALIASES: Record<string, string> = {
   "known_as__nickname": "known_as",
@@ -320,21 +321,41 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
     if (!parsedRows || !user) return;
     setImporting(true);
 
-    const { data, error } = await supabase.functions.invoke("import-martyr-profiles", {
-      body: { rows: parsedRows },
-    });
+    const aggregate: ImportResult = {
+      added: 0,
+      updated: 0,
+      errors: 0,
+      errorMessages: [],
+    };
 
-    if (error) {
-      alert(`Import failed: ${error.message}`);
-      setImporting(false);
-      return;
+    for (let index = 0; index < parsedRows.length; index += IMPORT_CHUNK_SIZE) {
+      const chunk = parsedRows.slice(index, index + IMPORT_CHUNK_SIZE);
+      const batchNumber = Math.floor(index / IMPORT_CHUNK_SIZE) + 1;
+
+      const { data, error } = await supabase.functions.invoke("import-martyr-profiles", {
+        body: { rows: chunk },
+      });
+
+      if (error) {
+        aggregate.errors += chunk.length;
+        aggregate.errorMessages?.push(`Batch ${batchNumber}: ${error.message}`);
+        continue;
+      }
+
+      aggregate.added += data?.added ?? 0;
+      aggregate.updated += data?.updated ?? 0;
+      aggregate.errors += data?.errors ?? 0;
+
+      if (data?.errorMessages?.length) {
+        aggregate.errorMessages?.push(...data.errorMessages);
+      }
     }
 
     setResult({
-      added: data?.added ?? 0,
-      updated: data?.updated ?? 0,
-      errors: data?.errors ?? 0,
-      errorMessages: data?.errorMessages ?? [],
+      added: aggregate.added,
+      updated: aggregate.updated,
+      errors: aggregate.errors,
+      errorMessages: aggregate.errorMessages?.slice(0, 8) ?? [],
     });
     setImporting(false);
   };
@@ -408,7 +429,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
             <ul className="list-disc list-inside space-y-0.5 ml-1">
               <li>Rows with a valid <code className="font-mono">id</code> will <strong className="text-foreground">update</strong> the matching profile.</li>
               <li>Rows without an <code className="font-mono">id</code> (or blank) will be <strong className="text-foreground">inserted</strong> as new profiles.</li>
-              <li><code className="font-mono">first_name</code> and <code className="font-mono">last_name</code> are required.</li>
+                <li><code className="font-mono">first_name</code> is required. Blank <code className="font-mono">last_name</code> values are saved as <strong className="text-foreground">Unknown</strong>.</li>
             </ul>
             <button
               onClick={downloadTemplate}
