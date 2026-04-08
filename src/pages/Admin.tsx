@@ -753,9 +753,9 @@ function MartyrProfilesPanel({
                   <td className="px-4 py-3 text-muted-foreground">{p.region ?? "—"}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 ${statusBadge(p.status)}`}
+                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 ${statusBadge(p.status ?? "")}`}
                     >
-                      {p.status}
+                      {p.status ?? "—"}
                     </span>
                   </td>
                   <td className="px-4 py-3">
