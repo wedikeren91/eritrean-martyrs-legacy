@@ -115,7 +115,7 @@ export async function downloadTemplate() {
 type ParsedImportValue = string | number | boolean | Date | null | undefined;
 type ParsedImportRow = Record<string, string>;
 
-const ALLOWED_AFFILIATIONS = ["ELF", "EPLF", "Civilian"] as const;
+const ALLOWED_CATEGORIES = ["ELF", "EPLF", "PLF", "Civilian", "Unknown", "Other"] as const;
 const ALLOWED_REVIEW_STATUSES = ["Pending", "Approved", "Rejected"] as const;
 const IMPORT_CHUNK_SIZE = 50;
 
@@ -123,19 +123,23 @@ const IMPORT_ALIASES: Record<string, string> = {
   "known_as__nickname": "known_as",
   "known_as_nickname": "known_as",
   "nickname": "known_as",
-  "organization": "affiliation",
-  "category": "affiliation",
-  "organisation": "affiliation",
+  "organization": "category",
+  "affiliation": "category",
+  "organisation": "category",
   "role__context": "role_context",
-  "date_of_sacrifice": "death_date",
-  "date_of_death": "death_date",
-  "date_of_birth": "birth_date",
+  "date_of_sacrifice": "date_of_death",
+  "death_date": "date_of_death",
+  "date_of_death": "date_of_death",
+  "birth_date": "date_of_birth",
+  "date_of_birth": "date_of_birth",
   "military_rank": "rank",
-  "life_story": "life_story",
-  "bio": "life_story",
+  "life_story": "bio",
+  "bio": "bio",
   "notable_quote": "quote",
-  "city": "birth_city",
-  "region": "birth_province",
+  "birth_city": "city",
+  "city": "city",
+  "birth_province": "region",
+  "region": "region",
   "place": "place_of_martyrdom",
   "place_of_martyrdom": "place_of_martyrdom",
   "conflict__war": "battle",
