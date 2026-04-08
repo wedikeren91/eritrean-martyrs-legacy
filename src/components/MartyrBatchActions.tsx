@@ -7,26 +7,27 @@ type MartyrProfile = {
   id: string;
   first_name: string;
   last_name: string;
-  affiliation: string;
-  birth_date: string | null;
-  death_date: string | null;
-  birth_city: string | null;
-  birth_province: string | null;
-  status: string;
-  life_story: string | null;
+  category: string | null;
+  date_of_birth: string | null;
+  date_of_death: string | null;
+  city: string | null;
+  region: string | null;
+  status: string | null;
+  bio: string | null;
+  [key: string]: any;
 };
 
 const COLUMNS = [
   { key: "id", header: "id" },
   { key: "first_name", header: "first_name" },
   { key: "last_name", header: "last_name" },
-  { key: "affiliation", header: "affiliation" },
-  { key: "birth_date", header: "birth_date" },
-  { key: "death_date", header: "death_date" },
-  { key: "birth_city", header: "birth_city" },
-  { key: "birth_province", header: "birth_province" },
+  { key: "category", header: "category" },
+  { key: "date_of_birth", header: "date_of_birth" },
+  { key: "date_of_death", header: "date_of_death" },
+  { key: "city", header: "city" },
+  { key: "region", header: "region" },
   { key: "status", header: "status" },
-  { key: "life_story", header: "life_story" },
+  { key: "bio", header: "bio" },
 ] as const;
 
 // ── Export ────────────────────────────────────────────────────────────────────
@@ -49,13 +50,13 @@ export async function exportProfiles(profiles: MartyrProfile[]) {
       id: p.id,
       first_name: p.first_name,
       last_name: p.last_name,
-      affiliation: p.affiliation,
-      birth_date: p.birth_date ?? "",
-      death_date: p.death_date ?? "",
-      birth_city: p.birth_city ?? "",
-      birth_province: p.birth_province ?? "",
-      status: p.status,
-      life_story: p.life_story ?? "",
+      category: p.category ?? "",
+      date_of_birth: p.date_of_birth ?? "",
+      date_of_death: p.date_of_death ?? "",
+      city: p.city ?? "",
+      region: p.region ?? "",
+      status: p.status ?? "",
+      bio: p.bio ?? "",
     });
   });
 
