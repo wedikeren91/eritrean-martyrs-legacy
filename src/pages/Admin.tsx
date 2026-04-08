@@ -332,38 +332,41 @@ export default function Admin() {
   );
 }
 
-// ── Martyr Profiles Panel ─────────────────────────────────────────────────────
+// ── Martyr Profiles Panel (reads from persons – single source of truth) ───────
 type MartyrProfile = {
   id: string;
   first_name: string;
   last_name: string;
-  affiliation: string;
+  slug: string;
+  category: string | null;   // was "affiliation" in legacy table
   gender: string;
-  birth_date: string | null;
-  death_date: string | null;
-  birth_city: string | null;
-  birth_province: string | null;
-  profile_picture_url: string | null;
-  life_story: string | null;
-  verification_document_url: string | null;
-  status: string;
+  date_of_birth: string | null;
+  date_of_death: string | null;
+  city: string | null;
+  region: string | null;
+  photo_url: string | null;
+  bio: string | null;
+  status: string | null;
   submitted_by: string | null;
   created_at: string;
   is_public: boolean;
+  deleted_at: string | null;
 };
 
-type EditFields = Pick<
-  MartyrProfile,
-  | "first_name"
-  | "last_name"
-  | "affiliation"
-  | "gender"
-  | "birth_date"
-  | "death_date"
-  | "birth_city"
-  | "birth_province"
-  | "status"
->;
+// Alias helpers so the rest of the component can still use the old names
+const affiliation = (p: MartyrProfile) => p.category ?? "—";
+
+type EditFields = {
+  first_name: string;
+  last_name: string;
+  category: string;
+  gender: string;
+  date_of_birth: string | null;
+  date_of_death: string | null;
+  city: string | null;
+  region: string | null;
+  status: string;
+};
 
 function MartyrProfilesPanel({
   isFounder,
