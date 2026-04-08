@@ -195,7 +195,7 @@ function normalizeDateValue(value: ParsedImportValue): string {
 }
 
 function normalizeCellValue(value: ParsedImportValue, header: string): string {
-  if (header === "birth_date" || header === "death_date") {
+  if (header === "date_of_birth" || header === "date_of_death" || header === "birth_date" || header === "death_date") {
     return normalizeDateValue(value);
   }
 
