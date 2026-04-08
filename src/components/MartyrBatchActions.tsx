@@ -226,23 +226,19 @@ function mergeRowValues(headers: string[], values: ParsedImportValue[]) {
   return row;
 }
 
-function normalizeAffiliationValue(value?: string | null) {
+function normalizeCategoryValue(value?: string | null) {
   const trimmed = value?.trim();
   if (!trimmed) return "Civilian";
 
-  if (ALLOWED_AFFILIATIONS.includes(trimmed as (typeof ALLOWED_AFFILIATIONS)[number])) {
+  if (ALLOWED_CATEGORIES.includes(trimmed as (typeof ALLOWED_CATEGORIES)[number])) {
     return trimmed;
   }
 
   const upper = trimmed.toUpperCase();
-  const elfIndex = upper.indexOf("ELF");
-  const eplfIndex = upper.indexOf("EPLF");
-
-  if (elfIndex === -1 && eplfIndex === -1) return "Civilian";
-  if (elfIndex === -1) return "EPLF";
-  if (eplfIndex === -1) return "ELF";
-
-  return elfIndex < eplfIndex ? "ELF" : "EPLF";
+  if (upper.includes("EPLF")) return "EPLF";
+  if (upper.includes("ELF")) return "ELF";
+  if (upper.includes("PLF")) return "PLF";
+  return "Civilian";
 }
 
 function normalizeReviewStatus(value?: string | null) {
