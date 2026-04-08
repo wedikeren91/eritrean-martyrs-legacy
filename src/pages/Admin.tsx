@@ -626,15 +626,18 @@ function MartyrProfilesPanel({
                   </td>
                   <td className="px-2 py-2">
                     <select
-                      value={editFields.affiliation}
+                      value={editFields.category}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, affiliation: e.target.value }))
+                        setEditFields((f) => ({ ...f, category: e.target.value }))
                       }
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
                     >
                       <option>ELF</option>
                       <option>EPLF</option>
+                      <option>PLF</option>
                       <option>Civilian</option>
+                      <option>Unknown</option>
+                      <option>Other</option>
                     </select>
                   </td>
                   <td className="px-2 py-2">
@@ -653,9 +656,9 @@ function MartyrProfilesPanel({
                   <td className="px-2 py-2">
                     <input
                       type="date"
-                      value={editFields.birth_date ?? ""}
+                      value={editFields.date_of_birth ?? ""}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, birth_date: e.target.value || null }))
+                        setEditFields((f) => ({ ...f, date_of_birth: e.target.value || null }))
                       }
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
                     />
@@ -663,18 +666,18 @@ function MartyrProfilesPanel({
                   <td className="px-2 py-2">
                     <input
                       type="date"
-                      value={editFields.death_date ?? ""}
+                      value={editFields.date_of_death ?? ""}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, death_date: e.target.value || null }))
+                        setEditFields((f) => ({ ...f, date_of_death: e.target.value || null }))
                       }
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
                     />
                   </td>
                   <td className="px-2 py-2">
                     <input
-                      value={editFields.birth_city ?? ""}
+                      value={editFields.city ?? ""}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, birth_city: e.target.value || null }))
+                        setEditFields((f) => ({ ...f, city: e.target.value || null }))
                       }
                       placeholder="City"
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
@@ -682,11 +685,11 @@ function MartyrProfilesPanel({
                   </td>
                   <td className="px-2 py-2">
                     <input
-                      value={editFields.birth_province ?? ""}
+                      value={editFields.region ?? ""}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, birth_province: e.target.value || null }))
+                        setEditFields((f) => ({ ...f, region: e.target.value || null }))
                       }
-                      placeholder="Province"
+                      placeholder="Region"
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
                     />
                   </td>
