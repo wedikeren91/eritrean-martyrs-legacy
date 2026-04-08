@@ -409,20 +409,24 @@ function MartyrProfilesPanel({
   const fetchProfiles = useCallback(async () => {
     setLoading(true);
     let q = supabase
-      .from("martyr_profiles" as never)
+      .from("persons")
       .select("*")
+      .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .limit(2000);
 
     if (filterAffiliation !== "All") {
-      q = (q as any).eq("affiliation", filterAffiliation);
+      q = q.eq("category", filterAffiliation);
     }
     if (filterStatus !== "All") {
-      q = (q as any).eq("status", filterStatus);
+      q = q.eq("status", filterStatus);
     }
 
-    const { data } = await (q as any);
-    let results = ((data as any[]) ?? []).map((row) => ({ ...row, is_public: row.is_public ?? true })) as MartyrProfile[];
+    const { data } = await q;
+    let results = ((data as any[]) ?? []).map((row) => ({
+      ...row,
+      is_public: row.is_public ?? true,
+    })) as MartyrProfile[];
 
     if (search.trim()) {
       const term = search.toLowerCase();
@@ -446,13 +450,13 @@ function MartyrProfilesPanel({
     setEditFields({
       first_name: p.first_name,
       last_name: p.last_name,
-      affiliation: p.affiliation,
+      category: p.category ?? "Unknown",
       gender: p.gender || "Unknown",
-      birth_date: p.birth_date,
-      death_date: p.death_date,
-      birth_city: p.birth_city,
-      birth_province: p.birth_province,
-      status: p.status,
+      date_of_birth: p.date_of_birth,
+      date_of_death: p.date_of_death,
+      city: p.city,
+      region: p.region,
+      status: p.status ?? "Pending",
     });
   };
 
@@ -462,15 +466,15 @@ function MartyrProfilesPanel({
 
   const saveEdit = async (id: string) => {
     setSaving(true);
-    const { error } = await (supabase.from("martyr_profiles" as never) as any).update({
+    const { error } = await supabase.from("persons").update({
       first_name: editFields.first_name,
       last_name: editFields.last_name,
-      affiliation: editFields.affiliation,
+      category: editFields.category,
       gender: editFields.gender,
-      birth_date: editFields.birth_date || null,
-      death_date: editFields.death_date || null,
-      birth_city: editFields.birth_city || null,
-      birth_province: editFields.birth_province || null,
+      date_of_birth: editFields.date_of_birth || null,
+      date_of_death: editFields.date_of_death || null,
+      city: editFields.city || null,
+      region: editFields.region || null,
       status: editFields.status,
     }).eq("id", id);
 
@@ -484,7 +488,7 @@ function MartyrProfilesPanel({
   };
 
   const approveProfile = async (p: MartyrProfile) => {
-    const { error } = await (supabase.from("martyr_profiles" as never) as any)
+    const { error } = await supabase.from("persons")
       .update({ status: "Approved" })
       .eq("id", p.id);
     if (error) alert("Approve failed: " + error.message);
@@ -494,9 +498,8 @@ function MartyrProfilesPanel({
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
-    const { error } = await (supabase.from("martyr_profiles" as never) as any)
-      .delete()
-      .eq("id", deleteTarget.id);
+    // Soft-delete via RPC
+    const { error } = await supabase.rpc("soft_delete_person", { _person_id: deleteTarget.id });
     if (error) {
       alert("Delete failed: " + error.message);
     } else {
