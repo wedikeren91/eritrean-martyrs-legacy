@@ -371,9 +371,14 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
             <p>
               <span className="font-semibold text-primary">{result.updated}</span> profiles updated
             </p>
+            {result.skipped > 0 && (
+              <p className="text-muted-foreground">
+                <span className="font-semibold text-foreground">{result.skipped}</span> duplicates skipped
+              </p>
+            )}
             {result.errors > 0 && (
               <p className="text-destructive">
-                <span className="font-semibold">{result.errors}</span> rows skipped due to errors
+                <span className="font-semibold">{result.errors}</span> rows failed
               </p>
             )}
           </div>
