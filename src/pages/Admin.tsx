@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import MartyrImportModal, { exportProfiles } from "@/components/MartyrBatchActions";
 import { CATEGORIES } from "@/data/martyrs";
+import { toast } from "@/components/ui/use-toast";
 
 type DeputyPermission = "approve_profile" | "modify_profile" | "delete_profile";
 
@@ -383,6 +384,7 @@ function MartyrProfilesPanel({
   const [search, setSearch] = useState("");
   const [filterAffiliation, setFilterAffiliation] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [visibilityLoadingId, setVisibilityLoadingId] = useState<string | null>(null);
 
   // Inline editing
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -429,11 +431,17 @@ function MartyrProfilesPanel({
     })) as MartyrProfile[];
 
     if (search.trim()) {
-      const term = search.toLowerCase();
+      const term = search.trim().toLowerCase();
       results = results.filter(
-        (p) =>
-          p.first_name.toLowerCase().includes(term) ||
-          p.last_name.toLowerCase().includes(term)
+        (p) => {
+          const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
+          return (
+            p.first_name.toLowerCase().includes(term) ||
+            p.last_name.toLowerCase().includes(term) ||
+            fullName.includes(term) ||
+            p.slug.toLowerCase().includes(term)
+          );
+        }
       );
     }
 
@@ -444,6 +452,33 @@ function MartyrProfilesPanel({
   useEffect(() => {
     fetchProfiles();
   }, [fetchProfiles]);
+
+  const toggleVisibility = async (profile: MartyrProfile) => {
+    const newVal = !profile.is_public;
+    setVisibilityLoadingId(profile.id);
+
+    const { data, error } = await supabase
+      .from("persons")
+      .update({ is_public: newVal })
+      .eq("id", profile.id)
+      .select("id, is_public")
+      .single();
+
+    if (error || !data) {
+      toast({
+        title: "Could not update visibility",
+        description: error?.message ?? "Please try again.",
+      });
+      setVisibilityLoadingId(null);
+      return;
+    }
+
+    setProfiles((prev) => prev.map((x) => x.id === profile.id ? { ...x, is_public: data.is_public } : x));
+    toast({
+      title: data.is_public ? "Record is now public" : "Record is now private",
+    });
+    setVisibilityLoadingId(null);
+  };
 
   const startEdit = (p: MartyrProfile) => {
     setEditingId(p.id);
@@ -790,18 +825,15 @@ function MartyrProfilesPanel({
                       {/* Toggle Public/Private */}
                       {canEdit && (
                         <button
-                          onClick={async () => {
-                            const newVal = !p.is_public;
-                            await supabase.from("persons").update({ is_public: newVal }).eq("id", p.id);
-                            setProfiles((prev) => prev.map((x) => x.id === p.id ? { ...x, is_public: newVal } : x));
-                          }}
-                          className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors border ${
+                          onClick={() => toggleVisibility(p)}
+                          disabled={visibilityLoadingId === p.id}
+                          className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors border disabled:opacity-60 disabled:cursor-not-allowed ${
                             p.is_public
                               ? "border-emerald-600/40 text-emerald-700 hover:bg-emerald-50"
                               : "border-muted-foreground/30 text-muted-foreground hover:bg-muted"
                           }`}
                         >
-                          {p.is_public ? "✓ Public" : "Private"}
+                          {visibilityLoadingId === p.id ? "Saving…" : p.is_public ? "✓ Public" : "Private"}
                         </button>
                        )}
                       {!canEdit && !canDelete && !canApprove && (
