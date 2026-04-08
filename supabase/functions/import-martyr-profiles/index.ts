@@ -8,8 +8,7 @@ const corsHeaders = {
 
 type ImportRow = Record<string, unknown>;
 
-const ALLOWED_AFFILIATIONS = new Set(["ELF", "EPLF", "Civilian"]);
-const ALLOWED_REVIEW_STATUSES = ["Pending", "Approved", "Rejected"] as const;
+const ALLOWED_CATEGORIES = new Set(["ELF", "EPLF", "PLF", "Civilian", "Unknown", "Other"]);
 
 function normalizeString(value: unknown) {
   if (value === null || value === undefined) return "";
@@ -48,43 +47,48 @@ function normalizeDateValue(value: unknown): string | null {
   return Number.isNaN(parsed.getTime()) ? null : formatDateOnly(parsed);
 }
 
-function normalizeAffiliationValue(value: unknown) {
+function normalizeCategoryValue(value: unknown) {
   const trimmed = normalizeString(value);
   if (!trimmed) return "Civilian";
-  if (ALLOWED_AFFILIATIONS.has(trimmed)) return trimmed;
+  if (ALLOWED_CATEGORIES.has(trimmed)) return trimmed;
 
   const upper = trimmed.toUpperCase();
   if (upper.includes("EPLF")) return "EPLF";
   if (upper.includes("ELF")) return "ELF";
+  if (upper.includes("PLF")) return "PLF";
   return "Civilian";
-}
-
-function normalizeReviewStatus(value: unknown) {
-  const trimmed = normalizeString(value);
-  if (!trimmed) return "Pending";
-
-  const matched = ALLOWED_REVIEW_STATUSES.find(
-    (allowed) => allowed.toLowerCase() === trimmed.toLowerCase(),
-  );
-
-  return matched ?? "Pending";
 }
 
 function isUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
+function generateSlug(firstName: string, lastName: string) {
+  const base = `${firstName}-${lastName}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const suffix = crypto.randomUUID().slice(0, 8);
+  return `${base}-${suffix}`;
+}
+
 interface NormalizedRow {
   id?: string;
   first_name: string;
   last_name: string;
-  affiliation: string;
-  birth_date: string | null;
-  death_date: string | null;
-  birth_city: string | null;
-  birth_province: string | null;
-  status: string;
-  life_story: string | null;
+  slug: string;
+  category: string;
+  gender: string;
+  date_of_birth: string | null;
+  date_of_death: string | null;
+  city: string | null;
+  region: string | null;
+  status: string | null;
+  bio: string | null;
+  rank: string | null;
+  role: string | null;
+  known_as: string | null;
+  battle: string | null;
+  place_of_martyrdom: string | null;
+  quote: string | null;
+  significance: string | null;
   submitted_by: string;
 }
 
@@ -130,7 +134,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: roleError.message }, { status: 500, headers: corsHeaders });
     }
 
-    const roles = (roleRows ?? []).map((row) => row.role);
+    const roles = (roleRows ?? []).map((row: any) => row.role);
     const canImport = roles.includes("founder") || roles.includes("org_admin");
     if (!canImport) {
       return Response.json({ error: "Only founders and admins can import profiles." }, {
@@ -154,17 +158,29 @@ Deno.serve(async (req) => {
         continue;
       }
 
+      const lastName = normalizeString(rawRow.last_name) || "Unknown";
+
+      // Support both old field names (affiliation, birth_date, etc.) and new ones (category, date_of_birth, etc.)
       normalized.push({
         id: normalizeString(rawRow.id) || undefined,
         first_name: firstName,
-        last_name: normalizeString(rawRow.last_name) || "Unknown",
-        affiliation: normalizeAffiliationValue(rawRow.affiliation),
-        birth_date: normalizeDateValue(rawRow.birth_date),
-        death_date: normalizeDateValue(rawRow.death_date),
-        birth_city: normalizeNullableString(rawRow.birth_city),
-        birth_province: normalizeNullableString(rawRow.birth_province),
-        status: normalizeReviewStatus(rawRow.status),
-        life_story: normalizeNullableString(rawRow.life_story),
+        last_name: lastName,
+        slug: generateSlug(firstName, lastName),
+        category: normalizeCategoryValue(rawRow.category ?? rawRow.affiliation),
+        gender: normalizeString(rawRow.gender) || "Unknown",
+        date_of_birth: normalizeDateValue(rawRow.date_of_birth ?? rawRow.birth_date),
+        date_of_death: normalizeDateValue(rawRow.date_of_death ?? rawRow.death_date),
+        city: normalizeNullableString(rawRow.city ?? rawRow.birth_city),
+        region: normalizeNullableString(rawRow.region ?? rawRow.birth_province),
+        status: normalizeNullableString(rawRow.status) || "Deceased",
+        bio: normalizeNullableString(rawRow.bio ?? rawRow.life_story),
+        rank: normalizeNullableString(rawRow.rank),
+        role: normalizeNullableString(rawRow.role ?? rawRow.role_context),
+        known_as: normalizeNullableString(rawRow.known_as),
+        battle: normalizeNullableString(rawRow.battle),
+        place_of_martyrdom: normalizeNullableString(rawRow.place_of_martyrdom),
+        quote: normalizeNullableString(rawRow.quote),
+        significance: normalizeNullableString(rawRow.significance),
         submitted_by: user.id,
       });
     }
@@ -177,24 +193,24 @@ Deno.serve(async (req) => {
     let updated = 0;
     let skipped = 0;
 
-    // ── Step 3: Handle rows WITH existing IDs (bulk upsert) ──
+    // ── Step 3: Handle rows WITH existing IDs (update in persons) ──
     if (withId.length > 0) {
       const existingIds = withId.map((r) => r.id!);
       const { data: existing } = await adminClient
-        .from("martyr_profiles")
+        .from("persons")
         .select("id")
         .in("id", existingIds);
 
-      const existingSet = new Set((existing ?? []).map((e) => e.id));
+      const existingSet = new Set((existing ?? []).map((e: any) => e.id));
 
       const toUpdate = withId.filter((r) => existingSet.has(r.id!));
       const toInsertWithId = withId.filter((r) => !existingSet.has(r.id!));
 
-      // Bulk update existing
+      // Update existing
       for (const row of toUpdate) {
-        const { id, ...payload } = row;
+        const { id, slug: _slug, ...payload } = row;
         const { error: updateError } = await adminClient
-          .from("martyr_profiles").update(payload).eq("id", id!);
+          .from("persons").update(payload).eq("id", id!);
         if (updateError) {
           errors++;
           errorMessages.push(`Update ${row.first_name} ${row.last_name}: ${updateError.message}`);
@@ -203,12 +219,11 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Bulk insert rows with specified IDs
+      // Insert rows with specified IDs
       if (toInsertWithId.length > 0) {
-        const { error: insertError, count } = await adminClient
-          .from("martyr_profiles")
-          .insert(toInsertWithId.map((r) => ({ id: r.id, ...r })))
-          .select("id");
+        const { error: insertError } = await adminClient
+          .from("persons")
+          .insert(toInsertWithId.map((r) => ({ id: r.id, ...r })));
         if (insertError) {
           errors += toInsertWithId.length;
           errorMessages.push(`Bulk insert (with ID): ${insertError.message}`);
@@ -220,25 +235,25 @@ Deno.serve(async (req) => {
 
     // ── Step 4: Handle rows WITHOUT IDs — dedup check then bulk insert ──
     if (withoutId.length > 0) {
-      // Fetch existing profiles to check for duplicates by first_name + last_name + affiliation
+      // Fetch existing persons to check for duplicates by first_name + last_name + category
       const { data: allExisting } = await adminClient
-        .from("martyr_profiles")
-        .select("first_name, last_name, affiliation");
+        .from("persons")
+        .select("first_name, last_name, category")
+        .is("deleted_at", null);
 
       const existingKeys = new Set(
-        (allExisting ?? []).map((e) =>
-          `${e.first_name.toLowerCase()}|${e.last_name.toLowerCase()}|${e.affiliation.toLowerCase()}`
+        (allExisting ?? []).map((e: any) =>
+          `${e.first_name.toLowerCase()}|${e.last_name.toLowerCase()}|${(e.category || "").toLowerCase()}`
         ),
       );
 
       const toInsert: Omit<NormalizedRow, "id">[] = [];
       for (const row of withoutId) {
-        const key = `${row.first_name.toLowerCase()}|${row.last_name.toLowerCase()}|${row.affiliation.toLowerCase()}`;
+        const key = `${row.first_name.toLowerCase()}|${row.last_name.toLowerCase()}|${row.category.toLowerCase()}`;
         if (existingKeys.has(key)) {
           skipped++;
           continue;
         }
-        // Add to dedup set so we don't insert duplicates within the same batch
         existingKeys.add(key);
         const { id: _id, ...payload } = row;
         toInsert.push(payload);
@@ -249,7 +264,7 @@ Deno.serve(async (req) => {
       for (let i = 0; i < toInsert.length; i += CHUNK) {
         const chunk = toInsert.slice(i, i + CHUNK);
         const { error: insertError } = await adminClient
-          .from("martyr_profiles")
+          .from("persons")
           .insert(chunk);
         if (insertError) {
           errors += chunk.length;
