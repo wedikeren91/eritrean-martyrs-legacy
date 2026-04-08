@@ -7,26 +7,27 @@ type MartyrProfile = {
   id: string;
   first_name: string;
   last_name: string;
-  affiliation: string;
-  birth_date: string | null;
-  death_date: string | null;
-  birth_city: string | null;
-  birth_province: string | null;
-  status: string;
-  life_story: string | null;
+  category: string | null;
+  date_of_birth: string | null;
+  date_of_death: string | null;
+  city: string | null;
+  region: string | null;
+  status: string | null;
+  bio: string | null;
+  [key: string]: any;
 };
 
 const COLUMNS = [
   { key: "id", header: "id" },
   { key: "first_name", header: "first_name" },
   { key: "last_name", header: "last_name" },
-  { key: "affiliation", header: "affiliation" },
-  { key: "birth_date", header: "birth_date" },
-  { key: "death_date", header: "death_date" },
-  { key: "birth_city", header: "birth_city" },
-  { key: "birth_province", header: "birth_province" },
+  { key: "category", header: "category" },
+  { key: "date_of_birth", header: "date_of_birth" },
+  { key: "date_of_death", header: "date_of_death" },
+  { key: "city", header: "city" },
+  { key: "region", header: "region" },
   { key: "status", header: "status" },
-  { key: "life_story", header: "life_story" },
+  { key: "bio", header: "bio" },
 ] as const;
 
 // ── Export ────────────────────────────────────────────────────────────────────
@@ -49,13 +50,13 @@ export async function exportProfiles(profiles: MartyrProfile[]) {
       id: p.id,
       first_name: p.first_name,
       last_name: p.last_name,
-      affiliation: p.affiliation,
-      birth_date: p.birth_date ?? "",
-      death_date: p.death_date ?? "",
-      birth_city: p.birth_city ?? "",
-      birth_province: p.birth_province ?? "",
-      status: p.status,
-      life_story: p.life_story ?? "",
+      category: p.category ?? "",
+      date_of_birth: p.date_of_birth ?? "",
+      date_of_death: p.date_of_death ?? "",
+      city: p.city ?? "",
+      region: p.region ?? "",
+      status: p.status ?? "",
+      bio: p.bio ?? "",
     });
   });
 
@@ -114,7 +115,7 @@ export async function downloadTemplate() {
 type ParsedImportValue = string | number | boolean | Date | null | undefined;
 type ParsedImportRow = Record<string, string>;
 
-const ALLOWED_AFFILIATIONS = ["ELF", "EPLF", "Civilian"] as const;
+const ALLOWED_CATEGORIES = ["ELF", "EPLF", "PLF", "Civilian", "Unknown", "Other"] as const;
 const ALLOWED_REVIEW_STATUSES = ["Pending", "Approved", "Rejected"] as const;
 const IMPORT_CHUNK_SIZE = 50;
 
@@ -122,19 +123,23 @@ const IMPORT_ALIASES: Record<string, string> = {
   "known_as__nickname": "known_as",
   "known_as_nickname": "known_as",
   "nickname": "known_as",
-  "organization": "affiliation",
-  "category": "affiliation",
-  "organisation": "affiliation",
+  "organization": "category",
+  "affiliation": "category",
+  "organisation": "category",
   "role__context": "role_context",
-  "date_of_sacrifice": "death_date",
-  "date_of_death": "death_date",
-  "date_of_birth": "birth_date",
+  "date_of_sacrifice": "date_of_death",
+  "death_date": "date_of_death",
+  "date_of_death": "date_of_death",
+  "birth_date": "date_of_birth",
+  "date_of_birth": "date_of_birth",
   "military_rank": "rank",
-  "life_story": "life_story",
-  "bio": "life_story",
+  "life_story": "bio",
+  "bio": "bio",
   "notable_quote": "quote",
-  "city": "birth_city",
-  "region": "birth_province",
+  "birth_city": "city",
+  "city": "city",
+  "birth_province": "region",
+  "region": "region",
   "place": "place_of_martyrdom",
   "place_of_martyrdom": "place_of_martyrdom",
   "conflict__war": "battle",
@@ -190,7 +195,7 @@ function normalizeDateValue(value: ParsedImportValue): string {
 }
 
 function normalizeCellValue(value: ParsedImportValue, header: string): string {
-  if (header === "birth_date" || header === "death_date") {
+  if (header === "date_of_birth" || header === "date_of_death" || header === "birth_date" || header === "death_date") {
     return normalizeDateValue(value);
   }
 
@@ -221,23 +226,19 @@ function mergeRowValues(headers: string[], values: ParsedImportValue[]) {
   return row;
 }
 
-function normalizeAffiliationValue(value?: string | null) {
+function normalizeCategoryValue(value?: string | null) {
   const trimmed = value?.trim();
   if (!trimmed) return "Civilian";
 
-  if (ALLOWED_AFFILIATIONS.includes(trimmed as (typeof ALLOWED_AFFILIATIONS)[number])) {
+  if (ALLOWED_CATEGORIES.includes(trimmed as (typeof ALLOWED_CATEGORIES)[number])) {
     return trimmed;
   }
 
   const upper = trimmed.toUpperCase();
-  const elfIndex = upper.indexOf("ELF");
-  const eplfIndex = upper.indexOf("EPLF");
-
-  if (elfIndex === -1 && eplfIndex === -1) return "Civilian";
-  if (elfIndex === -1) return "EPLF";
-  if (eplfIndex === -1) return "ELF";
-
-  return elfIndex < eplfIndex ? "ELF" : "EPLF";
+  if (upper.includes("EPLF")) return "EPLF";
+  if (upper.includes("ELF")) return "ELF";
+  if (upper.includes("PLF")) return "PLF";
+  return "Civilian";
 }
 
 function normalizeReviewStatus(value?: string | null) {

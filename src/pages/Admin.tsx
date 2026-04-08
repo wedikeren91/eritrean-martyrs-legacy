@@ -332,38 +332,41 @@ export default function Admin() {
   );
 }
 
-// ── Martyr Profiles Panel ─────────────────────────────────────────────────────
+// ── Martyr Profiles Panel (reads from persons – single source of truth) ───────
 type MartyrProfile = {
   id: string;
   first_name: string;
   last_name: string;
-  affiliation: string;
+  slug: string;
+  category: string | null;   // was "affiliation" in legacy table
   gender: string;
-  birth_date: string | null;
-  death_date: string | null;
-  birth_city: string | null;
-  birth_province: string | null;
-  profile_picture_url: string | null;
-  life_story: string | null;
-  verification_document_url: string | null;
-  status: string;
+  date_of_birth: string | null;
+  date_of_death: string | null;
+  city: string | null;
+  region: string | null;
+  photo_url: string | null;
+  bio: string | null;
+  status: string | null;
   submitted_by: string | null;
   created_at: string;
   is_public: boolean;
+  deleted_at: string | null;
 };
 
-type EditFields = Pick<
-  MartyrProfile,
-  | "first_name"
-  | "last_name"
-  | "affiliation"
-  | "gender"
-  | "birth_date"
-  | "death_date"
-  | "birth_city"
-  | "birth_province"
-  | "status"
->;
+// Alias helpers so the rest of the component can still use the old names
+const affiliation = (p: MartyrProfile) => p.category ?? "—";
+
+type EditFields = {
+  first_name: string;
+  last_name: string;
+  category: string;
+  gender: string;
+  date_of_birth: string | null;
+  date_of_death: string | null;
+  city: string | null;
+  region: string | null;
+  status: string;
+};
 
 function MartyrProfilesPanel({
   isFounder,
@@ -386,12 +389,12 @@ function MartyrProfilesPanel({
   const [editFields, setEditFields] = useState<EditFields>({
     first_name: "",
     last_name: "",
-    affiliation: "ELF",
+    category: "ELF",
     gender: "Unknown",
-    birth_date: null,
-    death_date: null,
-    birth_city: null,
-    birth_province: null,
+    date_of_birth: null,
+    date_of_death: null,
+    city: null,
+    region: null,
     status: "Pending",
   });
   const [saving, setSaving] = useState(false);
@@ -406,20 +409,24 @@ function MartyrProfilesPanel({
   const fetchProfiles = useCallback(async () => {
     setLoading(true);
     let q = supabase
-      .from("martyr_profiles" as never)
+      .from("persons")
       .select("*")
+      .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .limit(2000);
 
     if (filterAffiliation !== "All") {
-      q = (q as any).eq("affiliation", filterAffiliation);
+      q = q.eq("category", filterAffiliation);
     }
     if (filterStatus !== "All") {
-      q = (q as any).eq("status", filterStatus);
+      q = q.eq("status", filterStatus);
     }
 
-    const { data } = await (q as any);
-    let results = ((data as any[]) ?? []).map((row) => ({ ...row, is_public: row.is_public ?? true })) as MartyrProfile[];
+    const { data } = await q;
+    let results = ((data as any[]) ?? []).map((row) => ({
+      ...row,
+      is_public: row.is_public ?? true,
+    })) as MartyrProfile[];
 
     if (search.trim()) {
       const term = search.toLowerCase();
@@ -443,13 +450,13 @@ function MartyrProfilesPanel({
     setEditFields({
       first_name: p.first_name,
       last_name: p.last_name,
-      affiliation: p.affiliation,
+      category: p.category ?? "Unknown",
       gender: p.gender || "Unknown",
-      birth_date: p.birth_date,
-      death_date: p.death_date,
-      birth_city: p.birth_city,
-      birth_province: p.birth_province,
-      status: p.status,
+      date_of_birth: p.date_of_birth,
+      date_of_death: p.date_of_death,
+      city: p.city,
+      region: p.region,
+      status: p.status ?? "Pending",
     });
   };
 
@@ -459,15 +466,15 @@ function MartyrProfilesPanel({
 
   const saveEdit = async (id: string) => {
     setSaving(true);
-    const { error } = await (supabase.from("martyr_profiles" as never) as any).update({
+    const { error } = await supabase.from("persons").update({
       first_name: editFields.first_name,
       last_name: editFields.last_name,
-      affiliation: editFields.affiliation,
+      category: editFields.category,
       gender: editFields.gender,
-      birth_date: editFields.birth_date || null,
-      death_date: editFields.death_date || null,
-      birth_city: editFields.birth_city || null,
-      birth_province: editFields.birth_province || null,
+      date_of_birth: editFields.date_of_birth || null,
+      date_of_death: editFields.date_of_death || null,
+      city: editFields.city || null,
+      region: editFields.region || null,
       status: editFields.status,
     }).eq("id", id);
 
@@ -481,7 +488,7 @@ function MartyrProfilesPanel({
   };
 
   const approveProfile = async (p: MartyrProfile) => {
-    const { error } = await (supabase.from("martyr_profiles" as never) as any)
+    const { error } = await supabase.from("persons")
       .update({ status: "Approved" })
       .eq("id", p.id);
     if (error) alert("Approve failed: " + error.message);
@@ -491,9 +498,8 @@ function MartyrProfilesPanel({
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
-    const { error } = await (supabase.from("martyr_profiles" as never) as any)
-      .delete()
-      .eq("id", deleteTarget.id);
+    // Soft-delete via RPC
+    const { error } = await supabase.rpc("soft_delete_person", { _person_id: deleteTarget.id });
     if (error) {
       alert("Delete failed: " + error.message);
     } else {
@@ -583,12 +589,12 @@ function MartyrProfilesPanel({
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left data-label">Full Name</th>
-              <th className="px-4 py-3 text-left data-label">Affiliation</th>
+              <th className="px-4 py-3 text-left data-label">Category</th>
               <th className="px-4 py-3 text-left data-label">Gender</th>
               <th className="px-4 py-3 text-left data-label">Birth Date</th>
               <th className="px-4 py-3 text-left data-label">Death Date</th>
-              <th className="px-4 py-3 text-left data-label">Birth City</th>
-              <th className="px-4 py-3 text-left data-label">Birth Province</th>
+              <th className="px-4 py-3 text-left data-label">City</th>
+              <th className="px-4 py-3 text-left data-label">Region</th>
               <th className="px-4 py-3 text-left data-label">Status</th>
               <th className="px-4 py-3 text-left data-label">Actions</th>
             </tr>
@@ -620,15 +626,18 @@ function MartyrProfilesPanel({
                   </td>
                   <td className="px-2 py-2">
                     <select
-                      value={editFields.affiliation}
+                      value={editFields.category}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, affiliation: e.target.value }))
+                        setEditFields((f) => ({ ...f, category: e.target.value }))
                       }
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
                     >
                       <option>ELF</option>
                       <option>EPLF</option>
+                      <option>PLF</option>
                       <option>Civilian</option>
+                      <option>Unknown</option>
+                      <option>Other</option>
                     </select>
                   </td>
                   <td className="px-2 py-2">
@@ -647,9 +656,9 @@ function MartyrProfilesPanel({
                   <td className="px-2 py-2">
                     <input
                       type="date"
-                      value={editFields.birth_date ?? ""}
+                      value={editFields.date_of_birth ?? ""}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, birth_date: e.target.value || null }))
+                        setEditFields((f) => ({ ...f, date_of_birth: e.target.value || null }))
                       }
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
                     />
@@ -657,18 +666,18 @@ function MartyrProfilesPanel({
                   <td className="px-2 py-2">
                     <input
                       type="date"
-                      value={editFields.death_date ?? ""}
+                      value={editFields.date_of_death ?? ""}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, death_date: e.target.value || null }))
+                        setEditFields((f) => ({ ...f, date_of_death: e.target.value || null }))
                       }
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
                     />
                   </td>
                   <td className="px-2 py-2">
                     <input
-                      value={editFields.birth_city ?? ""}
+                      value={editFields.city ?? ""}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, birth_city: e.target.value || null }))
+                        setEditFields((f) => ({ ...f, city: e.target.value || null }))
                       }
                       placeholder="City"
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
@@ -676,11 +685,11 @@ function MartyrProfilesPanel({
                   </td>
                   <td className="px-2 py-2">
                     <input
-                      value={editFields.birth_province ?? ""}
+                      value={editFields.region ?? ""}
                       onChange={(e) =>
-                        setEditFields((f) => ({ ...f, birth_province: e.target.value || null }))
+                        setEditFields((f) => ({ ...f, region: e.target.value || null }))
                       }
-                      placeholder="Province"
+                      placeholder="Region"
                       className="bg-background border border-border px-2 py-1 text-xs focus:outline-none focus:border-foreground w-full"
                     />
                   </td>
@@ -724,7 +733,7 @@ function MartyrProfilesPanel({
                   </td>
                   <td className="px-4 py-3">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {p.affiliation}
+                      {affiliation(p)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -735,18 +744,18 @@ function MartyrProfilesPanel({
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono">
-                    {p.birth_date ?? "—"}
+                    {p.date_of_birth ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono">
-                    {p.death_date ?? "—"}
+                    {p.date_of_death ?? "—"}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.birth_city ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.birth_province ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.city ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.region ?? "—"}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 ${statusBadge(p.status)}`}
+                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 ${statusBadge(p.status ?? "")}`}
                     >
-                      {p.status}
+                      {p.status ?? "—"}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -783,7 +792,7 @@ function MartyrProfilesPanel({
                         <button
                           onClick={async () => {
                             const newVal = !p.is_public;
-                            await (supabase.from("martyr_profiles" as never) as any).update({ is_public: newVal }).eq("id", p.id);
+                            await supabase.from("persons").update({ is_public: newVal }).eq("id", p.id);
                             setProfiles((prev) => prev.map((x) => x.id === p.id ? { ...x, is_public: newVal } : x));
                           }}
                           className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors border ${
@@ -852,7 +861,7 @@ function MartyrProfilesPanel({
               <span className="font-semibold text-foreground">
                 {deleteTarget.first_name} {deleteTarget.last_name}
               </span>{" "}
-              · {deleteTarget.affiliation}
+              · {affiliation(deleteTarget)}
             </p>
             <p className="text-xs text-destructive/80 mb-6">
               This action cannot be undone. The profile will be permanently removed from the

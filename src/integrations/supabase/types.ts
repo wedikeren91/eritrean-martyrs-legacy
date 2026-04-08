@@ -291,6 +291,7 @@ export type Database = {
           first_name: string
           gender: string
           id: string
+          is_public: boolean
           known_as: string | null
           last_name: string
           organization_id: string | null
@@ -319,6 +320,7 @@ export type Database = {
           first_name: string
           gender?: string
           id?: string
+          is_public?: boolean
           known_as?: string | null
           last_name: string
           organization_id?: string | null
@@ -347,6 +349,7 @@ export type Database = {
           first_name?: string
           gender?: string
           id?: string
+          is_public?: boolean
           known_as?: string | null
           last_name?: string
           organization_id?: string | null
