@@ -349,6 +349,7 @@ type MartyrProfile = {
   status: string;
   submitted_by: string | null;
   created_at: string;
+  is_public: boolean;
 };
 
 type EditFields = Pick<
@@ -716,9 +717,10 @@ function MartyrProfilesPanel({
                 </tr>
               ) : (
                 // ── Normal Row ────────────────────────────────────────────────
-                <tr key={p.id} className="border-t border-border hover:bg-muted/20 transition-colors">
+                <tr key={p.id} className={`border-t border-border hover:bg-muted/20 transition-colors ${!p.is_public ? "opacity-60" : ""}`}>
                   <td className="px-4 py-3 font-medium">
                     {p.first_name} {p.last_name}
+                    {!p.is_public && <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5">Private</span>}
                   </td>
                   <td className="px-4 py-3">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
