@@ -70,6 +70,7 @@ export function usePersons(query: string, category: string, war = "All", sort: S
         { count: "exact" }
       )
       .is("deleted_at", null)
+      .eq("is_public", true)
       .order(sortCol, { ascending })
       .limit(300);
 
