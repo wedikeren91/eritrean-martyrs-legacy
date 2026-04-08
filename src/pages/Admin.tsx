@@ -589,12 +589,12 @@ function MartyrProfilesPanel({
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left data-label">Full Name</th>
-              <th className="px-4 py-3 text-left data-label">Affiliation</th>
+              <th className="px-4 py-3 text-left data-label">Category</th>
               <th className="px-4 py-3 text-left data-label">Gender</th>
               <th className="px-4 py-3 text-left data-label">Birth Date</th>
               <th className="px-4 py-3 text-left data-label">Death Date</th>
-              <th className="px-4 py-3 text-left data-label">Birth City</th>
-              <th className="px-4 py-3 text-left data-label">Birth Province</th>
+              <th className="px-4 py-3 text-left data-label">City</th>
+              <th className="px-4 py-3 text-left data-label">Region</th>
               <th className="px-4 py-3 text-left data-label">Status</th>
               <th className="px-4 py-3 text-left data-label">Actions</th>
             </tr>
@@ -792,7 +792,7 @@ function MartyrProfilesPanel({
                         <button
                           onClick={async () => {
                             const newVal = !p.is_public;
-                            await (supabase.from("martyr_profiles" as never) as any).update({ is_public: newVal }).eq("id", p.id);
+                            await supabase.from("persons").update({ is_public: newVal }).eq("id", p.id);
                             setProfiles((prev) => prev.map((x) => x.id === p.id ? { ...x, is_public: newVal } : x));
                           }}
                           className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors border ${
