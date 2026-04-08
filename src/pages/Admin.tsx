@@ -419,7 +419,7 @@ function MartyrProfilesPanel({
     }
 
     const { data } = await (q as any);
-    let results = (data as MartyrProfile[]) ?? [];
+    let results = ((data as any[]) ?? []).map((row) => ({ ...row, is_public: row.is_public ?? true })) as MartyrProfile[];
 
     if (search.trim()) {
       const term = search.toLowerCase();
@@ -788,11 +788,11 @@ function MartyrProfilesPanel({
                           }}
                           className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors border ${
                             p.is_public
-                              ? "border-muted-foreground/30 text-muted-foreground hover:bg-muted"
-                              : "border-primary/50 text-primary hover:bg-primary/10"
+                              ? "border-emerald-600/40 text-emerald-700 hover:bg-emerald-50"
+                              : "border-muted-foreground/30 text-muted-foreground hover:bg-muted"
                           }`}
                         >
-                          {p.is_public ? "Make Private" : "Make Public"}
+                          {p.is_public ? "✓ Public" : "Private"}
                         </button>
                        )}
                       {!canEdit && !canDelete && !canApprove && (
