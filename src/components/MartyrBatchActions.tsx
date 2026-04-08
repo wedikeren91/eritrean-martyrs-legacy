@@ -505,6 +505,22 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
             </div>
           )}
 
+          {/* Progress */}
+          {importing && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Importing…</span>
+                <span>{progress.sent} / {progress.total} rows sent</span>
+              </div>
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300"
+                  style={{ width: `${progress.total ? (progress.sent / progress.total) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex items-center gap-4 pt-2 border-t border-border">
             <button
@@ -516,6 +532,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
             </button>
             <button
               onClick={onClose}
+              disabled={importing}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
             >
               Cancel
