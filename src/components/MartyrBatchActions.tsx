@@ -290,8 +290,10 @@ async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
 type ImportResult = {
   added: number;
   updated: number;
+  skipped: number;
   errors: number;
   errorMessages?: string[];
+  total: number;
 };
 
 type Props = { profiles: MartyrProfile[]; onClose: () => void; onDone: () => void };
@@ -302,6 +304,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
   const [fileName, setFileName] = useState("");
   const [parsedRows, setParsedRows] = useState<ParsedImportRow[] | null>(null);
   const [importing, setImporting] = useState(false);
+  const [progress, setProgress] = useState({ sent: 0, total: 0 });
   const [result, setResult] = useState<ImportResult | null>(null);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -321,16 +324,13 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
     if (!parsedRows || !user) return;
     setImporting(true);
 
-    const aggregate: ImportResult = {
-      added: 0,
-      updated: 0,
-      errors: 0,
-      errorMessages: [],
-    };
+    const CHUNK = 200;
+    const aggregate: ImportResult = { added: 0, updated: 0, skipped: 0, errors: 0, errorMessages: [], total: parsedRows.length };
+    setProgress({ sent: 0, total: parsedRows.length });
 
-    for (let index = 0; index < parsedRows.length; index += IMPORT_CHUNK_SIZE) {
-      const chunk = parsedRows.slice(index, index + IMPORT_CHUNK_SIZE);
-      const batchNumber = Math.floor(index / IMPORT_CHUNK_SIZE) + 1;
+    for (let i = 0; i < parsedRows.length; i += CHUNK) {
+      const chunk = parsedRows.slice(i, i + CHUNK);
+      setProgress({ sent: i, total: parsedRows.length });
 
       const { data, error } = await supabase.functions.invoke("import-martyr-profiles", {
         body: { rows: chunk },
@@ -338,25 +338,21 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
 
       if (error) {
         aggregate.errors += chunk.length;
-        aggregate.errorMessages?.push(`Batch ${batchNumber}: ${error.message}`);
+        aggregate.errorMessages?.push(`Batch ${Math.floor(i / CHUNK) + 1}: ${error.message}`);
         continue;
       }
 
       aggregate.added += data?.added ?? 0;
       aggregate.updated += data?.updated ?? 0;
+      aggregate.skipped += data?.skipped ?? 0;
       aggregate.errors += data?.errors ?? 0;
-
       if (data?.errorMessages?.length) {
         aggregate.errorMessages?.push(...data.errorMessages);
       }
     }
 
-    setResult({
-      added: aggregate.added,
-      updated: aggregate.updated,
-      errors: aggregate.errors,
-      errorMessages: aggregate.errorMessages?.slice(0, 8) ?? [],
-    });
+    setProgress({ sent: parsedRows.length, total: parsedRows.length });
+    setResult(aggregate);
     setImporting(false);
   };
 
