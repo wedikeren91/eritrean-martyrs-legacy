@@ -389,12 +389,12 @@ function MartyrProfilesPanel({
   const [editFields, setEditFields] = useState<EditFields>({
     first_name: "",
     last_name: "",
-    affiliation: "ELF",
+    category: "ELF",
     gender: "Unknown",
-    birth_date: null,
-    death_date: null,
-    birth_city: null,
-    birth_province: null,
+    date_of_birth: null,
+    date_of_death: null,
+    city: null,
+    region: null,
     status: "Pending",
   });
   const [saving, setSaving] = useState(false);
