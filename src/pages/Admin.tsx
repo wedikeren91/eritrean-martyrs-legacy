@@ -733,7 +733,7 @@ function MartyrProfilesPanel({
                   </td>
                   <td className="px-4 py-3">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {p.affiliation}
+                      {affiliation(p)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -744,13 +744,13 @@ function MartyrProfilesPanel({
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono">
-                    {p.birth_date ?? "—"}
+                    {p.date_of_birth ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono">
-                    {p.death_date ?? "—"}
+                    {p.date_of_death ?? "—"}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.birth_city ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.birth_province ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.city ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.region ?? "—"}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 ${statusBadge(p.status)}`}
@@ -861,7 +861,7 @@ function MartyrProfilesPanel({
               <span className="font-semibold text-foreground">
                 {deleteTarget.first_name} {deleteTarget.last_name}
               </span>{" "}
-              · {deleteTarget.affiliation}
+              · {affiliation(deleteTarget)}
             </p>
             <p className="text-xs text-destructive/80 mb-6">
               This action cannot be undone. The profile will be permanently removed from the
