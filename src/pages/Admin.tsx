@@ -794,7 +794,7 @@ function MartyrProfilesPanel({
                         >
                           {p.is_public ? "Make Private" : "Make Public"}
                         </button>
-                      )
+                       )}
                       {!canEdit && !canDelete && !canApprove && (
                         <span className="text-[10px] text-muted-foreground italic">No actions</span>
                       )}
