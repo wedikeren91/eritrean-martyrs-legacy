@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
-import { getMartyrBySlug } from "@/data/martyrs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import TributeBar from "@/components/TributeBar";
@@ -38,45 +37,29 @@ function formatYear(dateStr: string | null | undefined): string {
 const MartyrProfile = () => {
   const { slug } = useParams<{ slug: string }>();
   const { isAdmin } = useAuth();
-  const navigate = useNavigate();
   const [person, setPerson] = useState<PersonRow | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [bioExpanded, setBioExpanded] = useState(false);
 
   useEffect(() => {
-    if (!slug) { setPageLoading(false); return; }
+    let active = true;
+
+    if (!slug) {
+      setPageLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
     getPersonBySlug(slug).then((data) => {
-      if (data) {
-        setPerson(data);
-      } else {
-        const staticMartyr = getMartyrBySlug(slug);
-        if (staticMartyr) {
-          setPerson({
-            id: staticMartyr.id,
-            slug: staticMartyr.slug,
-            photo_url: staticMartyr.photo_url,
-            first_name: staticMartyr.first_name,
-            last_name: staticMartyr.last_name,
-            known_as: staticMartyr.known_as || null,
-            date_of_birth: staticMartyr.date_of_birth,
-            date_of_death: staticMartyr.date_of_death,
-            city: staticMartyr.city,
-            region: staticMartyr.region,
-            category: staticMartyr.category,
-            status: staticMartyr.status,
-            rank: staticMartyr.rank || null,
-            role: staticMartyr.role,
-            bio: staticMartyr.bio,
-            significance: staticMartyr.significance,
-            quote: staticMartyr.quote || null,
-            place_of_martyrdom: staticMartyr.place_of_martyrdom || null,
-            battle: staticMartyr.battle || null,
-            gender: null,
-          });
-        }
-      }
+      if (!active) return;
+      setPerson(data);
       setPageLoading(false);
     });
+
+    return () => {
+      active = false;
+    };
   }, [slug]);
 
   if (pageLoading) {

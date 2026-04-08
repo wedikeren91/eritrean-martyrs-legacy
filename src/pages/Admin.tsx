@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import MartyrImportModal, { exportProfiles } from "@/components/MartyrBatchActions";
 import { CATEGORIES } from "@/data/martyrs";
 import { toast } from "@/components/ui/use-toast";
+import { buildPersonDuplicateMap, type DuplicateInsight } from "@/lib/personDuplicates";
 
 type DeputyPermission = "approve_profile" | "modify_profile" | "delete_profile";
 
@@ -19,6 +20,27 @@ type Contribution = {
 };
 
 type Tab = "queue" | "records" | "martyrs" | "orgs";
+
+function NameMatchBadges({ info }: { info?: DuplicateInsight }) {
+  if (!info || (info.exactMatches.length === 0 && info.similarMatches.length === 0)) {
+    return null;
+  }
+
+  return (
+    <>
+      {info.exactMatches.length > 0 && (
+        <span className="inline-flex items-center rounded-sm border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
+          Duplicate {info.exactMatches.length}
+        </span>
+      )}
+      {info.similarMatches.length > 0 && (
+        <span className="inline-flex items-center rounded-sm border border-border bg-muted px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+          Looks similar {info.similarMatches.length}
+        </span>
+      )}
+    </>
+  );
+}
 
 export default function Admin() {
   const { user, isAdmin, isFounder, loading } = useAuth();
@@ -400,6 +422,7 @@ function MartyrProfilesPanel({
     status: "Pending",
   });
   const [saving, setSaving] = useState(false);
+  const duplicateMap = useMemo(() => buildPersonDuplicateMap(profiles), [profiles]);
 
   // Delete confirmation modal
   const [deleteTarget, setDeleteTarget] = useState<MartyrProfile | null>(null);
@@ -763,8 +786,11 @@ function MartyrProfilesPanel({
                 // ── Normal Row ────────────────────────────────────────────────
                 <tr key={p.id} className={`border-t border-border hover:bg-muted/20 transition-colors ${!p.is_public ? "opacity-60" : ""}`}>
                   <td className="px-4 py-3 font-medium">
-                    {p.first_name} {p.last_name}
-                    {!p.is_public && <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5">Private</span>}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span>{p.first_name} {p.last_name}</span>
+                      {!p.is_public && <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5">Private</span>}
+                      <NameMatchBadges info={duplicateMap[p.id]} />
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -1124,6 +1150,7 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [stats, setStats] = useState({ total: 0, active: 0, deleted: 0 });
+  const duplicateMap = useMemo(() => buildPersonDuplicateMap(records), [records]);
 
   const fetchRecords = useCallback(async () => {
     setLoading(true);
@@ -1271,18 +1298,21 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
                 className={`border-t border-border ${r.deleted_at ? "opacity-40" : ""}`}
               >
                 <td className="px-4 py-2.5">
-                  <Link
-                    to={`/martyr/${r.slug}`}
-                    target="_blank"
-                    className="font-medium hover:underline underline-offset-2"
-                  >
-                    {r.first_name} {r.last_name}
-                  </Link>
-                  {r.deleted_at && (
-                    <span className="ml-2 text-[9px] text-destructive uppercase font-bold tracking-wider">
-                      Deleted
-                    </span>
-                  )}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <Link
+                      to={`/martyr/${r.slug}`}
+                      target="_blank"
+                      className="font-medium hover:underline underline-offset-2"
+                    >
+                      {r.first_name} {r.last_name}
+                    </Link>
+                    {r.deleted_at && (
+                      <span className="text-[9px] text-destructive uppercase font-bold tracking-wider">
+                        Deleted
+                      </span>
+                    )}
+                    <NameMatchBadges info={duplicateMap[r.id]} />
+                  </div>
                 </td>
                 <td className="px-4 py-2.5 font-mono uppercase text-[10px] text-muted-foreground">
                   {r.category ?? "—"}

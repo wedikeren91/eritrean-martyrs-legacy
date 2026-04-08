@@ -131,7 +131,7 @@ export async function getPersonBySlug(slug: string): Promise<PersonRow | null> {
     .select("*")
     .eq("slug", slug)
     .is("deleted_at", null)
-    .single();
+    .maybeSingle();
   if (error) {
     console.error("getPersonBySlug error:", error.message);
     return null;
