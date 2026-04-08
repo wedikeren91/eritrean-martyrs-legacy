@@ -777,7 +777,24 @@ function MartyrProfilesPanel({
                         >
                           Delete
                         </button>
-                      )}
+                       )}
+                      {/* Toggle Public/Private */}
+                      {canEdit && (
+                        <button
+                          onClick={async () => {
+                            const newVal = !p.is_public;
+                            await (supabase.from("martyr_profiles" as never) as any).update({ is_public: newVal }).eq("id", p.id);
+                            setProfiles((prev) => prev.map((x) => x.id === p.id ? { ...x, is_public: newVal } : x));
+                          }}
+                          className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors border ${
+                            p.is_public
+                              ? "border-muted-foreground/30 text-muted-foreground hover:bg-muted"
+                              : "border-primary/50 text-primary hover:bg-primary/10"
+                          }`}
+                        >
+                          {p.is_public ? "Make Private" : "Make Public"}
+                        </button>
+                      )
                       {!canEdit && !canDelete && !canApprove && (
                         <span className="text-[10px] text-muted-foreground italic">No actions</span>
                       )}
