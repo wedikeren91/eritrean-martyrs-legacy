@@ -137,10 +137,38 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           </>
         ) : (
           <div
-            className="absolute inset-0 w-full h-full flex items-center justify-center"
-            style={{ background: "hsl(var(--muted))" }}
+            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-2"
+            style={{
+              background: "linear-gradient(145deg, hsl(var(--muted)) 0%, hsl(var(--card)) 100%)",
+            }}
           >
-            <span className="text-3xl opacity-20">👤</span>
+            {/* Silhouette frame */}
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center"
+              style={{
+                border: "2px dashed hsl(var(--muted-foreground) / 0.3)",
+                background: "hsl(var(--muted-foreground) / 0.05)",
+              }}
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="opacity-25"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <span
+              className="text-[9px] font-mono uppercase tracking-wider text-center px-2 leading-tight"
+              style={{ color: "hsl(var(--muted-foreground) / 0.5)" }}
+            >
+              Add Profile<br />Picture
+            </span>
           </div>
         )}
 
