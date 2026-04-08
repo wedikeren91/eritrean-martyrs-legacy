@@ -186,6 +186,7 @@ export type Database = {
           first_name: string
           gender: string
           id: string
+          is_public: boolean
           last_name: string
           life_story: string | null
           profile_picture_url: string | null
@@ -204,6 +205,7 @@ export type Database = {
           first_name: string
           gender?: string
           id?: string
+          is_public?: boolean
           last_name: string
           life_story?: string | null
           profile_picture_url?: string | null
@@ -222,6 +224,7 @@ export type Database = {
           first_name?: string
           gender?: string
           id?: string
+          is_public?: boolean
           last_name?: string
           life_story?: string | null
           profile_picture_url?: string | null
