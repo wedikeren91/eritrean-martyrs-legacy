@@ -290,8 +290,10 @@ async function parseUploadedFile(file: File): Promise<ParsedImportRow[]> {
 type ImportResult = {
   added: number;
   updated: number;
+  skipped: number;
   errors: number;
   errorMessages?: string[];
+  total: number;
 };
 
 type Props = { profiles: MartyrProfile[]; onClose: () => void; onDone: () => void };
@@ -302,6 +304,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
   const [fileName, setFileName] = useState("");
   const [parsedRows, setParsedRows] = useState<ParsedImportRow[] | null>(null);
   const [importing, setImporting] = useState(false);
+  const [progress, setProgress] = useState({ sent: 0, total: 0 });
   const [result, setResult] = useState<ImportResult | null>(null);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -321,16 +324,13 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
     if (!parsedRows || !user) return;
     setImporting(true);
 
-    const aggregate: ImportResult = {
-      added: 0,
-      updated: 0,
-      errors: 0,
-      errorMessages: [],
-    };
+    const CHUNK = 200;
+    const aggregate: ImportResult = { added: 0, updated: 0, skipped: 0, errors: 0, errorMessages: [], total: parsedRows.length };
+    setProgress({ sent: 0, total: parsedRows.length });
 
-    for (let index = 0; index < parsedRows.length; index += IMPORT_CHUNK_SIZE) {
-      const chunk = parsedRows.slice(index, index + IMPORT_CHUNK_SIZE);
-      const batchNumber = Math.floor(index / IMPORT_CHUNK_SIZE) + 1;
+    for (let i = 0; i < parsedRows.length; i += CHUNK) {
+      const chunk = parsedRows.slice(i, i + CHUNK);
+      setProgress({ sent: i, total: parsedRows.length });
 
       const { data, error } = await supabase.functions.invoke("import-martyr-profiles", {
         body: { rows: chunk },
@@ -338,25 +338,21 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
 
       if (error) {
         aggregate.errors += chunk.length;
-        aggregate.errorMessages?.push(`Batch ${batchNumber}: ${error.message}`);
+        aggregate.errorMessages?.push(`Batch ${Math.floor(i / CHUNK) + 1}: ${error.message}`);
         continue;
       }
 
       aggregate.added += data?.added ?? 0;
       aggregate.updated += data?.updated ?? 0;
+      aggregate.skipped += data?.skipped ?? 0;
       aggregate.errors += data?.errors ?? 0;
-
       if (data?.errorMessages?.length) {
         aggregate.errorMessages?.push(...data.errorMessages);
       }
     }
 
-    setResult({
-      added: aggregate.added,
-      updated: aggregate.updated,
-      errors: aggregate.errors,
-      errorMessages: aggregate.errorMessages?.slice(0, 8) ?? [],
-    });
+    setProgress({ sent: parsedRows.length, total: parsedRows.length });
+    setResult(aggregate);
     setImporting(false);
   };
 
@@ -375,9 +371,14 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
             <p>
               <span className="font-semibold text-primary">{result.updated}</span> profiles updated
             </p>
+            {result.skipped > 0 && (
+              <p className="text-muted-foreground">
+                <span className="font-semibold text-foreground">{result.skipped}</span> duplicates skipped
+              </p>
+            )}
             {result.errors > 0 && (
               <p className="text-destructive">
-                <span className="font-semibold">{result.errors}</span> rows skipped due to errors
+                <span className="font-semibold">{result.errors}</span> rows failed
               </p>
             )}
           </div>
@@ -504,6 +505,22 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
             </div>
           )}
 
+          {/* Progress */}
+          {importing && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Importing…</span>
+                <span>{progress.sent} / {progress.total} rows sent</span>
+              </div>
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300"
+                  style={{ width: `${progress.total ? (progress.sent / progress.total) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex items-center gap-4 pt-2 border-t border-border">
             <button
@@ -515,6 +532,7 @@ export default function MartyrImportModal({ profiles, onClose, onDone }: Props) 
             </button>
             <button
               onClick={onClose}
+              disabled={importing}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
             >
               Cancel

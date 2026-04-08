@@ -408,7 +408,7 @@ function MartyrProfilesPanel({
       .from("martyr_profiles" as never)
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(300);
+      .limit(2000);
 
     if (filterAffiliation !== "All") {
       q = (q as any).eq("affiliation", filterAffiliation);
