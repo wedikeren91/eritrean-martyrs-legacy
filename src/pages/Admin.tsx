@@ -426,6 +426,52 @@ function MartyrProfilesPanel({
   const [saving, setSaving] = useState(false);
   const duplicateMap = useMemo(() => buildPersonDuplicateMap(profiles), [profiles]);
 
+  // Sort profiles: by duplicates groups them with exact/similar matches consecutive
+  const sortedProfiles = useMemo(() => {
+    if (sortBy !== "duplicates") return profiles;
+
+    const visited = new Set<string>();
+    const result: MartyrProfile[] = [];
+    const idToProfile = new Map(profiles.map((p) => [p.id, p]));
+
+    for (const p of profiles) {
+      if (visited.has(p.id)) continue;
+      const info = duplicateMap[p.id];
+      const hasMatches = info && (info.exactMatches.length > 0 || info.similarMatches.length > 0);
+
+      // Collect the group: this record + all its exact and similar matches
+      const group: MartyrProfile[] = [p];
+      visited.add(p.id);
+
+      if (hasMatches) {
+        for (const matchId of [...info.exactMatches, ...info.similarMatches]) {
+          if (!visited.has(matchId) && idToProfile.has(matchId)) {
+            group.push(idToProfile.get(matchId)!);
+            visited.add(matchId);
+          }
+        }
+      }
+
+      result.push(...group);
+    }
+
+    // Put records with duplicates first
+    const withDupes: MartyrProfile[] = [];
+    const withoutDupes: MartyrProfile[] = [];
+    const seen = new Set<string>();
+
+    for (const p of result) {
+      const info = duplicateMap[p.id];
+      if (info && (info.exactMatches.length > 0 || info.similarMatches.length > 0)) {
+        withDupes.push(p);
+      } else {
+        withoutDupes.push(p);
+      }
+    }
+
+    return [...withDupes, ...withoutDupes];
+  }, [profiles, duplicateMap, sortBy]);
+
   // Delete confirmation modal
   const [deleteTarget, setDeleteTarget] = useState<MartyrProfile | null>(null);
   const [deleting, setDeleting] = useState(false);
