@@ -689,6 +689,23 @@ function MartyrProfilesPanel({
           <option value="Approved">Approved</option>
           <option value="Rejected">Rejected</option>
         </select>
+        <select
+          value={filterVisibility}
+          onChange={(e) => setFilterVisibility(e.target.value)}
+          className="bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:border-foreground transition-colors"
+        >
+          <option value="All">All Visibility</option>
+          <option value="Public">Public Only</option>
+          <option value="Private">Private Only</option>
+        </select>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as "date" | "duplicates")}
+          className="bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:border-foreground transition-colors"
+        >
+          <option value="date">Sort: Date Created</option>
+          <option value="duplicates">Sort: Duplicates First</option>
+        </select>
       </div>
 
       {loading && (
