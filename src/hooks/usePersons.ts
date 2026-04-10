@@ -44,6 +44,31 @@ export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 
 export const STATUS_FILTERS = ["All", "Deceased", "Disappeared", "Imprisoned", "Alive", "Unknown"];
 
+const SEARCHABLE_FIELDS: Array<keyof Pick<PersonRow, "first_name" | "last_name" | "known_as" | "role" | "city" | "region" | "battle">> = [
+  "first_name",
+  "last_name",
+  "known_as",
+  "role",
+  "city",
+  "region",
+  "battle",
+];
+
+function normalizeSearchValue(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildSearchableText(person: PersonRow) {
+  return normalizeSearchValue(
+    SEARCHABLE_FIELDS.map((field) => person[field] ?? "").join(" ")
+  );
+}
+
 export function usePersons(query: string, category: string, war = "All", sort: SortOption = "name_asc", statusFilter = "All") {
   const [persons, setPersons] = useState<PersonRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,13 +77,22 @@ export function usePersons(query: string, category: string, war = "All", sort: S
   const abortRef = useRef<AbortController | null>(null);
 
   const loadPersons = useCallback(async (q: string, cat: string, w: string, s: SortOption, sf: string) => {
-    // Cancel any in-flight request
     if (abortRef.current) abortRef.current.abort();
     abortRef.current = new AbortController();
 
     setLoading(true);
 
-    // Determine sort column and direction
+    const searchWords = Array.from(
+      new Set(
+        q
+          .trim()
+          .split(/\s+/)
+          .map((word) => word.replace(/[,%()]/g, "").trim())
+          .filter(Boolean)
+      )
+    );
+    const normalizedWords = searchWords.map(normalizeSearchValue);
+
     const sortCol = s === "dod_asc" || s === "dod_desc" ? "date_of_death"
       : s === "status" ? "status"
       : "last_name";
@@ -73,9 +107,8 @@ export function usePersons(query: string, category: string, war = "All", sort: S
       .is("deleted_at", null)
       .eq("is_public", true)
       .order(sortCol, { ascending })
-      .limit(300);
+      .limit(searchWords.length > 0 ? 1000 : 300);
 
-    // Use exact match for category to avoid ELF matching EPLF
     if (cat && cat !== "All" && cat !== "") {
       req = req.eq("category", cat);
     }
@@ -84,20 +117,16 @@ export function usePersons(query: string, category: string, war = "All", sort: S
       req = req.ilike("battle", `%${w}%`);
     }
 
-    // Status filter
     if (sf && sf !== "All") {
       req = req.ilike("status", `%${sf}%`);
     }
 
-    if (q.trim()) {
-      // Split query into words and require each word to match at least one field
-      const words = q.trim().split(/\s+/).filter(Boolean);
-      for (const word of words) {
+    if (searchWords.length > 0) {
+      const searchClauses = searchWords.flatMap((word) => {
         const term = `%${word}%`;
-        req = req.or(
-          `first_name.ilike.${term},last_name.ilike.${term},known_as.ilike.${term},role.ilike.${term},city.ilike.${term},region.ilike.${term},battle.ilike.${term}`
-        );
-      }
+        return SEARCHABLE_FIELDS.map((field) => `${field}.ilike.${term}`);
+      });
+      req = req.or(searchClauses.join(","));
     }
 
     const { data, count, error } = await req;
@@ -108,8 +137,14 @@ export function usePersons(query: string, category: string, war = "All", sort: S
       return;
     }
 
-    setPersons((data as PersonRow[]) ?? []);
-    setTotal(count ?? 0);
+    const nextPersons = ((data as PersonRow[]) ?? []).filter((person) => {
+      if (normalizedWords.length === 0) return true;
+      const searchableText = buildSearchableText(person);
+      return normalizedWords.every((word) => searchableText.includes(word));
+    });
+
+    setPersons(nextPersons);
+    setTotal(normalizedWords.length > 0 ? nextPersons.length : count ?? 0);
     setLoading(false);
   }, []);
 
