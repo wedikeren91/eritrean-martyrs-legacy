@@ -24,7 +24,9 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
   const staggerClass = index < 8 ? `stagger-${(index % 8) + 1}` : "";
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [localPhotoUrl, setLocalPhotoUrl] = useState<string | null>(null);
   // Tribute state
   const [flowerCount, setFlowerCount] = useState(0);
   const [candleCount, setCandleCount] = useState(0);
