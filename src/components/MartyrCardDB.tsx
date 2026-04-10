@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { type PersonRow } from "@/hooks/usePersons";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface MartyrCardDBProps {
   person: PersonRow;
@@ -23,7 +24,9 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
   const staggerClass = index < 8 ? `stagger-${(index % 8) + 1}` : "";
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [localPhotoUrl, setLocalPhotoUrl] = useState<string | null>(null);
   // Tribute state
   const [flowerCount, setFlowerCount] = useState(0);
   const [candleCount, setCandleCount] = useState(0);
@@ -93,6 +96,55 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
     setLoading(null);
   };
 
+  const handlePhotoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      toast({ title: "Invalid file type", description: "Please upload a JPG, PNG, WebP, or GIF image." });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please upload an image under 5 MB." });
+      return;
+    }
+    setUploading(true);
+    try {
+      const bitmap = await createImageBitmap(file);
+      const maxDim = 1200;
+      const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(bitmap.width * scale);
+      canvas.height = Math.round(bitmap.height * scale);
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise<Blob>((resolve) =>
+        canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.7)
+      );
+      const path = `${person.id}-${Date.now()}.jpg`;
+      const { error: uploadErr } = await supabase.storage
+        .from("person-photos")
+        .upload(path, blob, { contentType: "image/jpeg", upsert: true });
+      if (uploadErr) throw uploadErr;
+      const { data: urlData } = supabase.storage.from("person-photos").getPublicUrl(path);
+      const publicUrl = urlData.publicUrl;
+      const { error: rpcErr } = await supabase.rpc("set_person_photo", {
+        _person_id: person.id,
+        _photo_url: publicUrl,
+      });
+      if (rpcErr) throw rpcErr;
+      setLocalPhotoUrl(publicUrl);
+      toast({ title: "Photo uploaded!", description: "Thank you for your contribution." });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message || "Please try again." });
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }, [person.id]);
+
+  const displayPhotoUrl = localPhotoUrl || person.photo_url;
+
   const genderColor =
     person.gender === "Female" ? "#EC4899" :
     person.gender === "Male" ? "#3B82F6" :
@@ -116,15 +168,25 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           }}
         />
 
+        {/* Hidden file input for photo upload */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          capture="environment"
+          className="hidden"
+          onChange={handlePhotoUpload}
+        />
+
         {/* Portrait */}
-        {person.photo_url ? (
+        {displayPhotoUrl ? (
           <>
             {!loaded && (
               <div className="absolute inset-0 bg-muted animate-pulse" />
             )}
             <img
               ref={imgRef}
-              src={person.photo_url}
+              src={displayPhotoUrl}
               alt={`${person.first_name} ${person.last_name}`}
               className={`absolute inset-0 w-full h-full object-cover object-top transition-all duration-500 group-hover:scale-105 ${
                 loaded ? "opacity-100" : "opacity-0"
@@ -137,38 +199,57 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
           </>
         ) : (
           <div
-            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-2"
+            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-2 z-10 cursor-pointer hover:opacity-80 transition-opacity"
             style={{
               background: "linear-gradient(145deg, hsl(var(--muted)) 0%, hsl(var(--card)) 100%)",
             }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!uploading) fileInputRef.current?.click();
+            }}
           >
-            {/* Silhouette frame */}
-            <div
-              className="w-16 h-16 rounded-full flex items-center justify-center"
-              style={{
-                border: "2px dashed hsl(var(--muted-foreground) / 0.3)",
-                background: "hsl(var(--muted-foreground) / 0.05)",
-              }}
-            >
-              <svg
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className="opacity-25"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            </div>
-            <span
-              className="text-[9px] font-mono uppercase tracking-wider text-center px-2 leading-tight"
-              style={{ color: "hsl(var(--muted-foreground) / 0.5)" }}
-            >
-              Add Profile<br />Picture
-            </span>
+            {uploading ? (
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <span
+                  className="text-[9px] font-mono uppercase tracking-wider"
+                  style={{ color: "hsl(var(--muted-foreground) / 0.7)" }}
+                >
+                  Uploading…
+                </span>
+              </div>
+            ) : (
+              <>
+                {/* Silhouette frame */}
+                <div
+                  className="w-16 h-16 rounded-full flex items-center justify-center"
+                  style={{
+                    border: "2px dashed hsl(var(--muted-foreground) / 0.3)",
+                    background: "hsl(var(--muted-foreground) / 0.05)",
+                  }}
+                >
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    className="opacity-25"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+                <span
+                  className="text-[9px] font-mono uppercase tracking-wider text-center px-2 leading-tight"
+                  style={{ color: "hsl(var(--muted-foreground) / 0.5)" }}
+                >
+                  Add Profile<br />Picture
+                </span>
+              </>
+            )}
           </div>
         )}
 
