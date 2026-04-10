@@ -349,6 +349,9 @@ export default function Admin() {
           <MartyrProfilesPanel isFounder={isFounder} deputyPerms={deputyPerms} />
         )}
 
+        {/* ── Photo Review ── */}
+        {tab === "photos" && isAdmin && <PhotoReviewPanel />}
+
         {/* ── Organizations (Founder only) ── */}
         {tab === "orgs" && isFounder && <OrgsPanel />}
       </div>
