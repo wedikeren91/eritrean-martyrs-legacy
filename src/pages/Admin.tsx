@@ -407,6 +407,7 @@ function MartyrProfilesPanel({
   const [filterAffiliation, setFilterAffiliation] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
   const [filterVisibility, setFilterVisibility] = useState("All");
+  const [filterDuplicates, setFilterDuplicates] = useState<"All" | "exact" | "similar" | "any">("All");
   const [sortBy, setSortBy] = useState<"date" | "duplicates">("date");
   const [visibilityLoadingId, setVisibilityLoadingId] = useState<string | null>(null);
 
@@ -426,20 +427,33 @@ function MartyrProfilesPanel({
   const [saving, setSaving] = useState(false);
   const duplicateMap = useMemo(() => buildPersonDuplicateMap(profiles), [profiles]);
 
-  // Sort profiles: by duplicates groups them with exact/similar matches consecutive
+  // Filter by duplicate status, then sort
   const sortedProfiles = useMemo(() => {
-    if (sortBy !== "duplicates") return profiles;
+    // Step 1: Filter by duplicate type
+    let filtered = profiles;
+    if (filterDuplicates !== "All") {
+      filtered = profiles.filter((p) => {
+        const info = duplicateMap[p.id];
+        if (!info) return false;
+        if (filterDuplicates === "exact") return info.exactMatches.length > 0;
+        if (filterDuplicates === "similar") return info.similarMatches.length > 0;
+        // "any"
+        return info.exactMatches.length > 0 || info.similarMatches.length > 0;
+      });
+    }
+
+    // Step 2: Sort
+    if (sortBy !== "duplicates") return filtered;
 
     const visited = new Set<string>();
     const result: MartyrProfile[] = [];
-    const idToProfile = new Map(profiles.map((p) => [p.id, p]));
+    const idToProfile = new Map(filtered.map((p) => [p.id, p]));
 
-    for (const p of profiles) {
+    for (const p of filtered) {
       if (visited.has(p.id)) continue;
       const info = duplicateMap[p.id];
       const hasMatches = info && (info.exactMatches.length > 0 || info.similarMatches.length > 0);
 
-      // Collect the group: this record + all its exact and similar matches
       const group: MartyrProfile[] = [p];
       visited.add(p.id);
 
@@ -458,7 +472,6 @@ function MartyrProfilesPanel({
     // Put records with duplicates first
     const withDupes: MartyrProfile[] = [];
     const withoutDupes: MartyrProfile[] = [];
-    const seen = new Set<string>();
 
     for (const p of result) {
       const info = duplicateMap[p.id];
@@ -470,7 +483,7 @@ function MartyrProfilesPanel({
     }
 
     return [...withDupes, ...withoutDupes];
-  }, [profiles, duplicateMap, sortBy]);
+  }, [profiles, duplicateMap, sortBy, filterDuplicates]);
 
   // Delete confirmation modal
   const [deleteTarget, setDeleteTarget] = useState<MartyrProfile | null>(null);
@@ -697,6 +710,16 @@ function MartyrProfilesPanel({
           <option value="All">All Visibility</option>
           <option value="Public">Public Only</option>
           <option value="Private">Private Only</option>
+        </select>
+        <select
+          value={filterDuplicates}
+          onChange={(e) => setFilterDuplicates(e.target.value as any)}
+          className="bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:border-foreground transition-colors"
+        >
+          <option value="All">All Records</option>
+          <option value="any">Duplicates & Similar</option>
+          <option value="exact">Exact Duplicates Only</option>
+          <option value="similar">Similar Names Only</option>
         </select>
         <select
           value={sortBy}
