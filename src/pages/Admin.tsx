@@ -406,6 +406,8 @@ function MartyrProfilesPanel({
   const [search, setSearch] = useState("");
   const [filterAffiliation, setFilterAffiliation] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [filterVisibility, setFilterVisibility] = useState("All");
+  const [sortBy, setSortBy] = useState<"date" | "duplicates">("date");
   const [visibilityLoadingId, setVisibilityLoadingId] = useState<string | null>(null);
 
   // Inline editing
