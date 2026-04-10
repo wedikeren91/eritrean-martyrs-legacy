@@ -729,7 +729,7 @@ function MartyrProfilesPanel({
             </tr>
           </thead>
           <tbody>
-            {profiles.map((p) =>
+            {sortedProfiles.map((p) =>
               editingId === p.id ? (
                 // ── Inline Edit Row ──────────────────────────────────────────
                 <tr key={p.id} className="border-t border-border bg-muted/30">
