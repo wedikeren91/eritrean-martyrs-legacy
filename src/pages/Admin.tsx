@@ -128,6 +128,7 @@ export default function Admin() {
     { key: "queue", label: "Review Queue" },
     { key: "records", label: "Records" },
     { key: "martyrs", label: "Martyr Profiles" },
+    { key: "photos", label: "Photo Review" },
     ...(isFounder ? [{ key: "orgs" as Tab, label: "Organizations" }] : []),
   ];
 
