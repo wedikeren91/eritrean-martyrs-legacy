@@ -90,10 +90,14 @@ export function usePersons(query: string, category: string, war = "All", sort: S
     }
 
     if (q.trim()) {
-      const term = `%${q.trim()}%`;
-      req = req.or(
-        `first_name.ilike.${term},last_name.ilike.${term},known_as.ilike.${term},role.ilike.${term},city.ilike.${term},region.ilike.${term},battle.ilike.${term}`
-      );
+      // Split query into words and require each word to match at least one field
+      const words = q.trim().split(/\s+/).filter(Boolean);
+      for (const word of words) {
+        const term = `%${word}%`;
+        req = req.or(
+          `first_name.ilike.${term},last_name.ilike.${term},known_as.ilike.${term},role.ilike.${term},city.ilike.${term},region.ilike.${term},battle.ilike.${term}`
+        );
+      }
     }
 
     const { data, count, error } = await req;
