@@ -1535,7 +1535,7 @@ function PhotoReviewPanel() {
 
   const approve = async (id: string) => {
     setActionLoading(id);
-    const { error } = await supabase.rpc("approve_photo_submission", { _submission_id: id });
+    const { error } = await (supabase.rpc as any)("approve_photo_submission", { _submission_id: id });
     if (error) {
       toast({ title: "Approve failed", description: error.message });
     } else {
@@ -1547,7 +1547,7 @@ function PhotoReviewPanel() {
 
   const reject = async (id: string) => {
     setActionLoading(id);
-    const { error } = await supabase.rpc("reject_photo_submission", { _submission_id: id });
+    const { error } = await (supabase.rpc as any)("reject_photo_submission", { _submission_id: id });
     if (error) {
       toast({ title: "Reject failed", description: error.message });
     } else {
