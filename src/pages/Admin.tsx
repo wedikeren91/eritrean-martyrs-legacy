@@ -19,7 +19,7 @@ type Contribution = {
   profiles?: { display_name: string | null; country: string | null } | null;
 };
 
-type Tab = "queue" | "records" | "martyrs" | "orgs";
+type Tab = "queue" | "records" | "martyrs" | "photos" | "orgs";
 
 function NameMatchBadges({ info }: { info?: DuplicateInsight }) {
   if (!info || (info.exactMatches.length === 0 && info.similarMatches.length === 0)) {
@@ -128,6 +128,7 @@ export default function Admin() {
     { key: "queue", label: "Review Queue" },
     { key: "records", label: "Records" },
     { key: "martyrs", label: "Martyr Profiles" },
+    { key: "photos", label: "Photo Review" },
     ...(isFounder ? [{ key: "orgs" as Tab, label: "Organizations" }] : []),
   ];
 
@@ -347,6 +348,9 @@ export default function Admin() {
         {tab === "martyrs" && isAdmin && (
           <MartyrProfilesPanel isFounder={isFounder} deputyPerms={deputyPerms} />
         )}
+
+        {/* ── Photo Review ── */}
+        {tab === "photos" && isAdmin && <PhotoReviewPanel />}
 
         {/* ── Organizations (Founder only) ── */}
         {tab === "orgs" && isFounder && <OrgsPanel />}
@@ -1490,6 +1494,149 @@ function RecordsPanel({ isFounder }: { isFounder: boolean }) {
           Deputy limits: 5 deletions / week · 15 / month
         </p>
       )}
+    </div>
+  );
+}
+
+// ── Photo Review Panel ──────────────────────────────────────────────────────
+type PhotoSubmission = {
+  id: string;
+  person_id: string;
+  photo_url: string;
+  submitted_by: string | null;
+  status: string;
+  created_at: string;
+  persons?: { first_name: string; last_name: string; slug: string; photo_url: string | null } | null;
+};
+
+function PhotoReviewPanel() {
+  const [submissions, setSubmissions] = useState<PhotoSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  const fetchSubmissions = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await (supabase as any)
+      .from("photo_submissions")
+      .select("*, persons(first_name, last_name, slug, photo_url)")
+      .eq("status", "pending")
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Photo submissions error:", error.message);
+    }
+    setSubmissions((data as unknown as PhotoSubmission[]) ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, [fetchSubmissions]);
+
+  const approve = async (id: string) => {
+    setActionLoading(id);
+    const { error } = await (supabase.rpc as any)("approve_photo_submission", { _submission_id: id });
+    if (error) {
+      toast({ title: "Approve failed", description: error.message });
+    } else {
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
+      toast({ title: "Photo approved and applied" });
+    }
+    setActionLoading(null);
+  };
+
+  const reject = async (id: string) => {
+    setActionLoading(id);
+    const { error } = await (supabase.rpc as any)("reject_photo_submission", { _submission_id: id });
+    if (error) {
+      toast({ title: "Reject failed", description: error.message });
+    } else {
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
+      toast({ title: "Photo rejected" });
+    }
+    setActionLoading(null);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
+        <h1 className="text-xl sm:text-2xl" style={{ fontFamily: "'Fraunces', serif" }}>
+          Photo Review
+        </h1>
+        <span className="data-label text-muted-foreground">
+          {submissions.length} pending
+        </span>
+      </div>
+
+      {loading && (
+        <div className="data-label animate-pulse text-muted-foreground py-8">Loading submissions…</div>
+      )}
+
+      {!loading && submissions.length === 0 && (
+        <div className="border border-border bg-card p-12 text-center">
+          <div className="text-4xl mb-3">📸</div>
+          <p className="text-sm text-muted-foreground">No pending photo submissions.</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {submissions.map((s) => {
+          const personName = s.persons
+            ? `${s.persons.first_name} ${s.persons.last_name}`
+            : "Unknown";
+          return (
+            <div key={s.id} className="bg-card border border-border overflow-hidden">
+              {/* Submitted photo */}
+              <div className="relative" style={{ aspectRatio: "3/4" }}>
+                <img
+                  src={s.photo_url}
+                  alt={`Submitted photo for ${personName}`}
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+
+              <div className="p-3 border-t border-border">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <div className="font-semibold text-sm">{personName}</div>
+                    <div className="text-[10px] text-muted-foreground font-mono">
+                      {new Date(s.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  {/* Current photo thumbnail */}
+                  {s.persons?.photo_url && (
+                    <div className="w-10 h-10 rounded overflow-hidden border border-border flex-shrink-0">
+                      <img
+                        src={s.persons.photo_url}
+                        alt="Current"
+                        className="w-full h-full object-cover"
+                        title="Current photo"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => approve(s.id)}
+                    disabled={actionLoading === s.id}
+                    className="flex-1 bg-emerald-700 text-white py-1.5 text-[10px] font-semibold uppercase tracking-wider hover:bg-emerald-800 transition-colors disabled:opacity-50"
+                  >
+                    ✅ Approve
+                  </button>
+                  <button
+                    onClick={() => reject(s.id)}
+                    disabled={actionLoading === s.id}
+                    className="flex-1 border border-destructive/50 text-destructive py-1.5 text-[10px] font-semibold uppercase tracking-wider hover:bg-destructive/10 transition-colors disabled:opacity-50"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

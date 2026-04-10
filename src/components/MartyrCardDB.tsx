@@ -128,13 +128,25 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
       if (uploadErr) throw uploadErr;
       const { data: urlData } = supabase.storage.from("person-photos").getPublicUrl(path);
       const publicUrl = urlData.publicUrl;
-      const { error: rpcErr } = await supabase.rpc("set_person_photo", {
+      const { data: result, error: rpcErr } = await (supabase.rpc as any)("set_person_photo", {
         _person_id: person.id,
         _photo_url: publicUrl,
       });
       if (rpcErr) throw rpcErr;
-      setLocalPhotoUrl(publicUrl);
-      toast({ title: "Photo uploaded!", description: "Thank you for your contribution." });
+
+      if (result === "approved") {
+        setLocalPhotoUrl(publicUrl);
+        toast({ title: "Photo updated!", description: "The profile photo has been updated." });
+      } else {
+        // Show preview locally but don't persist — it's pending
+        setLocalPhotoUrl(publicUrl);
+        toast({
+          title: "Photo submitted for review",
+          description: "An admin will review your photo before it goes live. Thank you!",
+        });
+        // Revert preview after a moment so the card shows the original state
+        setTimeout(() => setLocalPhotoUrl(null), 4000);
+      }
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message || "Please try again." });
     } finally {
