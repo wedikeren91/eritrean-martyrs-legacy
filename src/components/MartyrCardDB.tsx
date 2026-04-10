@@ -128,7 +128,7 @@ const MartyrCardDB = ({ person, index = 0 }: MartyrCardDBProps) => {
       if (uploadErr) throw uploadErr;
       const { data: urlData } = supabase.storage.from("person-photos").getPublicUrl(path);
       const publicUrl = urlData.publicUrl;
-      const { data: result, error: rpcErr } = await supabase.rpc("set_person_photo", {
+      const { data: result, error: rpcErr } = await (supabase.rpc as any)("set_person_photo", {
         _person_id: person.id,
         _photo_url: publicUrl,
       });
