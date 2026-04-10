@@ -576,7 +576,7 @@ export type Database = {
       restore_person: { Args: { _person_id: string }; Returns: undefined }
       set_person_photo: {
         Args: { _person_id: string; _photo_url: string }
-        Returns: undefined
+        Returns: string
       }
       soft_delete_person: { Args: { _person_id: string }; Returns: undefined }
     }
