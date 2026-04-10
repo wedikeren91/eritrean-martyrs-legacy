@@ -1516,9 +1516,9 @@ function PhotoReviewPanel() {
 
   const fetchSubmissions = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("photo_submissions")
-      .select("*, persons!photo_submissions_person_id_fkey(first_name, last_name, slug, photo_url)")
+      .select("*, persons(first_name, last_name, slug, photo_url)")
       .eq("status", "pending")
       .order("created_at", { ascending: true });
 
