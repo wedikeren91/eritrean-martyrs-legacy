@@ -712,6 +712,16 @@ function MartyrProfilesPanel({
           <option value="Private">Private Only</option>
         </select>
         <select
+          value={filterDuplicates}
+          onChange={(e) => setFilterDuplicates(e.target.value as any)}
+          className="bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:border-foreground transition-colors"
+        >
+          <option value="All">All Records</option>
+          <option value="any">Duplicates & Similar</option>
+          <option value="exact">Exact Duplicates Only</option>
+          <option value="similar">Similar Names Only</option>
+        </select>
+        <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as "date" | "duplicates")}
           className="bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:border-foreground transition-colors"
