@@ -449,6 +449,12 @@ function MartyrProfilesPanel({
       q = q.eq("status", filterStatus);
     }
 
+    if (filterVisibility === "Public") {
+      q = q.eq("is_public", true);
+    } else if (filterVisibility === "Private") {
+      q = q.eq("is_public", false);
+    }
+
     const { data } = await q;
     let results = ((data as any[]) ?? []).map((row) => ({
       ...row,
@@ -472,7 +478,7 @@ function MartyrProfilesPanel({
 
     setProfiles(results);
     setLoading(false);
-  }, [search, filterAffiliation, filterStatus]);
+  }, [search, filterAffiliation, filterStatus, filterVisibility]);
 
   useEffect(() => {
     fetchProfiles();
