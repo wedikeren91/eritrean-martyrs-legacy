@@ -19,7 +19,7 @@ type Contribution = {
   profiles?: { display_name: string | null; country: string | null } | null;
 };
 
-type Tab = "queue" | "records" | "martyrs" | "orgs";
+type Tab = "queue" | "records" | "martyrs" | "photos" | "orgs";
 
 function NameMatchBadges({ info }: { info?: DuplicateInsight }) {
   if (!info || (info.exactMatches.length === 0 && info.similarMatches.length === 0)) {
