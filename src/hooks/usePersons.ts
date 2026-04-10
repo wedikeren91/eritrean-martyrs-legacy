@@ -22,6 +22,7 @@ export type PersonRow = {
   place_of_martyrdom: string | null;
   battle: string | null;
   gender: string | null;
+  is_public?: boolean;
 };
 
 export const WARS = [
@@ -131,9 +132,24 @@ export async function getPersonBySlug(slug: string): Promise<PersonRow | null> {
     .select("*")
     .eq("slug", slug)
     .is("deleted_at", null)
+    .eq("is_public", true)
     .maybeSingle();
   if (error) {
     console.error("getPersonBySlug error:", error.message);
+    return null;
+  }
+  return (data as PersonRow) ?? null;
+}
+
+export async function getPersonBySlugAdmin(slug: string): Promise<PersonRow | null> {
+  const { data, error } = await supabase
+    .from("persons")
+    .select("*")
+    .eq("slug", slug)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (error) {
+    console.error("getPersonBySlugAdmin error:", error.message);
     return null;
   }
   return (data as PersonRow) ?? null;

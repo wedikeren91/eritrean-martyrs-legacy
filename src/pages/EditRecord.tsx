@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { getPersonBySlug, type PersonRow } from "@/hooks/usePersons";
+import { getPersonBySlugAdmin, type PersonRow } from "@/hooks/usePersons";
 
 const WARS = [
   { value: "", label: "— Select conflict —" },
@@ -61,7 +61,7 @@ export default function EditRecord() {
 
   useEffect(() => {
     if (!slug) return;
-    getPersonBySlug(slug).then(async (data) => {
+    getPersonBySlugAdmin(slug).then(async (data) => {
       if (!data) { navigate("/admin"); return; }
       setPerson(data);
       setForm({
